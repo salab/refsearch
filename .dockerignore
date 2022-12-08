@@ -1,0 +1,9 @@
+/data
+/node_modules
+/out
+
+.dockerignore
+.gitignore
+compose.yaml
+Dockerfile
+/yarn-error.log
