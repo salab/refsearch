@@ -1,34 +1,36 @@
-import {ParseException, strToMongoQuery} from "./query-string.js";
-import {sshUrlToHttpsUrl} from "./utils.js";
-import {refCol} from "./mongo.js";
-import {Refactoring} from "../../types/types.js";
+import {ParseException, strToMongoQuery} from "./query-string";
+import {sshUrlToHttpsUrl} from "./utils";
+import {refCol} from "./mongo";
+import {Refactoring} from "../../types/types";
 
 const queryExamples = {
-    // Use-case 1: 重複の処理が無いextract
-    useCase1: 'type = "Extract Method" & extractMethod.sourceMethodsCount > 1',
-    // Use-case 2: 数行のみのextract,  extractする前の行数
-    useCase2: 'type = "Extract Method" & extractMethod.extractedLines >= 3'
-    // TODO: Use-case 3: 具体的なrenameした単語
+  // Use-case 1: 重複の処理が無いextract
+  useCase1: 'type = "Extract Method" & extractMethod.sourceMethodsCount > 1',
+  // Use-case 2: 数行のみのextract,  extractする前の行数
+  useCase2: 'type = "Extract Method" & extractMethod.extractedLines >= 3'
+  // TODO: Use-case 3: 具体的なrenameした単語
 } as const
 
-// console.log(JSON.stringify(strToMongoQuery(queryExamples.useCase1))) // debug
-
-const compiledQuery = strToMongoQuery(queryExamples.useCase1)
-if (ParseException.is(compiledQuery)) {
+const main = async () => {
+  const compiledQuery = strToMongoQuery(queryExamples.useCase1)
+  if (ParseException.is(compiledQuery)) {
     console.log(`Query compile error: ${compiledQuery.message}`)
     process.exit(1)
-}
+  }
 
-const cursor = refCol.find(compiledQuery)
-const got: Refactoring[] = []
-await cursor.forEach((r) => {
+  const cursor = refCol.find(compiledQuery)
+  const got: Refactoring[] = []
+  await cursor.forEach((r) => {
     got.push(r)
-})
+  })
 
-got.forEach((res, i) => {
-    console.log(`-- Search result ${i+1}`)
+  got.forEach((res, i) => {
+    console.log(`-- Search result ${i + 1}`)
     console.log(`URL: ${sshUrlToHttpsUrl(res.url)}`)
     console.log(`Desc: ${res.description}`)
-})
+  })
 
-process.exit(0)
+  process.exit(0)
+}
+
+main()

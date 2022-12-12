@@ -1,4 +1,4 @@
-import {RMCommit, RMRefactoring} from "./rminer.js";
+import {RMCommit, RMRefactoring} from "./rminer";
 
 interface CommitInfo {
     repository: string;
