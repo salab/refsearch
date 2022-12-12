@@ -2,7 +2,7 @@ import express, {Request} from "express";
 import {ParseException, strToMongoQuery} from "./query-string.js";
 import {refCol} from "./mongo.js";
 import {ObjectId} from "mongodb";
-import {Refactoring} from "./types/types.js";
+import {Refactoring} from "../../types/types.js";
 
 const port: number = Number.parseInt(process.env.PORT ?? '') || 3000
 

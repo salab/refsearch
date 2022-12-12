@@ -1,8 +1,8 @@
 import fs from "fs";
 import {extractMethodExtractedLines, extractSourceMethodsCount} from "./extractor.js";
 import {refCol} from "./mongo.js";
-import {RMOutput, RMRefactoringType} from "./types/rminer.js";
-import {Commit, Refactoring} from "./types/types.js";
+import {RMOutput, RMRefactoringType} from "../../types/rminer.js";
+import {Commit, Refactoring} from "../../types/types.js";
 
 const processRMinerFile = async (filename: string): Promise<void> => {
     console.log(`Processing RMiner output file ${filename}...`)

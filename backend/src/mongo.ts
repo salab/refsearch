@@ -1,5 +1,5 @@
 import {MongoClient} from "mongodb";
-import {Refactoring} from "./types/types.js";
+import {Refactoring} from "../../types/types.js";
 
 const env = {
     user: process.env.MONGODB_USER || 'root',

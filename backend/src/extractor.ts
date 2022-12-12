@@ -1,6 +1,6 @@
 import equal from "fast-deep-equal/es6/index.js";
-import {Commit, Refactoring} from "./types/types.js";
-import {RMCodeElementType, RMRefactoringType, RMRightSideLocation} from "./types/rminer.js";
+import {Commit, Refactoring} from "../../types/types.js";
+import {RMCodeElementType, RMRefactoringType, RMRightSideLocation} from "../../types/rminer.js";
 
 const extractedMethod = (r: Refactoring): RMRightSideLocation | undefined => {
     return r.rightSideLocations.find((rsl) =>

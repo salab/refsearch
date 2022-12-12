@@ -1,7 +1,7 @@
 import {ParseException, strToMongoQuery} from "./query-string.js";
 import {sshUrlToHttpsUrl} from "./utils.js";
 import {refCol} from "./mongo.js";
-import {Refactoring} from "./types/types.js";
+import {Refactoring} from "../../types/types.js";
 
 const queryExamples = {
     // Use-case 1: 重複の処理が無いextract
