@@ -1,6 +1,7 @@
 import {Component, createRef, ReactNode} from 'react'
 import hljs from 'highlight.js/lib/core'
 import json from 'highlight.js/lib/languages/json'
+import "highlight.js/styles/github-dark-dimmed.css";
 
 hljs.registerLanguage('json', json)
 
@@ -10,7 +11,7 @@ interface Props {
 }
 
 // https://github.com/akiran/react-highlight/blob/master/src/index.js
-export default class CodeBlock extends Component<Props> {
+export class Highlight extends Component<Props> {
   private readonly element
 
   public constructor(props: Props) {
@@ -20,7 +21,7 @@ export default class CodeBlock extends Component<Props> {
 
   private highlight() {
     if (this.element.current) {
-      hljs.highlightBlock(this.element.current)
+      hljs.highlightElement(this.element.current)
     }
   }
 

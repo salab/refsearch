@@ -1,15 +1,19 @@
 import {FunctionComponent} from "react";
 import {RefactoringWithId} from "../api/refactorings";
+import {Link} from "react-router-dom";
 
 interface Props {
-  ref: RefactoringWithId
+  refactoring: RefactoringWithId
 }
 
 export const RefactoringCard: FunctionComponent<Props> = (props) => {
-  const ref = props.ref
+  const ref = props.refactoring
+
   return (
     <div>
-      {ref.description}
+      <Link to={`/refactorings/${ref._id}`}>
+        {ref.description}
+      </Link>
     </div>
   )
 }

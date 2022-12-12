@@ -1,10 +1,11 @@
-import React, {FunctionComponent, useRef, useState} from 'react';
+import React, {FunctionComponent, useEffect, useRef, useState} from 'react';
 import {TextField} from "@mui/material";
 import {GetRefactoringsResponse, getRefactorings} from "../api/refactorings";
-import "highlight.js/styles/github-dark-dimmed.css";
-import Highlight from "../components/Highlight"
+import {RefactoringCard} from "../components/RefactoringCard";
+import {useSearchParams} from "react-router-dom";
 
 export const Home: FunctionComponent = () => {
+  const [searchParams, setSearchParams] = useSearchParams()
   const queryInput = useRef<HTMLInputElement>()
 
   const [showSearchResult, setShowSearchResult] = useState(false)
@@ -16,8 +17,13 @@ export const Home: FunctionComponent = () => {
     if (loading) {
       return
     }
+
+    const query = queryInput.current?.value ?? ''
+
     setLoading(true)
-    getRefactorings(queryInput.current?.value ?? '', 10, 0)
+    setSearchParams({ q: query })
+
+    getRefactorings(query, 10, 0)
       .then((getResp) => {
         setLoading(false)
 
@@ -33,6 +39,13 @@ export const Home: FunctionComponent = () => {
       })
   }
 
+  useEffect(() => {
+    if (searchParams.get('q')) {
+      refresh()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
     <div className="p-12">
       <TextField
@@ -40,6 +53,7 @@ export const Home: FunctionComponent = () => {
         label="Query"
         variant="standard"
         fullWidth
+        defaultValue={searchParams.get('q')}
         inputRef={queryInput}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
@@ -58,9 +72,9 @@ export const Home: FunctionComponent = () => {
       {showSearchResult &&
         <div className="mt-12">
           {resp?.refactorings.map((ref, i) => (
-            <Highlight className="language-json my-6 max-h-80 rounded-md border-2 border-green-900 invisible-scrollbar" key={i}>
-              {JSON.stringify(ref, null, 2)}
-            </Highlight>
+            <div key={i} className="my-6">
+              <RefactoringCard refactoring={ref} />
+            </div>
           ))}
         </div>
       }
