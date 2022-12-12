@@ -1,8 +1,8 @@
 import fs from "fs";
-import {CommitWithAdditionalInfo, RefactoringWithAdditionalInfo, RMOutput} from "./types.js";
 import {extractMethodExtractedLines, extractSourceMethodsCount} from "./extractor.js";
-import {RMRefactoringType} from "./consts.js";
 import {refCol} from "./mongo.js";
+import {RMOutput, RMRefactoringType} from "./types/rminer.js";
+import {Commit, Refactoring} from "./types/types.js";
 
 const processRMinerFile = async (filename: string): Promise<void> => {
     console.log(`Processing RMiner output file ${filename}...`)
@@ -10,16 +10,16 @@ const processRMinerFile = async (filename: string): Promise<void> => {
     const file = fs.readFileSync(filename).toString()
     const output = JSON.parse(file) as RMOutput
     const commits = output.commits
-        .map((c): CommitWithAdditionalInfo => {
+        .map((c): Commit => {
             return {
                 ...c,
                 refactorings: c.refactorings
-                    .map((r): RefactoringWithAdditionalInfo => ({
+                    .map((r): Refactoring => ({
                         ...r,
                         url: c.url,
                         sha1: c.sha1,
                         repository: c.repository,
-                        additional: {}
+                        extractMethod: {}
                     }))
             }
         })
@@ -33,7 +33,7 @@ const processRMinerFile = async (filename: string): Promise<void> => {
         c.refactorings
             .filter((r) => r.type === RMRefactoringType.ExtractMethod)
             .forEach((r) => {
-                r.additional.extractedLines = extractMethodExtractedLines(r)
+                r.extractMethod.extractedLines = extractMethodExtractedLines(r)
             }))
 
     const refactorings = commits.flatMap((c) => c.refactorings)

@@ -1,5 +1,5 @@
 import {MongoClient} from "mongodb";
-import {RefactoringWithAdditionalInfo} from "./types.js";
+import {Refactoring} from "./types/types.js";
 
 const env = {
     user: process.env.MONGODB_USER || 'root',
@@ -13,4 +13,4 @@ const client = new MongoClient(uri)
 
 const localDB = client.db('local')
 
-export const refCol = localDB.collection<RefactoringWithAdditionalInfo>('refactorings')
+export const refCol = localDB.collection<Refactoring>('refactorings')

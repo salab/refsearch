@@ -1,8 +1,8 @@
 import express, {Request} from "express";
 import {ParseException, strToMongoQuery} from "./query-string.js";
-import {RefactoringWithAdditionalInfo} from "./types.js";
 import {refCol} from "./mongo.js";
 import {ObjectId} from "mongodb";
+import {Refactoring} from "./types/types.js";
 
 const port: number = Number.parseInt(process.env.PORT ?? '') || 3000
 
@@ -29,7 +29,7 @@ app.get('/api/refactorings', async (req: GetRefactoringsRequest, res) => {
     }
 
     const cursor = refCol.find(compiledQuery)
-    const refactorings: RefactoringWithAdditionalInfo[] = []
+    const refactorings: Refactoring[] = []
     cursor.skip(offset)
     cursor.limit(limit+1)
     await cursor.forEach((r) => {

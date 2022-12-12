@@ -1,13 +1,13 @@
-import {RefactoringWithAdditionalInfo} from "./types.js";
 import {ParseException, strToMongoQuery} from "./query-string.js";
 import {sshUrlToHttpsUrl} from "./utils.js";
 import {refCol} from "./mongo.js";
+import {Refactoring} from "./types/types.js";
 
 const queryExamples = {
     // Use-case 1: 重複の処理が無いextract
-    useCase1: 'type = "Extract Method" & additional.sourceMethodsCount > 1',
+    useCase1: 'type = "Extract Method" & extractMethod.sourceMethodsCount > 1',
     // Use-case 2: 数行のみのextract,  extractする前の行数
-    useCase2: 'type = "Extract Method" & additional.extractedLines >= 3'
+    useCase2: 'type = "Extract Method" & extractMethod.extractedLines >= 3'
     // TODO: Use-case 3: 具体的なrenameした単語
 } as const
 
@@ -20,7 +20,7 @@ if (ParseException.is(compiledQuery)) {
 }
 
 const cursor = refCol.find(compiledQuery)
-const got: RefactoringWithAdditionalInfo[] = []
+const got: Refactoring[] = []
 await cursor.forEach((r) => {
     got.push(r)
 })
