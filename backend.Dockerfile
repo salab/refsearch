@@ -13,7 +13,7 @@ FROM node:18-alpine AS runner
 
 WORKDIR /work
 
-RUN apk add --no-cache tini
+RUN apk add --no-cache tini git
 
 COPY backend/package.json backend/yarn.lock ./
 RUN yarn --production

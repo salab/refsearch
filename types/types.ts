@@ -16,3 +16,20 @@ export type Refactoring = RMRefactoring & CommitInfo & {
 export type Commit = Omit<RMCommit, 'refactorings'> & {
     refactorings: Refactoring[]
 }
+
+export interface CommitMeta {
+    _id: string // hash
+    hash: string
+    date: string
+    message: string
+    refs: string
+    body: string
+    author_name: string
+    author_email: string
+    repoUrl: string
+}
+
+export interface RepositoryMeta {
+    _id: string // url
+    url: string
+}

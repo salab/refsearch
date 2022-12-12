@@ -1,5 +1,5 @@
 import {MongoClient} from "mongodb";
-import {Refactoring} from "../../types/types";
+import {CommitMeta, Refactoring, RepositoryMeta} from "../../types/types";
 
 const env = {
   user: process.env.MONGODB_USER || 'root',
@@ -13,4 +13,6 @@ const client = new MongoClient(uri)
 
 const localDB = client.db('local')
 
+export const repoCol = localDB.collection<RepositoryMeta>('repositories')
+export const commitsCol = localDB.collection<CommitMeta>('commits')
 export const refCol = localDB.collection<Refactoring>('refactorings')
