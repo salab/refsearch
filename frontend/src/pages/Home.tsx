@@ -1,10 +1,10 @@
-import React, {useRef, useState} from 'react';
+import React, {FunctionComponent, useRef, useState} from 'react';
 import {TextField} from "@mui/material";
-import {GetRefactoringsResponse, getRefactorings} from "./api/refactorings";
+import {GetRefactoringsResponse, getRefactorings} from "../api/refactorings";
 import "highlight.js/styles/github-dark-dimmed.css";
-import Highlight from "./components/Highlight"
+import Highlight from "../components/Highlight"
 
-function App() {
+export const Home: FunctionComponent = () => {
   const queryInput = useRef<HTMLInputElement>()
 
   const [showSearchResult, setShowSearchResult] = useState(false)
@@ -67,5 +67,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
