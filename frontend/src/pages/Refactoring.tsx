@@ -8,7 +8,7 @@ export const Refactoring: FunctionComponent = () => {
   const {rid} = useParams<{ rid: string }>()
 
   const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<string>()
+  const [error, setError] = useState<string>('')
   const [refactoring, setRefactoring] = useState<RefactoringT>()
 
   useEffect(() => {

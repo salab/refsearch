@@ -11,7 +11,7 @@ export const Home: FunctionComponent = () => {
   const [showSearchResult, setShowSearchResult] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [resp, setResp] = useState<GetRefactoringsResponse | undefined>()
+  const [resp, setResp] = useState<GetRefactoringsResponse>()
 
   const refresh = () => {
     if (loading) {
@@ -63,7 +63,7 @@ export const Home: FunctionComponent = () => {
         onBlur={refresh}
       />
       {(error !== "" || loading || showSearchResult) &&
-        <div className="my-12">
+        <div className="my-12 text-lg text-gray-900">
           {error !== "" ? `Error: ${error}` :
             loading ? "Loading..." :
               `${resp?.refactorings.length}${resp?.hasMore ? '+' : ''} results`}
