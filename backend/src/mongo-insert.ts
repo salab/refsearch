@@ -14,6 +14,9 @@ const repoDirName = (repoUrl: string): string => `${repositoriesDir}/${humanishN
 const rminerDir = './data/rminer'
 const rminerFileName = (repoUrl: string): string => `${rminerDir}/${humanishName(repoUrl)}.json`
 
+const refDiffDir = './data/refdiff'
+const refDiffFileName = (repoUrl: string): string => `${refDiffDir}/${humanishName(repoUrl)}.json`
+
 const cloneRepo = async (repoUrl: string): Promise<void> => {
   const dirName = repoDirName(repoUrl)
 
@@ -143,12 +146,12 @@ const processRMinerFile = async (repoUrl: string): Promise<void> => {
 }
 
 const main = async () => {
-  if (!fs.existsSync(repositoriesDir)) {
-    fs.mkdirSync(repositoriesDir)
+  const makeDirIfNotExists = (dir: string) => {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir)
+    }
   }
-  if (!fs.existsSync(rminerDir)) {
-    fs.mkdirSync(rminerDir)
-  }
+  [repositoriesDir, rminerDir, refDiffDir].forEach(makeDirIfNotExists)
 
   const repos = [
     'https://github.com/motoki317/moto-bot',
