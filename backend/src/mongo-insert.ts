@@ -1,21 +1,14 @@
 import fs from "fs";
-import {extractMethodExtractedLines, extractSourceMethodsCount} from "./extractor";
 import {commitsCol, refCol, repoCol} from "./mongo";
-import {RMOutput, RMRefactoringType} from "../../types/rminer";
-import {Commit, CommitMeta, Refactoring, RepositoryMeta} from "../../types/types";
-import {humanishName, sshUrlToHttpsUrl} from "./utils";
+import {RMOutput} from "../../types/rminer";
+import {CommitMeta, RepositoryMeta} from "../../types/types";
 import simpleGit from "simple-git";
+import {RefDiffOutput} from "../../types/refdiff";
+import {processRMinerOutput} from "./converter/rminer";
+import {processRefDiffOutput} from "./converter/refdiff";
+import {refDiffFileName, repoDirName, repositoriesDir, rminerFileName} from "./info";
 
 const formatTime = (start: number): string => `${Math.floor(performance.now() - start) / 1000} s`
-
-const repositoriesDir = './data/repos'
-const repoDirName = (repoUrl: string): string => `${repositoriesDir}/${humanishName(repoUrl)}`
-
-const rminerDir = './data/rminer'
-const rminerFileName = (repoUrl: string): string => `${rminerDir}/${humanishName(repoUrl)}.json`
-
-const refDiffDir = './data/refdiff'
-const refDiffFileName = (repoUrl: string): string => `${refDiffDir}/${humanishName(repoUrl)}.json`
 
 const cloneRepo = async (repoUrl: string): Promise<void> => {
   const dirName = repoDirName(repoUrl)
@@ -101,58 +94,41 @@ const runRMiner = async (repoUrl: string): Promise<void> => {
   console.log(`Completed running RMiner on ${repoUrl} in ${formatTime(start)}.`)
 }
 
+const runRefDiff = async (repoUrl: string): Promise<void> => {
+  console.log(`Running RefDiff on ${repoUrl}...`)
+  const filename = refDiffFileName(repoUrl)
+  const start = performance.now()
+
+  // TODO
+
+  console.log(`Completed running RefDiff on ${repoUrl} in ${formatTime(start)}.`)
+}
+
 const processRMinerFile = async (repoUrl: string): Promise<void> => {
   const filename = rminerFileName(repoUrl)
   console.log(`Processing RMiner output file ${filename}...`)
   const start = performance.now()
 
-  const file = fs.readFileSync(filename).toString()
-  const output = JSON.parse(file) as RMOutput
-  const commits = output.commits
-    .map((c): Commit => {
-      // Normalize to https url for convenience
-      const url = sshUrlToHttpsUrl(c.url)
-      const repository = sshUrlToHttpsUrl(c.repository)
-      return {
-        ...c,
-        url,
-        repository,
-        refactorings: c.refactorings
-          .map((r): Refactoring => ({
-            ...r,
-            url,
-            repository,
-            sha1: c.sha1,
-            extractMethod: {}
-          }))
-      }
-    })
-
-  // Pre-compute needed information
-  // Use-case 1: 重複の処理が無い / あるextract
-  commits.forEach((c) => extractSourceMethodsCount(c))
-
-  // Use-case 2: 数行のみのextract,  extractする前の行数
-  commits.forEach((c) =>
-    c.refactorings
-      .filter((r) => r.type === RMRefactoringType.ExtractMethod)
-      .forEach((r) => {
-        r.extractMethod.extractedLines = extractMethodExtractedLines(r)
-      }))
-
-  const refactorings = commits.flatMap((c) => c.refactorings)
+  const output = JSON.parse(fs.readFileSync(filename).toString()) as RMOutput
+  const refactorings = processRMinerOutput(output)
   const res = await refCol.insertMany(refactorings)
-  console.log(`Processed ${commits.length} commits, and inserted ${res.insertedCount} refactoring instances in ${formatTime(start)}.`)
+
+  console.log(`Processed ${output.commits.length} commits, and inserted ${res.insertedCount} refactoring instances in ${formatTime(start)}.`)
+}
+
+const processRefDiffFile = async (repoUrl: string): Promise<void> => {
+  const filename = refDiffFileName(repoUrl)
+  console.log(`Processing RefDiff output file ${filename}...`)
+  const start = performance.now()
+
+  const output = JSON.parse(fs.readFileSync(filename).toString()) as RefDiffOutput
+  const refactorings = processRefDiffOutput(repoUrl, output)
+  const res = await refCol.insertMany(refactorings)
+
+  console.log(`Inserted ${res.insertedCount} refactoring instances in ${formatTime(start)}.`)
 }
 
 const main = async () => {
-  const makeDirIfNotExists = (dir: string) => {
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir)
-    }
-  }
-  [repositoriesDir, rminerDir, refDiffDir].forEach(makeDirIfNotExists)
-
   const repos = [
     'https://github.com/motoki317/moto-bot',
     'https://github.com/gradle/gradle',
@@ -162,7 +138,9 @@ const main = async () => {
     await cloneRepo(repo)
     await storeRepoMetadata(repo)
     // await runRMiner(repo) // TODO
+    // await runRefDiff(repo) // TODO
     await processRMinerFile(repo) // not idempotent
+    await processRefDiffFile(repo) // not idempotent
   }
 
   process.exit(0)

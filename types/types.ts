@@ -1,20 +1,44 @@
-import {RMCommit, RMRefactoring} from "./rminer";
+import {RMRefactoring, RMRefactoringType} from "./rminer";
+import {RefDiffRefactoring} from "./refdiff";
+
+export const RefactoringType = {
+    ...RMRefactoringType,
+    ConvertType: 'Convert Type',
+    ChangeSignature: 'Change Signature',
+    PullUpSignature: 'Pull Up Signature',
+    PushDownImpl: 'Push Down Impl',
+    RenameInterface: 'Rename Interface',
+    RenameEnum: 'Rename Enum',
+    MoveInterface: 'Move Interface',
+    MoveEnum: 'Move Enum',
+    MoveAndRenameInterface: 'Move and Rename Interface',
+    MoveAndRenameEnum: 'Move and Rename Enum',
+    ExtractEnum: 'Extract Enum',
+    ExtractAndMoveClass: 'Extract and Move Class',
+    ExtractAndMoveInterface: 'Extract and Move Interface',
+    ExtractAndMoveEnum: 'Extract and Move Enum',
+} as const
 
 interface CommitInfo {
     repository: string;
-    sha1: string;
+    commit: string;
     url: string;
 }
 interface ExtractMethodInfo {
     extractedLines: number
     sourceMethodsCount: number
 }
-export type Refactoring = RMRefactoring & CommitInfo & {
+export type Refactoring = CommitInfo & {
+    type: typeof RefactoringType[keyof typeof RefactoringType]
+    description: string
     extractMethod: Partial<ExtractMethodInfo>
-}
-
-export type Commit = Omit<RMCommit, 'refactorings'> & {
-    refactorings: Refactoring[]
+    raw: {
+        refactoringMiner?: RMRefactoring
+        refDiff?: RefDiffRefactoring
+    },
+    meta: {
+        tool?: string
+    }
 }
 
 export interface CommitMeta {

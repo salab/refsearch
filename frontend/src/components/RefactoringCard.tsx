@@ -11,7 +11,7 @@ interface Props {
 export const RefactoringCard: FunctionComponent<Props> = (props) => {
   const ref = props.refactoring
   const fromGitHub = ref.repository.startsWith('https://github.com/')
-  const shortSha = ref.sha1.substring(0, 6)
+  const shortSha = ref.commit.substring(0, 6)
 
   return (
     <Link to={`/refactorings/${ref._id}`}>
