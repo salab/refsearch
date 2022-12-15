@@ -26,8 +26,8 @@ const extractSourceMethodsCount = (extractedMethods: RMRightSideLocation[], r: R
 }
 
 const extractMethodExtractedLines = (r: Refactoring): number => {
-  const extractedCode = r.raw.refactoringMiner?.leftSideLocations
-    .find((lhs) => lhs.description === 'extracted code from source method declaration')
+  const extractedCode = r.raw.refactoringMiner?.rightSideLocations
+    .find((rhs) => rhs.description === 'extracted method declaration')
   if (!extractedCode) return -1
   return (extractedCode.endLine - extractedCode.startLine + 1)
 }
