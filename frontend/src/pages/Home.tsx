@@ -1,50 +1,35 @@
 import React, {FunctionComponent, useEffect, useRef, useState} from 'react';
 import {TextField} from "@mui/material";
-import {GetRefactoringsResponse, getRefactorings} from "../api/refactorings";
+import {useGetRefactorings} from "../api/refactorings";
 import {RefactoringCard} from "../components/RefactoringCard";
 import {useSearchParams} from "react-router-dom";
 
 export const Home: FunctionComponent = () => {
-  const [searchParams, setSearchParams] = useSearchParams()
   const queryInput = useRef<HTMLInputElement>()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [query, setQuery] = useState<string>(searchParams.get('q') ?? '')
 
-  const [showSearchResult, setShowSearchResult] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [resp, setResp] = useState<GetRefactoringsResponse>()
+  const { result, loading, error } = useGetRefactorings(query, 10, 0)
 
   const refresh = () => {
-    if (loading) {
-      return
-    }
-
-    const query = queryInput.current?.value ?? ''
-
-    setLoading(true)
-    setSearchParams({ q: query })
-
-    getRefactorings(query, 10, 0)
-      .then((getResp) => {
-        setLoading(false)
-
-        if (getResp.status === 200) {
-          setShowSearchResult(true)
-          setResp(getResp.resp)
-          setError('')
-        } else {
-          const resp = getResp.resp
-          const message = resp.message === 'Malformed query' ? `${resp.message}: ${resp.details}` : resp.message
-          setError(message)
-        }
-      })
+    setQuery(queryInput.current?.value ?? '')
   }
 
   useEffect(() => {
-    if (searchParams.get('q')) {
-      refresh()
+    if (query) {
+      setSearchParams({q: query})
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [setSearchParams, query])
+
+  const topText = (() => {
+    if (error !== '') {
+      return `Error: ${error}`
+    } else if (loading) {
+      return 'Loading...'
+    } else if (result) {
+      return `${result.refactorings.length}${result.hasMore ? '+' : ''} results`
+    }
+  })()
 
   return (
     <div className="p-12">
@@ -62,16 +47,14 @@ export const Home: FunctionComponent = () => {
         }}
         onBlur={refresh}
       />
-      {(error !== "" || loading || showSearchResult) &&
+      {topText &&
         <div className="my-12 text-lg text-gray-900">
-          {error !== "" ? `Error: ${error}` :
-            loading ? "Loading..." :
-              `${resp?.refactorings.length}${resp?.hasMore ? '+' : ''} results`}
+          {topText}
         </div>
       }
-      {showSearchResult &&
+      {result &&
         <div className="mt-12">
-          {resp?.refactorings.map((ref, i) => (
+          {result.refactorings.map((ref, i) => (
             <div key={i} className="my-6">
               <RefactoringCard refactoring={ref} />
             </div>
