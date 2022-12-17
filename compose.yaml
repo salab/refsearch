@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  frontend:
+    build:
+     context: .
+     dockerfile: ./frontend.Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./backend.Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      MONGODB_USER: root
+      MONGODB_PASSWORD: password
+      MONGODB_HOST: mongodb
+      MONGODB_PORT: 27017
+    volumes:
+      - ./backend/data:/work/data
+
+  mongodb:
+    image: mongo:5.0.14
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./data/mongodb:/data/db
+
+volumes:
+  caddy_data:
+  caddy_config:
