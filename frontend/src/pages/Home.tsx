@@ -1,16 +1,34 @@
 import React, {FunctionComponent, useEffect, useRef, useState} from 'react';
-import {TextField} from "@mui/material";
+import {Pagination, TextField} from "@mui/material";
 import {useGetRefactorings} from "../api/refactorings";
 import {RefactoringCard} from "../components/RefactoringCard";
 import {useSearchParams} from "react-router-dom";
 import {SearchFields} from "../components/SearchFields";
 
+const perPage = 10
+
+const useParams = (): {
+  params: {
+    q: string
+  }
+  setSearchParams: ReturnType<typeof useSearchParams>[1]
+} => {
+  const [searchParams, setSearchParams] = useSearchParams()
+  return {
+    params: {
+      q: searchParams.get('q') ?? '',
+    },
+    setSearchParams
+  }
+}
+
 export const Home: FunctionComponent = () => {
   const rawField = useRef<HTMLInputElement>()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const [query, setQuery] = useState<string>(searchParams.get('q') ?? '')
+  const { params, setSearchParams } = useParams()
+  const [query, setQuery] = useState<string>(params.q)
+  const [page, setPage] = useState<number>(0)
 
-  const { result, loading, error } = useGetRefactorings(query, 10, 0)
+  const { res, loading, error } = useGetRefactorings(query, perPage, page)
 
   const setFromRawField = () => {
     setQuery(rawField.current?.value ?? '')
@@ -18,15 +36,19 @@ export const Home: FunctionComponent = () => {
 
   useEffect(() => {
     if (query) {
-      setSearchParams({q: query})
+      setSearchParams({ q: query })
     }
   }, [setSearchParams, query])
+
+  useEffect(() => {
+    setPage(0)
+  }, [query])
 
   const topText = ((): JSX.Element | undefined => {
     if (loading) {
       return <span className="text-gray-600">Loading...</span>
-    } else if (result) {
-      return <span className="text-gray-900">{result.refactorings.length}{result.hasMore ? '+' : ''} results</span>
+    } else if (res.refactorings) {
+      return <span className="text-gray-900">{res.count}{res.hasMore ? '+' : ''} results</span>
     }
   })()
 
@@ -59,13 +81,24 @@ export const Home: FunctionComponent = () => {
           {topText}
         </div>
       }
-      {result &&
+      {res.refactorings &&
         <div className="mt-12">
-          {result.refactorings.map((ref, i) => (
-            <div key={i} className="my-6">
-              <RefactoringCard refactoring={ref} />
-            </div>
-          ))}
+          <div className="flex">
+            <Pagination
+              className="mx-auto"
+              size="large"
+              page={page+1}
+              count={Math.ceil(res.count / perPage) + (res.hasMore ? 1 : 0)}
+              onChange={(e, page) => setPage(page-1)}
+            />
+          </div>
+          <div>
+            {res.refactorings.map((ref, i) => (
+              <div key={i} className="my-6">
+                <RefactoringCard refactoring={ref} />
+              </div>
+            ))}
+          </div>
         </div>
       }
     </div>

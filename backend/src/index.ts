@@ -19,29 +19,31 @@ interface GetRefactoringsRequest extends Request {
 app.get('/api/refactorings', async (req: GetRefactoringsRequest, res) => {
   const q = req.query.q || ''
   const limit = Number.parseInt(req.query.limit ?? '') || 50
-  const offset = Number.parseInt(req.query.offset ?? '') || 0
-
-  console.log(`q: ${q}`)
+  const offset = Math.max(0, Number.parseInt(req.query.offset ?? '') || 0)
 
   const compiledQuery = strToMongoQuery(q)
   if (ParseException.is(compiledQuery)) {
     return res.status(400).json({message: 'Malformed query', details: compiledQuery.message})
   }
 
+  const limitBulk = 10000
+  const countLimit = limitBulk * Math.ceil((offset+limit) / limitBulk)
+  const count = await refCol.countDocuments(compiledQuery, { limit: countLimit+1 })
+  const hasMore = count > countLimit
+
   const cursor = refCol.find(compiledQuery)
   const refactorings: Refactoring[] = []
   cursor.skip(offset)
-  cursor.limit(limit + 1)
+  cursor.limit(limit)
   await cursor.forEach((r) => {
     refactorings.push(r)
   })
-  const hasMore = refactorings.length > limit
-  if (hasMore) {
-    refactorings.pop()
-  }
 
   return res.status(200).json({
-    hasMore,
+    total: {
+      count: Math.min(count, countLimit),
+      hasMore,
+    },
     refactorings
   })
 })
