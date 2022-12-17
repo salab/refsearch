@@ -3,16 +3,17 @@ import {TextField} from "@mui/material";
 import {useGetRefactorings} from "../api/refactorings";
 import {RefactoringCard} from "../components/RefactoringCard";
 import {useSearchParams} from "react-router-dom";
+import {SearchFields} from "../components/SearchFields";
 
 export const Home: FunctionComponent = () => {
-  const queryInput = useRef<HTMLInputElement>()
+  const rawField = useRef<HTMLInputElement>()
   const [searchParams, setSearchParams] = useSearchParams()
   const [query, setQuery] = useState<string>(searchParams.get('q') ?? '')
 
   const { result, loading, error } = useGetRefactorings(query, 10, 0)
 
-  const refresh = () => {
-    setQuery(queryInput.current?.value ?? '')
+  const setFromRawField = () => {
+    setQuery(rawField.current?.value ?? '')
   }
 
   useEffect(() => {
@@ -21,13 +22,11 @@ export const Home: FunctionComponent = () => {
     }
   }, [setSearchParams, query])
 
-  const topText = (() => {
-    if (error !== '') {
-      return `Error: ${error}`
-    } else if (loading) {
-      return 'Loading...'
+  const topText = ((): JSX.Element | undefined => {
+    if (loading) {
+      return <span className="text-gray-600">Loading...</span>
     } else if (result) {
-      return `${result.refactorings.length}${result.hasMore ? '+' : ''} results`
+      return <span className="text-gray-900">{result.refactorings.length}{result.hasMore ? '+' : ''} results</span>
     }
   })()
 
@@ -38,17 +37,25 @@ export const Home: FunctionComponent = () => {
         label="Query"
         variant="standard"
         fullWidth
-        defaultValue={searchParams.get('q')}
-        inputRef={queryInput}
+        defaultValue={query}
+        inputRef={rawField}
+        error={error !== ''}
+        helperText={error}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            refresh()
+            setFromRawField()
           }
         }}
-        onBlur={refresh}
+        onBlur={setFromRawField}
       />
+      <SearchFields className="mt-4" query={query} setQuery={(query) => {
+        setQuery(query)
+        if (rawField.current) {
+          rawField.current.value = query
+        }
+      }} />
       {topText &&
-        <div className="my-12 text-lg text-gray-900">
+        <div className="mt-8 mb-12 text-lg">
           {topText}
         </div>
       }
