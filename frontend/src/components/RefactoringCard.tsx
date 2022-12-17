@@ -32,7 +32,7 @@ export const RefactoringCard: FunctionComponent<Props> = (props) => {
             </>
           }
         </div>
-        <div className="text-gray-900">
+        <div className="text-gray-900 break-words">
           {ref.description}
         </div>
       </div>
