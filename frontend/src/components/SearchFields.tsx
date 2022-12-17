@@ -1,6 +1,7 @@
 import React, {FunctionComponent, useEffect, useState} from "react";
 import {Button, Divider, FormControl, MenuItem, Select, TextField} from "@mui/material";
 import {RefactoringType} from "../../../common/common";
+import {SearchField} from "./SearchField";
 
 const examples = {
   // Use-case 1: 重複の処理が無いextract
@@ -19,7 +20,10 @@ interface Props {
 
 export const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, queryError}) => {
   const [rawField, setRawField] = useState(query)
+
   const [type, setType] = useState('')
+  const [commit, setCommit] = useState('')
+  const [repository, setRepository] = useState('')
 
   const updateFromRawField = () => {
     setQuery(rawField)
@@ -32,11 +36,11 @@ export const SearchFields: FunctionComponent<Props> = ({className, query, setQue
 
   useEffect(() => {
     const conditions = []
-    if (type) {
-      conditions.push(`type = "${type}"`)
-    }
+    if (type) conditions.push(`type = "${type}"`)
+    if (commit) conditions.push(`commit = ${commit}`)
+    if (repository) conditions.push(`repository = ${repository}`)
     setQuery(conditions.join(" & "))
-  }, [setQuery, type])
+  }, [setQuery, type, commit, repository])
 
   return (
     <div className={`${className} flex flex-col gap-4`}>
@@ -57,12 +61,16 @@ export const SearchFields: FunctionComponent<Props> = ({className, query, setQue
         onBlur={updateFromRawField}
       />
       <FormControl size="small">
-        <div className="flex flex-row grid-cols-2 gap-4">
-          <div className="flex-none my-auto">Type =</div>
-          <Select value={type} onChange={(e) => setType(e.target.value)}>
-            <MenuItem value=""><em>None</em></MenuItem>
-            {Object.values(RefactoringType).map((refType) => <MenuItem value={refType}>{refType}</MenuItem>)}
-          </Select>
+        <div className="flex flex-row flex-wrap grid-cols-2 gap-4">
+          <div className="flex flex-row gap-2">
+            <div className="flex-none my-auto">Type =</div>
+            <Select value={type} onChange={(e) => setType(e.target.value)}>
+              <MenuItem value=""><em>None</em></MenuItem>
+              {Object.values(RefactoringType).map((refType) => <MenuItem value={refType}>{refType}</MenuItem>)}
+            </Select>
+          </div>
+          <SearchField name="Commit" setValue={setCommit} />
+          <SearchField name="Repository" setValue={setRepository} />
         </div>
       </FormControl>
       <Divider flexItem />
