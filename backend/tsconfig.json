@@ -105,6 +105,6 @@
   },
   "include": [
     "src",
-    "../types"
+    "../common"
   ]
 }

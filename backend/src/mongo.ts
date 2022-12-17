@@ -1,5 +1,5 @@
 import {MongoClient} from "mongodb";
-import {CommitMeta, Refactoring, RepositoryMeta} from "../../types/types";
+import {CommitMeta, Refactoring, RepositoryMeta} from "../../common/common";
 
 const env = {
   user: process.env.MONGODB_USER || 'root',

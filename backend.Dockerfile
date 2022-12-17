@@ -6,7 +6,7 @@ COPY backend/package.json backend/yarn.lock ./
 RUN yarn
 
 COPY backend .
-COPY types /work/types/
+COPY common /work/common/
 RUN yarn compile
 
 FROM node:18-alpine AS runner

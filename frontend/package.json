@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@craco/craco": "7.0.0",
     "@emotion/react": "11.10.5",
     "@emotion/styled": "11.10.5",
     "@mui/icons-material": "5.10.16",
@@ -11,6 +12,7 @@
     "@types/react": "18.0.0",
     "@types/react-dom": "18.0.0",
     "autoprefixer": "10.4.13",
+    "craco-babel-loader": "1.0.4",
     "highlight.js": "11.7.0",
     "postcss": "8.4.19",
     "react": "18.2.0",
@@ -22,9 +24,9 @@
     "typescript": "4.9.4"
   },
   "scripts": {
-    "start": "PORT=8081 react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "PORT=8081 craco start",
+    "build": "craco build",
+    "test": "craco test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

@@ -8,7 +8,7 @@ RUN yarn
 FROM base AS builder
 
 COPY frontend .
-COPY types /work/types/
+COPY common /work/common/
 RUN yarn build
 
 FROM caddy:2 AS runner

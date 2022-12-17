@@ -1,9 +1,9 @@
 import fs from "fs";
 import {commitsCol, refCol, repoCol} from "./mongo";
-import {RMOutput} from "../../types/rminer";
-import {CommitMeta, RepositoryMeta} from "../../types/types";
+import {RMOutput} from "../../common/rminer";
+import {CommitMeta, RepositoryMeta} from "../../common/common";
 import simpleGit from "simple-git";
-import {RefDiffOutput} from "../../types/refdiff";
+import {RefDiffOutput} from "../../common/refdiff";
 import {processRMinerOutput} from "./converter/rminer";
 import {processRefDiffOutput} from "./converter/refdiff";
 import {refDiffFileName, repoDirName, repositoriesDir, rminerFileName} from "./info";

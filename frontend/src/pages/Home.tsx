@@ -1,5 +1,5 @@
-import React, {FunctionComponent, useEffect, useRef, useState} from 'react';
-import {Pagination, TextField} from "@mui/material";
+import React, {FunctionComponent, useEffect, useState} from 'react';
+import {CircularProgress, Pagination} from "@mui/material";
 import {useGetRefactorings} from "../api/refactorings";
 import {RefactoringCard} from "../components/RefactoringCard";
 import {useSearchParams} from "react-router-dom";
@@ -23,28 +23,23 @@ const useParams = (): {
 }
 
 export const Home: FunctionComponent = () => {
-  const rawField = useRef<HTMLInputElement>()
   const { params, setSearchParams } = useParams()
   const [query, setQuery] = useState<string>(params.q)
   const [page, setPage] = useState<number>(0)
 
   const { res, loading, error } = useGetRefactorings(query, perPage, page)
 
-  const setFromRawField = () => {
-    setQuery(rawField.current?.value ?? '')
-  }
-
   useEffect(() => {
-    if (query) {
+    if (query || params.q /* q was previously set */) {
       setSearchParams({ q: query })
     }
-  }, [setSearchParams, query])
+  }, [setSearchParams, params.q, query])
 
   useEffect(() => {
     setPage(0)
   }, [query])
 
-  const topText = ((): JSX.Element | undefined => {
+  const resultText = ((): JSX.Element | undefined => {
     if (loading) {
       return <span className="text-gray-600">Loading...</span>
     } else if (res.refactorings) {
@@ -54,53 +49,30 @@ export const Home: FunctionComponent = () => {
 
   return (
     <div className="p-12">
-      <TextField
-        className="mb-12"
-        label="Query"
-        variant="standard"
-        fullWidth
-        defaultValue={query}
-        inputRef={rawField}
-        error={error !== ''}
-        helperText={error}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            setFromRawField()
-          }
-        }}
-        onBlur={setFromRawField}
-      />
-      <SearchFields className="mt-4" query={query} setQuery={(query) => {
-        setQuery(query)
-        if (rawField.current) {
-          rawField.current.value = query
-        }
-      }} />
-      {topText &&
-        <div className="mt-8 mb-12 text-lg">
-          {topText}
+      <SearchFields query={query} setQuery={setQuery} queryError={error} />
+      <div className="mt-12 flex flex-col gap-6">
+        <div className="flex relative">
+          <Pagination
+            className="mx-auto"
+            size="large"
+            page={page+1}
+            count={Math.ceil(res.count / perPage) + (res.hasMore ? 1 : 0)}
+            onChange={(e, page) => setPage(page-1)}
+          />
+          {resultText && (
+            <div className="absolute right-0 top-1/2 translate-y-[-50%] my-auto text-md">
+              {resultText}
+            </div>
+          )}
         </div>
-      }
-      {res.refactorings &&
-        <div className="mt-12">
-          <div className="flex">
-            <Pagination
-              className="mx-auto"
-              size="large"
-              page={page+1}
-              count={Math.ceil(res.count / perPage) + (res.hasMore ? 1 : 0)}
-              onChange={(e, page) => setPage(page-1)}
-            />
+        {loading ? (
+          <CircularProgress className="mx-auto" />
+        ) : res.refactorings && res.refactorings.map((ref, i) => (
+          <div key={i}>
+            <RefactoringCard refactoring={ref}/>
           </div>
-          <div>
-            {res.refactorings.map((ref, i) => (
-              <div key={i} className="my-6">
-                <RefactoringCard refactoring={ref} />
-              </div>
-            ))}
-          </div>
-        </div>
-      }
+        ))}
+      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import equal from "fast-deep-equal/es6/index";
-import {Refactoring, RefactoringType} from "../../../types/types";
-import {RMCodeElementType, RMCommit, RMOutput, RMRefactoringType, RMRightSideLocation} from "../../../types/rminer";
+import {Refactoring, RefactoringType} from "../../../common/common";
+import {RMCodeElementType, RMCommit, RMOutput, RMRefactoringType, RMRightSideLocation} from "../../../common/rminer";
 import {sshUrlToHttpsUrl} from "../utils";
 import {rminerVersion} from "../info";
 

@@ -2,8 +2,8 @@ import {
   RefDiffCommit,
   RefDiffOutput,
   RefDiffRefactoring
-} from "../../../types/refdiff";
-import {Refactoring, RefactoringType} from "../../../types/types";
+} from "../../../common/refdiff";
+import {Refactoring, RefactoringType} from "../../../common/common";
 import {refDiffVersion} from "../info";
 import equal from "fast-deep-equal/es6";
 

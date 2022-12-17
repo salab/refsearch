@@ -1,4 +1,4 @@
-import {Refactoring} from "../../../types/types";
+import {Refactoring} from "../../../common/common";
 import {useEffect, useState} from "react";
 import {unreachable} from "../utils";
 
@@ -59,6 +59,7 @@ export const useGetRefactorings = (query: string, perPage: number, page: number)
     const limit = perPage
     const offset = perPage * page
 
+    setRefactorings(undefined)
     setLoading(true)
     let cancelled = false
 
