@@ -1,25 +1,62 @@
-import {FunctionComponent} from "react";
+import React, {FunctionComponent} from "react";
 import {useParams} from "react-router";
 import {Highlight} from "../components/Highlight";
 import {useGetRefactoring} from "../api/refactorings";
+import {Divider} from "@mui/material";
+import {ExternalLink} from "../components/ExternalLink";
+import GitHub from "@mui/icons-material/GitHub";
+import Storage from "@mui/icons-material/Storage";
+import Commit from "@mui/icons-material/Commit";
+import Description from "@mui/icons-material/Description";
+import ContentCopy from "@mui/icons-material/ContentCopy";
+
+const copyToClipboard = (s: string): void => void navigator.clipboard.writeText(s)
 
 export const Refactoring: FunctionComponent = () => {
   const {rid} = useParams<{ rid: string }>()
 
-  const { result, loading, error } = useGetRefactoring(rid ?? '')
+  const { result: ref, loading, error } = useGetRefactoring(rid ?? '')
+
+  if (loading || error || !ref) {
+    return (
+      <div>
+        {loading ? 'Loading...' : `Error: ${error}`}
+      </div>
+    )
+  }
+
+  const fromGitHub = ref.repository.startsWith('https://github.com/')
+  const shortSha = ref.commit.substring(0, 6)
 
   return (
-    <div>
-      {(error || loading) &&
-          <div>
-            {loading ? 'Loading...' : `Error: ${error}`}
-          </div>
-      }
-      {result &&
-          <Highlight className="language-json m-6 rounded-md border-2 border-green-900 invisible-scrollbar">
-            {JSON.stringify(result, null, 2)}
-          </Highlight>
-      }
+    <div className="p-12 flex flex-col gap-8">
+      <div className="text-3xl font-bold text-gray-700">Refactoring Details</div>
+      <Divider />
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-row gap-2">
+          {fromGitHub ? <GitHub /> : <Storage />}
+          <div>Repository</div>
+          <ExternalLink href={ref.repository} text={fromGitHub ? ref.repository.substring("https://github.com/".length) : ref.repository} />
+          <ContentCopy className="translate-y-1" cursor="pointer" fontSize="small" onClick={() => copyToClipboard(ref.repository)} />
+        </div>
+        <div className="flex flex-row gap-2">
+          <Commit />
+          <div>Commit</div>
+          <ExternalLink href={ref.url} text={shortSha} />
+          <ContentCopy className="translate-y-1" cursor="pointer" fontSize="small" onClick={() => copyToClipboard(ref.commit)} />
+        </div>
+        <div className="flex flex-row gap-2">
+          <Description />
+          <div>{ref.description}</div>
+        </div>
+      </div>
+      <Divider />
+      <div className="text-xl text-gray-700">
+        Raw
+        <Highlight className="text-sm language-json mt-6 rounded-md border-2 border-green-900 invisible-scrollbar">
+          {JSON.stringify(ref, null, 2)}
+        </Highlight>
+      </div>
     </div>
   )
 }
