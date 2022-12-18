@@ -34,13 +34,13 @@ export const SearchFields: FunctionComponent<Props> = ({className, query, setQue
     setRawField(query)
   }, [setRawField, query])
 
-  useEffect(() => {
+  const updateFromRichField = (typ: string = type) => {
     const conditions = []
-    if (type) conditions.push(`type = "${type}"`)
+    if (typ) conditions.push(`type = "${typ}"`)
     if (commit) conditions.push(`commit = ${commit}`)
     if (repository) conditions.push(`repository = ${repository}`)
     setQuery(conditions.join(" & "))
-  }, [setQuery, type, commit, repository])
+  }
 
   return (
     <div className={`${className} flex flex-col gap-4`}>
@@ -64,13 +64,16 @@ export const SearchFields: FunctionComponent<Props> = ({className, query, setQue
         <div className="flex flex-row flex-wrap grid-cols-2 gap-4">
           <div className="flex flex-row gap-2">
             <div className="flex-none my-auto">Type =</div>
-            <Select value={type} onChange={(e) => setType(e.target.value)}>
+            <Select value={type} onChange={(e) => {
+              setType(e.target.value)
+              updateFromRichField(e.target.value)
+            }}>
               <MenuItem value=""><em>None</em></MenuItem>
-              {Object.values(RefactoringType).map((refType) => <MenuItem value={refType}>{refType}</MenuItem>)}
+              {Object.values(RefactoringType).map((refType) => <MenuItem key={refType} value={refType}>{refType}</MenuItem>)}
             </Select>
           </div>
-          <SearchField name="Commit" setValue={setCommit} />
-          <SearchField name="Repository" setValue={setRepository} />
+          <SearchField name="Commit" value={commit} setValue={setCommit} update={updateFromRichField} />
+          <SearchField name="Repository" value={repository} setValue={setRepository} update={updateFromRichField} />
         </div>
       </FormControl>
       <Divider flexItem />

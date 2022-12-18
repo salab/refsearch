@@ -8,7 +8,7 @@ interface Props {
 
 export const ExternalLink: FunctionComponent<Props> = ({href, text}) => {
   return (
-    <a href={href} target="_blank">
+    <a href={href} target="_blank" rel="noreferrer">
       {text}
       <Launch className="mr-1" fontSize="small" />
     </a>
