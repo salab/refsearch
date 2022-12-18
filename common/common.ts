@@ -44,7 +44,7 @@ export type Refactoring = CommitInfo & {
 export interface CommitMeta {
     _id: string // hash
     hash: string
-    date: string
+    date: Date
     message: string
     refs: string
     body: string

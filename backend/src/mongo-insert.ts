@@ -66,6 +66,7 @@ const storeRepoMetadata = async (repoUrl: string): Promise<void> => {
   const commits = gitLog.all.map((e): CommitMeta => ({
     ...e,
     _id: e.hash,
+    date: new Date(e.date),
     repoUrl: repoUrl
   }))
 
