@@ -2,6 +2,7 @@ version: '3'
 
 services:
   frontend:
+    container_name: rs-frontend
     build:
      context: .
      dockerfile: ./frontend.Dockerfile
@@ -12,6 +13,7 @@ services:
       - caddy_config:/config
 
   backend:
+    container_name: rs-backend
     build:
       context: .
       dockerfile: ./backend.Dockerfile
@@ -21,12 +23,13 @@ services:
       PORT: 3000
       MONGODB_USER: root
       MONGODB_PASSWORD: password
-      MONGODB_HOST: mongodb
+      MONGODB_HOST: rs-mongo
       MONGODB_PORT: 27017
     volumes:
       - ./backend/data:/work/data
 
   mongodb:
+    container_name: rs-mongo
     image: mongo:5.0.14
     ports:
       - "27017:27017"
