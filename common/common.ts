@@ -31,7 +31,7 @@ interface ExtractMethodInfo {
 export type Refactoring = CommitInfo & {
     type: typeof RefactoringType[keyof typeof RefactoringType]
     description: string
-    extractMethod: Partial<ExtractMethodInfo>
+    extractMethod?: ExtractMethodInfo
     raw: {
         refactoringMiner?: RMRefactoring
         refDiff?: RefDiffRefactoring

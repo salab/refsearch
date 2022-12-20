@@ -1,6 +1,6 @@
 import equal from "fast-deep-equal/es6/index";
 import {Refactoring, RefactoringType} from "../../../common/common";
-import {RMCodeElementType, RMCommit, RMOutput, RMRefactoringType, RMRightSideLocation} from "../../../common/rminer";
+import {RMCodeElementType, RMCommit, RMOutput, RMRightSideLocation} from "../../../common/rminer";
 import {sshUrlToHttpsUrl} from "../utils";
 import {rminerVersion} from "../info";
 
@@ -49,7 +49,6 @@ export const processRMinerOutput = (output: RMOutput): Refactoring[] => {
             url,
             repository,
             commit: c.sha1,
-            extractMethod: {},
             raw: {
               refactoringMiner: r
             },
@@ -61,23 +60,20 @@ export const processRMinerOutput = (output: RMOutput): Refactoring[] => {
     })
 
   // Pre-compute needed information
-  // Use-case 1: 重複の処理が無い / あるextract
   commits.forEach((c) => {
     const methods = extractedMethods(c)
     c.refactorings
       .filter((r) => r.type === RefactoringType.ExtractMethod)
       .forEach((r) => {
-        r.extractMethod.sourceMethodsCount = extractSourceMethodsCount(methods, r)
+        r.extractMethod = {
+          // Use-case 1: 重複の処理が無い / あるextract
+          sourceMethodsCount: extractSourceMethodsCount(methods, r),
+          // Use-case 2: 数行のみのextract,  extractする前の行数
+          extractedLines: extractMethodExtractedLines(r)
+        }
       })
   })
 
-  // Use-case 2: 数行のみのextract,  extractする前の行数
-  commits.forEach((c) =>
-    c.refactorings
-      .filter((r) => r.type === RMRefactoringType.ExtractMethod)
-      .forEach((r) => {
-        r.extractMethod.extractedLines = extractMethodExtractedLines(r)
-      }))
 
   return commits.flatMap((c) => c.refactorings)
 }

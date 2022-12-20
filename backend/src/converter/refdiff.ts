@@ -111,7 +111,6 @@ export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): Re
         repository: repoUrl,
         commit: c.sha1,
         url,
-        extractMethod: {},
         raw: {
           refDiff: ref
         },
@@ -122,10 +121,12 @@ export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): Re
 
       // Pre-compute needed information
       if (typ === RefactoringType.ExtractMethod) {
-        // Use-case 1: 重複の処理が無い / あるextract
-        ret.extractMethod.sourceMethodsCount = extractSourceMethodsCount(ref, extractMethodRefactorings)
-        // Use-case 2: 数行のみのextract,  extractする前の行数
-        ret.extractMethod.extractedLines = extractMethodExtractedLines(ref)
+        ret.extractMethod = {
+          // Use-case 1: 重複の処理が無い / あるextract
+          sourceMethodsCount: extractSourceMethodsCount(ref, extractMethodRefactorings),
+          // Use-case 2: 数行のみのextract,  extractする前の行数
+          extractedLines: extractMethodExtractedLines(ref)
+        }
       }
 
       return ret
