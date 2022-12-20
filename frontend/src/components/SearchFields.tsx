@@ -41,7 +41,10 @@ export const SearchFields: FunctionComponent<Props> = ({className, query, setQue
       if (t.length === 1) conditions.push(clause)
       else conditions.push(`(${clause})`)
     }
-    if (commit) conditions.push(`commit = ${commit}`)
+    if (commit) {
+      if (commit.length === 40) conditions.push(`commit = ${commit}`)
+      else conditions.push(`commit ~ ^${commit}`) // commit startsWith
+    }
     if (repository) conditions.push(`repository = ${repository}`)
     setQuery(conditions.join(" & "))
   }
