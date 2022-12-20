@@ -52,6 +52,23 @@ export const Home: FunctionComponent = () => {
     }
   })()
 
+  const pager = (
+    <div className="flex relative">
+      <Pagination
+        className="mx-auto"
+        size="large"
+        page={page+1}
+        count={Math.ceil(res.count / perPage) + (res.hasMore ? 1 : 0)}
+        onChange={(e, page) => setPage(page-1)}
+      />
+      {resultText && (
+        <div className="absolute right-0 top-1/2 translate-y-[-50%] my-auto text-md">
+          {resultText}
+        </div>
+      )}
+    </div>
+  )
+
   return (
     <div className="p-12">
       <SearchFields query={query} setQuery={(q) => {
@@ -59,20 +76,7 @@ export const Home: FunctionComponent = () => {
         setPage(0)
       }} queryError={error} />
       <div className="mt-12 flex flex-col gap-6">
-        <div className="flex relative">
-          <Pagination
-            className="mx-auto"
-            size="large"
-            page={page+1}
-            count={Math.ceil(res.count / perPage) + (res.hasMore ? 1 : 0)}
-            onChange={(e, page) => setPage(page-1)}
-          />
-          {resultText && (
-            <div className="absolute right-0 top-1/2 translate-y-[-50%] my-auto text-md">
-              {resultText}
-            </div>
-          )}
-        </div>
+        {pager}
         {loading ? (
           <CircularProgress className="mx-auto" />
         ) : res.refactorings && res.refactorings.map((ref, i) => (
@@ -80,6 +84,7 @@ export const Home: FunctionComponent = () => {
             <RefactoringCard refactoring={ref}/>
           </div>
         ))}
+        {pager}
       </div>
     </div>
   );
