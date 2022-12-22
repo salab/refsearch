@@ -1,4 +1,4 @@
-import React, {FunctionComponent} from "react";
+import React, {FunctionComponent, useState} from "react";
 import {TextField} from "@mui/material";
 
 interface Props {
@@ -9,6 +9,7 @@ interface Props {
 }
 
 export const SearchField: FunctionComponent<Props> = ({ name, value, setValue, update }) => {
+  const [last, setLast] = useState(value)
   return (
     <div className="flex flex-row gap-2">
       <div className="flex-none my-auto">{name} =</div>
@@ -18,11 +19,17 @@ export const SearchField: FunctionComponent<Props> = ({ name, value, setValue, u
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === "Enter") {
+          if (e.key === "Enter" && value !== last) {
             update()
+            setLast(value)
           }
         }}
-        onBlur={() => update()}
+        onBlur={() => {
+          if (value !== last) {
+            update()
+            setLast(value)
+          }
+        }}
       />
     </div>
   )

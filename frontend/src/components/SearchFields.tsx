@@ -80,11 +80,15 @@ export const SearchFields: FunctionComponent<Props> = ({className, query, setQue
         error={queryError !== ''}
         helperText={queryError}
         onKeyDown={(e) => {
-          if (e.key === "Enter") {
+          if (e.key === "Enter" && query !== rawField) {
             updateFromRawField()
           }
         }}
-        onBlur={updateFromRawField}
+        onBlur={() => {
+          if (query !== rawField) {
+            updateFromRawField()
+          }
+        }}
       />
       <FormControl size="small">
         <div className="flex flex-row flex-wrap grid-cols-2 gap-4">
