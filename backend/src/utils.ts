@@ -19,6 +19,23 @@ export const sshUrlToHttpsUrl = (url: string): string => {
   return url
 }
 
+export const commitUrl = (repoUrl: string, sha1: string) => {
+  const replacements: [RegExp, (match: string[]) => string][] = [
+    [
+      /^https:\/\/github\.com\/(.+?)\/(.+?)$/,
+      (match) => `https://github.com/${match[1]}/${match[2]}/commit/${sha1}`,
+    ]
+  ]
+
+  for (const [regexp, replace] of replacements) {
+    const matched = regexp.exec(repoUrl)
+    if (matched !== null) {
+      return replace(matched)
+    }
+  }
+  return repoUrl
+}
+
 // Extract "humanish" name for repository url used by `git clone`
 export const humanishName = (repoUrl: string): string => {
   if (repoUrl.endsWith('.git')) {

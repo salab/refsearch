@@ -26,8 +26,8 @@ export const Refactoring: FunctionComponent = () => {
     )
   }
 
-  const fromGitHub = ref.repository.startsWith('https://github.com/')
-  const shortSha = ref.commit.substring(0, 6)
+  const fromGitHub = ref.commit.repository.startsWith('https://github.com/')
+  const shortSha = ref.commit.hash.substring(0, 6)
 
   return (
     <div className="p-12 flex flex-col gap-8">
@@ -37,14 +37,14 @@ export const Refactoring: FunctionComponent = () => {
         <div className="flex flex-row gap-2">
           {fromGitHub ? <GitHub /> : <Storage />}
           <div className="font-semibold">Repository</div>
-          <ExternalLink href={ref.repository} text={fromGitHub ? ref.repository.substring("https://github.com/".length) : ref.repository} />
-          <ContentCopy className="translate-y-1" cursor="pointer" fontSize="small" onClick={() => copyToClipboard(ref.repository)} />
+          <ExternalLink href={ref.commit.repository} text={fromGitHub ? ref.commit.repository.substring("https://github.com/".length) : ref.commit.repository} />
+          <ContentCopy className="translate-y-1" cursor="pointer" fontSize="small" onClick={() => copyToClipboard(ref.commit.repository)} />
         </div>
         <div className="flex flex-row gap-2">
           <Commit />
           <div className="font-semibold">Commit</div>
-          <ExternalLink href={ref.url} text={shortSha} />
-          <ContentCopy className="translate-y-1" cursor="pointer" fontSize="small" onClick={() => copyToClipboard(ref.commit)} />
+          <ExternalLink href={ref.commit.url} text={shortSha} />
+          <ContentCopy className="translate-y-1" cursor="pointer" fontSize="small" onClick={() => copyToClipboard(ref.commit.hash)} />
         </div>
         <div className="flex flex-row gap-2">
           <Build />

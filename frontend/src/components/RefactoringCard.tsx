@@ -1,18 +1,18 @@
 import {FunctionComponent} from "react";
-import {RefactoringWithId} from "../api/refactorings";
 import {Link} from "react-router-dom";
 import GitHub from "@mui/icons-material/GitHub";
 import Storage from "@mui/icons-material/Storage";
 import Build from "@mui/icons-material/Build";
+import {Refactoring} from "../../../common/common";
 
 interface Props {
-  refactoring: RefactoringWithId
+  refactoring: Refactoring
 }
 
 export const RefactoringCard: FunctionComponent<Props> = (props) => {
   const ref = props.refactoring
-  const fromGitHub = ref.repository.startsWith('https://github.com/')
-  const shortSha = ref.commit.substring(0, 6)
+  const fromGitHub = ref.commit.repository.startsWith('https://github.com/')
+  const shortSha = ref.commit.hash.substring(0, 6)
 
   return (
     <Link to={`/refactorings/${ref._id}`}>
@@ -24,13 +24,13 @@ export const RefactoringCard: FunctionComponent<Props> = (props) => {
                 <GitHub className="mr-2 translate-y-[-2px]" />
                 <span className="mr-1">{shortSha}</span>
                 <span className="mr-1">@</span>
-                <span>{ref.repository.substring('https://github.com/'.length)}</span>
+                <span>{ref.commit.repository.substring('https://github.com/'.length)}</span>
               </> :
               <>
                 <Storage className="mr-2 translate-y-[-2px]" />
                 <span className="mr-1">{shortSha}</span>
                 <span className="mr-1">@</span>
-                <span>{ref.repository}</span>
+                <span>{ref.commit.repository}</span>
               </>
             }
           </div>

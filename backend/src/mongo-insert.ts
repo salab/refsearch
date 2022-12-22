@@ -7,6 +7,7 @@ import {RefDiffOutput} from "../../common/refdiff";
 import {processRMinerOutput} from "./converter/rminer";
 import {processRefDiffOutput} from "./converter/refdiff";
 import {refDiffFileName, repoDirName, repositoriesDir, rminerFileName} from "./info";
+import {commitUrl} from "./utils";
 
 const formatTime = (start: number): string => `${Math.floor(performance.now() - start) / 1000} s`
 
@@ -67,7 +68,8 @@ const storeRepoMetadata = async (repoUrl: string): Promise<void> => {
     ...e,
     _id: e.hash,
     date: new Date(e.date),
-    repoUrl: repoUrl
+    url: commitUrl(repoUrl, e.hash),
+    repository: repoUrl,
   }))
 
   {

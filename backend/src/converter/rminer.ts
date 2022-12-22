@@ -1,14 +1,14 @@
 import equal from "fast-deep-equal/es6/index";
-import {Refactoring, RefactoringType} from "../../../common/common";
+import {RefactoringMeta, RefactoringType} from "../../../common/common";
 import {RMCodeElementType, RMCommit, RMOutput, RMRightSideLocation} from "../../../common/rminer";
 import {sshUrlToHttpsUrl} from "../utils";
 import {rminerVersion} from "../info";
 
 type Commit = Omit<RMCommit, 'refactorings'> & {
-  refactorings: Refactoring[]
+  refactorings: RefactoringMeta[]
 }
 
-const extractedMethod = (r: Refactoring): RMRightSideLocation | undefined => {
+const extractedMethod = (r: RefactoringMeta): RMRightSideLocation | undefined => {
   return r.raw.refactoringMiner?.rightSideLocations.find((rsl) =>
     rsl.codeElementType === RMCodeElementType.MethodDeclaration && rsl.description === 'extracted method declaration')
 }
@@ -20,19 +20,19 @@ const extractedMethods = (c: Commit): RMRightSideLocation[] => {
     .flatMap((rsl) => rsl ? [rsl] : [])
 }
 
-const extractSourceMethodsCount = (extractedMethods: RMRightSideLocation[], r: Refactoring): number => {
+const extractSourceMethodsCount = (extractedMethods: RMRightSideLocation[], r: RefactoringMeta): number => {
   const method = extractedMethod(r)
   return extractedMethods.filter((m) => equal(m, method)).length
 }
 
-const extractMethodExtractedLines = (r: Refactoring): number => {
+const extractMethodExtractedLines = (r: RefactoringMeta): number => {
   const extractedCode = r.raw.refactoringMiner?.rightSideLocations
     .find((rhs) => rhs.description === 'extracted method declaration')
   if (!extractedCode) return -1
   return (extractedCode.endLine - extractedCode.startLine + 1)
 }
 
-export const processRMinerOutput = (output: RMOutput): Refactoring[] => {
+export const processRMinerOutput = (output: RMOutput): RefactoringMeta[] => {
   const commits = output.commits
     .map((c): Commit => {
       // Normalize to https url for convenience
@@ -43,12 +43,10 @@ export const processRMinerOutput = (output: RMOutput): Refactoring[] => {
         url,
         repository,
         refactorings: c.refactorings
-          .map((r): Refactoring => ({
+          .map((r): RefactoringMeta => ({
             type: r.type,
             description: r.description,
-            url,
-            repository,
-            commit: c.sha1,
+            sha1: c.sha1,
             raw: {
               refactoringMiner: r
             },

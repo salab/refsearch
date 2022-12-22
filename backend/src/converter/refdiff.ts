@@ -3,7 +3,7 @@ import {
   RefDiffOutput,
   RefDiffRefactoring
 } from "../../../common/refdiff";
-import {Refactoring, RefactoringType} from "../../../common/common";
+import {Refactoring, RefactoringMeta, RefactoringType} from "../../../common/common";
 import {refDiffVersion} from "../info";
 import equal from "fast-deep-equal/es6";
 
@@ -69,7 +69,7 @@ const extractMethodExtractedLines = (r: RefDiffRefactoring): number => {
   return (endLine - startLine + 1)
 }
 
-export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): Refactoring[] => {
+export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): RefactoringMeta[] => {
   return output.map((c): RefDiffCommit => {
     c.refactorings = c.refactorings.flatMap((ref): RefDiffRefactoring[] => {
       switch (ref.type) {
@@ -96,21 +96,16 @@ export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): Re
       }
     })
     return c
-  }).flatMap((c): Refactoring[] => {
+  }).flatMap((c): RefactoringMeta[] => {
     const extractMethodRefactorings = extractedMethods(c)
 
-    return c.refactorings.map((ref): Refactoring => {
+    return c.refactorings.map((ref): RefactoringMeta => {
       const [typ, description] = formatTypeAndDescription(ref)
-      const url = repoUrl.startsWith("https://github.com")
-        ? `${repoUrl}/commit/${c.sha1}`
-        : repoUrl
 
-      const ret: Refactoring = {
+      const ret: RefactoringMeta = {
         type: typ,
         description,
-        repository: repoUrl,
-        commit: c.sha1,
-        url,
+        sha1: c.sha1,
         raw: {
           refDiff: ref
         },
