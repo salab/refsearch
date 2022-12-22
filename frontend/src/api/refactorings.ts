@@ -1,6 +1,6 @@
 import {Refactoring} from "../../../common/common";
 import {useEffect, useState} from "react";
-import {unreachable} from "../utils";
+import {unreachable} from "../../../common/utils";
 
 export type RefactoringWithId = Refactoring & { _id: string }
 

@@ -11,6 +11,31 @@ const examples = {
   // TODO: Use-case 3: 具体的なrenameした単語
 } as const
 
+interface RichFields {
+  types: string[]
+  commit: string
+  repository: string
+}
+
+const richFieldsToRaw = ({types, commit, repository}: RichFields): string => {
+  const conditions = []
+  if (types.length > 0) {
+    const clause = types.map((t) => `type = "${t}"`).join(" | ")
+    if (types.length === 1) conditions.push(clause)
+    else conditions.push(`(${clause})`)
+  }
+  if (commit) {
+    if (commit.length === 40) conditions.push(`commit = ${commit}`)
+    else conditions.push(`commit ~ ^${commit}`) // commit startsWith
+  }
+  if (repository) conditions.push(`repository = ${repository}`)
+  return conditions.join(" & ")
+}
+
+const rawToRichFields = (query: string): RichFields => {
+  return { types: [], commit: '', repository: '' } // TODO: use ast
+}
+
 interface Props {
   className?: string
   query: string
@@ -27,7 +52,11 @@ export const SearchFields: FunctionComponent<Props> = ({className, query, setQue
 
   const updateFromRawField = () => {
     setQuery(rawField)
-    // TODO: sync rich field
+    // Sync rich fields
+    const fields = rawToRichFields(rawField)
+    setTypes(fields.types)
+    setCommit(fields.commit)
+    setRepository(fields.repository)
   }
 
   useEffect(() => {
@@ -35,18 +64,8 @@ export const SearchFields: FunctionComponent<Props> = ({className, query, setQue
   }, [setRawField, query])
 
   const updateFromRichField = (t: string[] = types) => {
-    const conditions = []
-    if (t.length > 0) {
-      const clause = t.map((t) => `type = "${t}"`).join(" | ")
-      if (t.length === 1) conditions.push(clause)
-      else conditions.push(`(${clause})`)
-    }
-    if (commit) {
-      if (commit.length === 40) conditions.push(`commit = ${commit}`)
-      else conditions.push(`commit ~ ^${commit}`) // commit startsWith
-    }
-    if (repository) conditions.push(`repository = ${repository}`)
-    setQuery(conditions.join(" & "))
+    setQuery(richFieldsToRaw({ types: t, commit, repository }))
+    // Raw field is synced in parent component
   }
 
   return (
