@@ -9,6 +9,7 @@ import Storage from "@mui/icons-material/Storage";
 import Commit from "@mui/icons-material/Commit";
 import Description from "@mui/icons-material/Description";
 import ContentCopy from "@mui/icons-material/ContentCopy";
+import Build from "@mui/icons-material/Build";
 
 const copyToClipboard = (s: string): void => void navigator.clipboard.writeText(s)
 
@@ -32,21 +33,27 @@ export const Refactoring: FunctionComponent = () => {
     <div className="p-12 flex flex-col gap-8">
       <div className="text-3xl font-bold text-gray-700">Refactoring Details</div>
       <Divider />
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 text-gray-600">
         <div className="flex flex-row gap-2">
           {fromGitHub ? <GitHub /> : <Storage />}
-          <div>Repository</div>
+          <div className="font-semibold">Repository</div>
           <ExternalLink href={ref.repository} text={fromGitHub ? ref.repository.substring("https://github.com/".length) : ref.repository} />
           <ContentCopy className="translate-y-1" cursor="pointer" fontSize="small" onClick={() => copyToClipboard(ref.repository)} />
         </div>
         <div className="flex flex-row gap-2">
           <Commit />
-          <div>Commit</div>
+          <div className="font-semibold">Commit</div>
           <ExternalLink href={ref.url} text={shortSha} />
           <ContentCopy className="translate-y-1" cursor="pointer" fontSize="small" onClick={() => copyToClipboard(ref.commit)} />
         </div>
         <div className="flex flex-row gap-2">
+          <Build />
+          <div className="font-semibold">Tool</div>
+          {ref.meta.tool}
+        </div>
+        <div className="flex flex-row gap-2">
           <Description />
+          <div className="font-semibold">Description</div>
           <div>{ref.description}</div>
         </div>
       </div>
