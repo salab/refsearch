@@ -1,10 +1,7 @@
-import React, {FunctionComponent, useEffect, useState} from "react";
+import React, {FunctionComponent, useState} from "react";
 import {Button, Checkbox, Divider, FormControl, ListItemText, MenuItem, Select, TextField} from "@mui/material";
 import {RefactoringType} from "../../../common/common";
 import {SearchField} from "./SearchField";
-import {ASTNodeCondition, ASTNodeOr, parse} from "../../../common/parser/parser";
-import {tokenize} from "../../../common/parser/tokenizer";
-import {ParseException} from "../../../common/parser/exception";
 
 const examples = {
   // Use-case 1: 重複の処理が無いextract
@@ -35,37 +32,6 @@ const richFieldsToRaw = ({types, commit, repository}: RichFields): string => {
   return conditions.join(" & ")
 }
 
-const defaultFields: RichFields = { types: [], commit: '', repository: '' }
-
-const rawToRichFields = (query: string): RichFields => {
-  const ast = parse(tokenize(query))
-  if (ParseException.is(ast)) return defaultFields
-
-  switch (ast.type) {
-    case "or":
-      return defaultFields // not supported in rich fields format
-    case "and":
-      const typesNode = ast.children.find((c) => (c.type === 'condition' && c.lhs === 'type' && c.operator === 'equal') || (c.type === 'or' && c.children.every((cc) => cc.type === 'condition' && cc.lhs === 'type' && cc.operator === 'equal'))) as ASTNodeCondition | ASTNodeOr | undefined
-      const types = typesNode?.type === 'condition' ? [typesNode.rhs] : typesNode?.type === 'or' ? typesNode.children.map((c) => (c as ASTNodeCondition).rhs) : []
-      const commitNode = ast.children.find((c) => c.type === 'condition' && c.lhs === 'commit') as ASTNodeCondition | undefined
-      const commit = commitNode?.rhs.startsWith('^') ? commitNode?.rhs.substring(1) : commitNode?.rhs ?? ''
-      const repositoryNode = ast.children.find((c) => c.type === 'condition' && c.lhs === 'repository' && c.operator === 'equal') as ASTNodeCondition | undefined
-      const repository = repositoryNode?.rhs ?? ''
-      return { types, commit, repository }
-    case "condition":
-      switch (ast.lhs) {
-        case 'type':
-          return { ...defaultFields, types: [ast.rhs] }
-        case 'commit':
-          return { ...defaultFields, commit: ast.rhs }
-        case 'repository':
-          return { ...defaultFields, repository: ast.rhs }
-        default:
-          return defaultFields
-      }
-  }
-}
-
 interface Props {
   className?: string
   query: string
@@ -80,22 +46,14 @@ export const SearchFields: FunctionComponent<Props> = ({className, query, setQue
   const [commit, setCommit] = useState('')
   const [repository, setRepository] = useState('')
 
+  const richFieldQuery = richFieldsToRaw({ types, commit, repository })
+
   const updateFromRawField = () => {
     setQuery(rawField)
-    // Sync rich fields
-    const fields = rawToRichFields(rawField)
-    setTypes(fields.types)
-    setCommit(fields.commit)
-    setRepository(fields.repository)
   }
 
-  useEffect(() => {
-    setRawField(query)
-  }, [setRawField, query])
-
   const updateFromRichField = (t: string[] = types) => {
-    setQuery(richFieldsToRaw({ types: t, commit, repository }))
-    // Raw field is synced in parent component
+    setQuery(richFieldsToRaw({ types: t, commit, repository}))
   }
 
   return (
@@ -104,6 +62,7 @@ export const SearchFields: FunctionComponent<Props> = ({className, query, setQue
         label="Query"
         variant="standard"
         InputLabelProps={{ shrink: true }}
+        placeholder={richFieldQuery}
         fullWidth
         value={rawField}
         onChange={(e) => setRawField(e.target.value)}
@@ -115,7 +74,7 @@ export const SearchFields: FunctionComponent<Props> = ({className, query, setQue
           }
         }}
         onBlur={() => {
-          if (query !== rawField) {
+          if (query !== rawField && rawField) {
             updateFromRawField()
           }
         }}
