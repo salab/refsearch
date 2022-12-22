@@ -1,11 +1,7 @@
-import {
-  RefDiffCommit,
-  RefDiffOutput,
-  RefDiffRefactoring
-} from "../../../common/refdiff";
-import {Refactoring, RefactoringMeta, RefactoringType} from "../../../common/common";
-import {refDiffVersion} from "../info";
 import equal from "fast-deep-equal/es6";
+import {RefDiffCommit, RefDiffOutput, RefDiffRefactoring} from "../../../../common/refdiff";
+import {Refactoring, RefactoringMeta, RefactoringType} from "../../../../common/common";
+import {refDiffVersion} from "../../info";
 
 const formatTypeAndDescription = (ref: RefDiffRefactoring): [typ: Refactoring["type"], desc: string] => {
   switch (ref.type) {

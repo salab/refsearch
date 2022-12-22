@@ -1,8 +1,8 @@
 import equal from "fast-deep-equal/es6/index";
-import {RefactoringMeta, RefactoringType} from "../../../common/common";
-import {RMCodeElementType, RMCommit, RMOutput, RMRightSideLocation} from "../../../common/rminer";
-import {sshUrlToHttpsUrl} from "../utils";
-import {rminerVersion} from "../info";
+import {rminerVersion} from "../../info";
+import {RefactoringMeta, RefactoringType} from "../../../../common/common";
+import {RMCodeElementType, RMCommit, RMOutput, RMRightSideLocation} from "../../../../common/rminer";
+import {sshUrlToHttpsUrl} from "../../utils";
 
 type Commit = Omit<RMCommit, 'refactorings'> & {
   refactorings: RefactoringMeta[]
