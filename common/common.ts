@@ -26,7 +26,8 @@ interface ExtractMethodInfo {
 
 export type RefactoringMeta = {
   type: typeof RefactoringType[keyof typeof RefactoringType]
-  sha1: string;
+  sha1: string
+  repository: string
   description: string
   extractMethod?: ExtractMethodInfo
   raw: {
@@ -38,7 +39,7 @@ export type RefactoringMeta = {
   }
 }
 
-export type Refactoring = { _id: string } & Omit<RefactoringMeta, 'sha1'> & { commit: Exclude<CommitMeta, '_id'> }
+export type Refactoring = { _id: string } & Omit<RefactoringMeta, 'sha1' | 'repository'> & { commit: Exclude<CommitMeta, '_id'> }
 
 export interface CommitMeta {
   _id: string // hash
@@ -51,6 +52,7 @@ export interface CommitMeta {
   author_email: string
   url: string
   repository: string
+  refactorings: { [key in keyof typeof RefactoringType]?: number }
 }
 
 export interface RepositoryMeta {

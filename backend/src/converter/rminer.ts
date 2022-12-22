@@ -47,6 +47,7 @@ export const processRMinerOutput = (output: RMOutput): RefactoringMeta[] => {
             type: r.type,
             description: r.description,
             sha1: c.sha1,
+            repository,
             raw: {
               refactoringMiner: r
             },

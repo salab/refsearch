@@ -106,6 +106,7 @@ export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): Re
         type: typ,
         description,
         sha1: c.sha1,
+        repository: repoUrl,
         raw: {
           refDiff: ref
         },
