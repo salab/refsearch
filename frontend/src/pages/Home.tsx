@@ -1,5 +1,5 @@
 import React, {FunctionComponent, useEffect, useState} from 'react';
-import {CircularProgress, Pagination} from "@mui/material";
+import {CircularProgress, Pagination, TextField} from "@mui/material";
 import {useGetRefactorings} from "../api/refactorings";
 import {RefactoringCard} from "../components/RefactoringCard";
 import {useSearchParams} from "react-router-dom";
@@ -25,12 +25,47 @@ const useParams = (): {
   }
 }
 
+const useSortField = (): {
+  field: JSX.Element
+  sort: string
+} => {
+  const [sort, setSort] = useState('commit.date')
+  const [internal, setInternal] = useState('')
+
+  return {
+    field: (
+      <TextField
+        label="Sort Field"
+        variant="standard"
+        InputLabelProps={{ shrink: true }}
+        placeholder='commit.date'
+        fullWidth
+        value={internal}
+        onChange={(e) => setInternal(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && internal !== sort) {
+            setSort(internal)
+          }
+        }}
+        onBlur={() => {
+          if (internal !== sort && internal) {
+            setSort(internal)
+          }
+        }}
+      />
+    ),
+    sort
+  }
+}
+
 export const Home: FunctionComponent = () => {
   const { params, setSearchParams } = useParams()
   const [query, setQuery] = useState<string>(params.q)
   const [page, setPage] = useState<number>(params.page)
+  const { sort, field: sortField } = useSortField()
+  const [order, setOrder] = useState<'asc' | 'desc'>('desc')
 
-  const { res, loading, error, time } = useGetRefactorings(query, perPage, page)
+  const { res, loading, error, time } = useGetRefactorings(query, perPage, page, sort, order)
 
   useEffect(() => {
     const nextParam: Record<string, string> = {}
@@ -60,8 +95,8 @@ export const Home: FunctionComponent = () => {
 
   const pager = (
     <div className="flex justify-between h-12">
-      <div className="my-auto text-md">
-        TODO: Sort
+      <div className="my-auto text-md w-32">
+        {sortField}
       </div>
       <Pagination
         className="m-auto"

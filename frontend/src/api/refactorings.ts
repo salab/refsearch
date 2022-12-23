@@ -31,15 +31,15 @@ export type GetRefactoringsResponseList = {
   resp: GetRefactoringsResponse
 }
 
-export const getRefactorings = async (query: string, limit: number, offset: number): Promise<GetRefactoringsResponseList> => {
-  const resp = await fetch(`/api/refactorings?q=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`)
+export const getRefactorings = async (query: string, limit: number, offset: number, sort: string, order: 'asc' | 'desc'): Promise<GetRefactoringsResponseList> => {
+  const resp = await fetch(`/api/refactorings?q=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}&sort=${sort}&order=${order}`)
   return {
     status: resp.status as GetRefactoringsResponseList['status'],
     resp: await resp.json()
   }
 }
 
-export const useGetRefactorings = (query: string, perPage: number, page: number): {
+export const useGetRefactorings = (query: string, perPage: number, page: number, sort: string, order: 'asc' | 'desc'): {
   res: {
     refactorings: RefactoringWithId[] | undefined
     count: number
@@ -59,7 +59,7 @@ export const useGetRefactorings = (query: string, perPage: number, page: number)
   useEffect(() => {
     setCount(0)
     setHasMore(true)
-  }, [query])
+  }, [query, sort, order])
 
   useEffect(() => {
     const limit = perPage
@@ -70,7 +70,7 @@ export const useGetRefactorings = (query: string, perPage: number, page: number)
     let cancelled = false
 
     const start = performance.now()
-    getRefactorings(query, limit, offset)
+    getRefactorings(query, limit, offset, sort, order)
       .then((r) => {
         if (cancelled) {
           return
@@ -94,7 +94,7 @@ export const useGetRefactorings = (query: string, perPage: number, page: number)
       })
 
     return () => { cancelled = true }
-  }, [query, perPage, page])
+  }, [query, perPage, page, sort, order])
 
   return { res: { refactorings, count, hasMore }, loading, error, time }
 }
