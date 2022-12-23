@@ -1,10 +1,11 @@
 import React, {FunctionComponent, useEffect, useState} from 'react';
-import {CircularProgress, Pagination, TextField} from "@mui/material";
+import {CircularProgress, IconButton, Pagination, TextField, Tooltip} from "@mui/material";
 import {useGetRefactorings} from "../api/refactorings";
 import {RefactoringCard} from "../components/RefactoringCard";
 import {useSearchParams} from "react-router-dom";
 import {SearchFields} from "../components/SearchFields";
 import {formatDuration} from "../../../common/utils";
+import {ArrowDownward, ArrowUpward} from "@mui/icons-material";
 
 const perPage = 10
 
@@ -58,12 +59,35 @@ const useSortField = (): {
   }
 }
 
+const useOrderButton = (): {
+  button: JSX.Element
+  order: 'asc' | 'desc'
+} => {
+  const [order, setOrder] = useState<'asc' | 'desc'>('desc')
+  const tooltip = order === 'asc' ? 'Ascending order' : 'Descending order'
+  const toggle = () => setOrder(order === 'asc' ? 'desc' : 'asc')
+
+  return {
+    button: (
+      <Tooltip title={tooltip}>
+        <IconButton onClick={toggle}>
+          {order === 'asc' ?
+            <ArrowUpward fontSize="medium" /> :
+            <ArrowDownward fontSize="medium" />
+          }
+        </IconButton>
+      </Tooltip>
+    ),
+    order
+  }
+}
+
 export const Home: FunctionComponent = () => {
   const { params, setSearchParams } = useParams()
   const [query, setQuery] = useState<string>(params.q)
   const [page, setPage] = useState<number>(params.page)
   const { sort, field: sortField } = useSortField()
-  const [order, setOrder] = useState<'asc' | 'desc'>('desc')
+  const { order, button: orderButton } = useOrderButton()
 
   const { res, loading, error, time } = useGetRefactorings(query, perPage, page, sort, order)
 
@@ -95,8 +119,9 @@ export const Home: FunctionComponent = () => {
 
   const pager = (
     <div className="flex justify-between h-12">
-      <div className="my-auto text-md w-32">
-        {sortField}
+      <div className="my-auto text-md flex flex-row gap-2 content-center">
+        <div className="w-32">{sortField}</div>
+        <div className="text-gray-600 my-auto">{orderButton}</div>
       </div>
       <Pagination
         className="m-auto"
