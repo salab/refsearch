@@ -45,19 +45,18 @@ export type RefactoringWithId = { _id: string } & RefactoringMeta
 
 export interface CommitMeta {
   _id: string // hash
-  hash: string
   date: Date
   message: string
   refs: string
   body: string
-  author_name: string
-  author_email: string
+  authorName: string
+  authorEmail: string
   url: string
   repository: string
-  refactorings: { [key in keyof typeof RefactoringTypes]?: number }
+  refactorings: { [key in RefactoringType]?: number }
 }
 
 export interface RepositoryMeta {
   _id: string // url
-  url: string
+  refactorings: { [key in RefactoringType]?: number }
 }

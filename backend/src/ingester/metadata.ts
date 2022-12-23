@@ -4,52 +4,65 @@ import {CommitMeta, RefactoringType, RepositoryMeta} from "../../../common/commo
 import {commitsCol, refCol, repoCol} from "../mongo";
 import {commitUrl, formatTime} from "../utils";
 
-const storeRepoMetadata = async (repoUrl: string): Promise<void> => {
-  console.log(`Processing metadata for repository ${repoUrl}...`)
+interface RefTypeMeta { sha1: string; type: RefactoringType }
+const getRefactoringTypeMetas = async (repoUrl: string): Promise<RefTypeMeta[]> => {
   const start = performance.now()
 
+  const cursor = refCol.find({ repository: repoUrl }, { projection: { sha1: 1, type: 1 } })
+  const res: RefTypeMeta[] = []
+  await cursor.forEach((r) => {
+    res.push(r)
+  })
+
+  console.log(`[metadata > type metas] Retrieved in ${formatTime(start)}.`)
+  return res
+}
+
+const storeRepoMetadata = async (repoUrl: string, typeMetas: RefTypeMeta[]): Promise<void> => {
+  const start = performance.now()
+
+  const countPerType = typeMetas.reduce((acc, r) => {
+    acc[r.type] ??= 0
+    acc[r.type]++
+    return acc
+  }, {} as Record<RefactoringType, number>)
   const repoMeta: RepositoryMeta = {
     _id: repoUrl,
-    url: repoUrl
+    refactorings: countPerType,
   }
 
   const res = await repoCol.replaceOne({ _id: repoUrl }, repoMeta, { upsert: true })
   if (!res.acknowledged) {
     throw new Error(`Failed to write repository meta for ${repoUrl}`)
   }
-  console.log(`Updated repository meta in ${formatTime(start)}.`)
+  console.log(`[metadata > repo meta] Updated in ${formatTime(start)}.`)
 }
 
-const storeCommitMetadata = async (repoUrl: string): Promise<void> => {
-  console.log(`Processing commit metadata for repository ${repoUrl}...`)
+const storeCommitMetadata = async (repoUrl: string, typeMetas: RefTypeMeta[]): Promise<void> => {
   const start = performance.now()
 
   const repoPath = repoDirName(repoUrl)
   const git = simpleGit(repoPath)
   const gitLog = await git.log()
 
-  const refactorings = await (async () => {
-    const cursor = refCol.find({ repository: repoUrl }, { projection: { sha1: 1, type: 1 } })
-    const res: { sha1: string; type: RefactoringType }[] = []
-    await cursor.forEach((r) => {
-      res.push(r)
-    })
-    return res
-  })()
-  const refactoringCount = refactorings.reduce((acc, r) => {
-    acc[r.sha1] ??= {}
+  const countPerType = typeMetas.reduce((acc, r) => {
+    acc[r.sha1] ??= {} as Record<RefactoringType, number>
     acc[r.sha1][r.type] ??= 0
     acc[r.sha1][r.type]++
     return acc
-  }, {} as Record<string, Record<string, number>>)
+  }, {} as Record<string, Record<RefactoringType, number>>)
 
   const commits = gitLog.all.map((e): CommitMeta => ({
-    ...e,
     _id: e.hash,
     date: new Date(e.date),
+    message: e.message,
+    refs: e.refs,
+    body: e.body,
+    authorName: e.author_name,
+    authorEmail: e.author_email,
     url: commitUrl(repoUrl, e.hash),
     repository: repoUrl,
-    refactorings: refactoringCount[e.hash] ?? {},
+    refactorings: countPerType[e.hash] ?? {},
   }))
 
   const res = await commitsCol.bulkWrite(commits.map((c) => ({
@@ -62,11 +75,10 @@ const storeCommitMetadata = async (repoUrl: string): Promise<void> => {
   if (!res.isOk()) {
     throw new Error(`Failed to bulk update commits meta for ${repoUrl}`)
   }
-  console.log(`Processed ${commits.length} metadata in ${formatTime(start)}.`)
+  console.log(`[metadata > commit metas] Updated ${commits.length} commit metadata in ${formatTime(start)}.`)
 }
 
 const mergeCommitMetadata = async (repoUrl: string): Promise<void> => {
-  console.log(`Merging commit metadata for repository ${repoUrl}...`)
   const start = performance.now()
 
   const cursor = refCol.aggregate([
@@ -78,11 +90,12 @@ const mergeCommitMetadata = async (repoUrl: string): Promise<void> => {
   ])
   await cursor.forEach(() => {})
 
-  console.log(`Merged commit metadata for refactoring documents in ${formatTime(start)}.`)
+  console.log(`[metadata > merger] Merged commit metadata for refactoring documents in ${formatTime(start)}.`)
 }
 
 export const storeMetadata = async (repoUrl: string): Promise<void> => {
-  await storeRepoMetadata(repoUrl)
-  await storeCommitMetadata(repoUrl)
+  const typeMetas = await getRefactoringTypeMetas(repoUrl)
+  await storeRepoMetadata(repoUrl, typeMetas)
+  await storeCommitMetadata(repoUrl, typeMetas)
   await mergeCommitMetadata(repoUrl)
 }

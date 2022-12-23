@@ -1,4 +1,4 @@
-import {makeSureCloned} from "./ingester/clone";
+import {makeSureCloned} from "./ingester/cloner";
 import {ingestRefDiffFile, ingestRMinerFile} from "./ingester/file_reader";
 import {storeMetadata} from "./ingester/metadata";
 
