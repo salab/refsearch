@@ -1,7 +1,7 @@
 import {RMRefactoring, RMRefactoringType} from "./rminer";
 import {RefDiffRefactoring} from "./refdiff";
 
-export const RefactoringType = {
+export const RefactoringTypes = {
   ...RMRefactoringType,
   ConvertType: 'Convert Type',
   ChangeSignature: 'Change Signature',
@@ -18,6 +18,7 @@ export const RefactoringType = {
   ExtractAndMoveInterface: 'Extract and Move Interface',
   ExtractAndMoveEnum: 'Extract and Move Enum',
 } as const
+export type RefactoringType = typeof RefactoringTypes[keyof typeof RefactoringTypes]
 
 interface ExtractMethodInfo {
   extractedLines: number
@@ -25,7 +26,7 @@ interface ExtractMethodInfo {
 }
 
 export type RefactoringMeta = {
-  type: typeof RefactoringType[keyof typeof RefactoringType]
+  type: RefactoringType
   sha1: string
   repository: string
   description: string
@@ -36,10 +37,11 @@ export type RefactoringMeta = {
   },
   meta: {
     tool?: string
-  }
+  },
+  commit: Omit<CommitMeta, '_id' | 'hash' | 'repository'>, // Merged from commits collection on insert
 }
 
-export type Refactoring = { _id: string } & Omit<RefactoringMeta, 'sha1' | 'repository'> & { commit: Exclude<CommitMeta, '_id'> }
+export type RefactoringWithId = { _id: string } & RefactoringMeta
 
 export interface CommitMeta {
   _id: string // hash
@@ -52,7 +54,7 @@ export interface CommitMeta {
   author_email: string
   url: string
   repository: string
-  refactorings: { [key in keyof typeof RefactoringType]?: number }
+  refactorings: { [key in keyof typeof RefactoringTypes]?: number }
 }
 
 export interface RepositoryMeta {

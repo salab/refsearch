@@ -30,7 +30,7 @@ const storeCommitMetadata = async (repoUrl: string): Promise<void> => {
 
   const refactorings = await (async () => {
     const cursor = refCol.find({ repository: repoUrl }, { projection: { sha1: 1, type: 1 } })
-    const res: { sha1: string; type: typeof RefactoringType[keyof typeof RefactoringType] }[] = []
+    const res: { sha1: string; type: RefactoringType }[] = []
     await cursor.forEach((r) => {
       res.push(r)
     })
@@ -62,10 +62,27 @@ const storeCommitMetadata = async (repoUrl: string): Promise<void> => {
   if (!res.isOk()) {
     throw new Error(`Failed to bulk update commits meta for ${repoUrl}`)
   }
-  console.log(`Processed ${commits.length} metadata (${res.insertedCount} inserted, ${res.modifiedCount} modified) in ${formatTime(start)}.`)
+  console.log(`Processed ${commits.length} metadata in ${formatTime(start)}.`)
+}
+
+const mergeCommitMetadata = async (repoUrl: string): Promise<void> => {
+  console.log(`Merging commit metadata for repository ${repoUrl}...`)
+  const start = performance.now()
+
+  const cursor = refCol.aggregate([
+    { $match: { repository: repoUrl } },
+    { $lookup: { from: 'commits', localField: 'sha1', foreignField: '_id', as: 'commit'} },
+    { $unwind: '$commit' },
+    { $project: { commit: { _id: 0, hash: 0, repository: 0 } } },
+    { $merge: { into: 'refactorings', on: '_id', whenMatched: 'replace', whenNotMatched: 'fail' } },
+  ])
+  await cursor.forEach(() => {})
+
+  console.log(`Merged commit metadata for refactoring documents in ${formatTime(start)}.`)
 }
 
 export const storeMetadata = async (repoUrl: string): Promise<void> => {
   await storeRepoMetadata(repoUrl)
   await storeCommitMetadata(repoUrl)
+  await mergeCommitMetadata(repoUrl)
 }

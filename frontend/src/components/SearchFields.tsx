@@ -1,6 +1,6 @@
 import React, {FunctionComponent, useState} from "react";
 import {Button, Checkbox, Divider, FormControl, ListItemText, MenuItem, Select, TextField} from "@mui/material";
-import {RefactoringType} from "../../../common/common";
+import {RefactoringTypes} from "../../../common/common";
 import {SearchField} from "./SearchField";
 
 const examples = {
@@ -26,9 +26,9 @@ const richFieldsToRaw = ({types, commit, repository}: RichFields): string => {
   }
   if (commit) {
     if (commit.length === 40) conditions.push(`commit.hash = ${commit}`)
-    else conditions.push(`commit.hash ~ ^${commit}`) // commit startsWith
+    else conditions.push(`sha1 ~ ^${commit}`) // commit startsWith
   }
-  if (repository) conditions.push(`commit.repository = ${repository}`)
+  if (repository) conditions.push(`repository = ${repository}`)
   return conditions.join(" & ")
 }
 
@@ -100,7 +100,7 @@ export const SearchFields: FunctionComponent<Props> = ({className, query, setQue
                 updateFromRichField(types)
               }}
             >
-              {Object.values(RefactoringType).map((refType) => (
+              {Object.values(RefactoringTypes).map((refType) => (
                 <MenuItem key={refType} value={refType}>
                   <Checkbox checked={types.indexOf(refType) > -1} />
                   <ListItemText primary={refType} />

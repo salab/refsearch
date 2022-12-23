@@ -14,9 +14,9 @@ export const ingestRMinerFile = async (repoUrl: string): Promise<void> => {
 
   const output = JSON.parse(fs.readFileSync(filename).toString()) as RMOutput
   const refactorings = processRMinerOutput(output)
-  const res = await refCol.insertMany(refactorings)
+  const res = await refCol.insertMany(refactorings as any)
 
-  console.log(`Processed ${output.commits.length} commits, and inserted ${res.insertedCount} refactoring instances in ${formatTime(start)}.`)
+  console.log(`Processed ${output.commits.length} commits and inserted ${res.insertedCount} refactoring instances in ${formatTime(start)}.`)
 }
 
 export const ingestRefDiffFile = async (repoUrl: string): Promise<void> => {
@@ -26,7 +26,7 @@ export const ingestRefDiffFile = async (repoUrl: string): Promise<void> => {
 
   const output = JSON.parse(fs.readFileSync(filename).toString()) as RefDiffOutput
   const refactorings = processRefDiffOutput(repoUrl, output)
-  const res = await refCol.insertMany(refactorings)
+  const res = await refCol.insertMany(refactorings as any)
 
-  console.log(`Inserted ${res.insertedCount} refactoring instances in ${formatTime(start)}.`)
+  console.log(`Processed ${output.length} commits and inserted ${res.insertedCount} refactoring instances in ${formatTime(start)}.`)
 }

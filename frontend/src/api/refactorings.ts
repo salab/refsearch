@@ -1,4 +1,4 @@
-import {Refactoring} from "../../../common/common";
+import {RefactoringWithId} from "../../../common/common";
 import {useEffect, useState} from "react";
 import {unreachable} from "../../../common/utils";
 
@@ -7,7 +7,7 @@ export interface GetRefactoringsResponse {
     count: number
     hasMore: boolean
   }
-  refactorings: Refactoring[]
+  refactorings: RefactoringWithId[]
 }
 export type GetRefactoringsResponseList = {
   status: 400,
@@ -35,14 +35,14 @@ export const getRefactorings = async (query: string, limit: number, offset: numb
 
 export const useGetRefactorings = (query: string, perPage: number, page: number): {
   res: {
-    refactorings: Refactoring[] | undefined
+    refactorings: RefactoringWithId[] | undefined
     count: number
     hasMore: boolean
   }
   loading: boolean
   error: string
 } => {
-  const [refactorings, setRefactorings] = useState<Refactoring[]>()
+  const [refactorings, setRefactorings] = useState<RefactoringWithId[]>()
   const [count, setCount] = useState<number>(0)
   const [hasMore, setHasMore] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -91,7 +91,7 @@ export const useGetRefactorings = (query: string, perPage: number, page: number)
 
 export type GetRefactoringResponseList = {
   status: 200,
-  resp: Refactoring
+  resp: RefactoringWithId
 } | {
   status: 400,
   resp: {
@@ -114,11 +114,11 @@ export const getRefactoring = async (id: string): Promise<GetRefactoringResponse
 }
 
 export const useGetRefactoring = (id: string): {
-  result: Refactoring | undefined
+  result: RefactoringWithId | undefined
   loading: boolean
   error: string
 } => {
-  const [result, setResult] = useState<Refactoring>()
+  const [result, setResult] = useState<RefactoringWithId>()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 

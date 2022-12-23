@@ -1,8 +1,8 @@
 import express, {Request} from "express";
 import {strToMongoQuery} from "./query-string";
-import {refWithCommitCol} from "./mongo";
+import {refCol} from "./mongo";
 import {ObjectId} from "mongodb";
-import {Refactoring} from "../../common/common";
+import {RefactoringMeta} from "../../common/common";
 import {ParseException} from "../../common/parser/exception";
 
 const port: number = Number.parseInt(process.env.PORT ?? '') || 3000
@@ -29,11 +29,11 @@ app.get('/api/refactorings', async (req: GetRefactoringsRequest, res) => {
 
   const limitBulk = 10000
   const countLimit = limitBulk * Math.ceil((offset+limit) / limitBulk)
-  const count = await refWithCommitCol.countDocuments(compiledQuery, { limit: countLimit+1 })
+  const count = await refCol.countDocuments(compiledQuery, { limit: countLimit+1 })
   const hasMore = count > countLimit
 
-  const cursor = refWithCommitCol.find(compiledQuery)
-  const refactorings: Omit<Refactoring, '_id'>[] = []
+  const cursor = refCol.find(compiledQuery)
+  const refactorings: RefactoringMeta[] = []
   cursor.skip(offset)
   cursor.limit(limit)
   await cursor.forEach((r) => {
@@ -62,7 +62,7 @@ app.get('/api/refactorings/:rid', async (req, res) => {
     }
   }
 
-  const ref = await refWithCommitCol.findOne({_id: rid})
+  const ref = await refCol.findOne({_id: rid})
   if (!ref) {
     return res.status(404).json({
       message: 'Refactoring with given id not found'

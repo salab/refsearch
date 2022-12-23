@@ -1,38 +1,39 @@
 import equal from "fast-deep-equal/es6/index";
 import {rminerVersion} from "../../info";
-import {RefactoringMeta, RefactoringType} from "../../../../common/common";
+import {RefactoringTypes} from "../../../../common/common";
 import {RMCodeElementType, RMCommit, RMOutput, RMRightSideLocation} from "../../../../common/rminer";
 import {sshUrlToHttpsUrl} from "../../utils";
+import {RefactoringWithoutCommit} from "./type";
 
 type Commit = Omit<RMCommit, 'refactorings'> & {
-  refactorings: RefactoringMeta[]
+  refactorings: RefactoringWithoutCommit[]
 }
 
-const extractedMethod = (r: RefactoringMeta): RMRightSideLocation | undefined => {
+const extractedMethod = (r: RefactoringWithoutCommit): RMRightSideLocation | undefined => {
   return r.raw.refactoringMiner?.rightSideLocations.find((rsl) =>
     rsl.codeElementType === RMCodeElementType.MethodDeclaration && rsl.description === 'extracted method declaration')
 }
 
 const extractedMethods = (c: Commit): RMRightSideLocation[] => {
   return c.refactorings
-    .filter((r) => r.type === RefactoringType.ExtractMethod)
+    .filter((r) => r.type === RefactoringTypes.ExtractMethod)
     .map((r) => extractedMethod(r))
     .flatMap((rsl) => rsl ? [rsl] : [])
 }
 
-const extractSourceMethodsCount = (extractedMethods: RMRightSideLocation[], r: RefactoringMeta): number => {
+const extractSourceMethodsCount = (extractedMethods: RMRightSideLocation[], r: RefactoringWithoutCommit): number => {
   const method = extractedMethod(r)
   return extractedMethods.filter((m) => equal(m, method)).length
 }
 
-const extractMethodExtractedLines = (r: RefactoringMeta): number => {
+const extractMethodExtractedLines = (r: RefactoringWithoutCommit): number => {
   const extractedCode = r.raw.refactoringMiner?.rightSideLocations
     .find((rhs) => rhs.description === 'extracted method declaration')
   if (!extractedCode) return -1
   return (extractedCode.endLine - extractedCode.startLine + 1)
 }
 
-export const processRMinerOutput = (output: RMOutput): RefactoringMeta[] => {
+export const processRMinerOutput = (output: RMOutput): RefactoringWithoutCommit[] => {
   const commits = output.commits
     .map((c): Commit => {
       // Normalize to https url for convenience
@@ -43,7 +44,7 @@ export const processRMinerOutput = (output: RMOutput): RefactoringMeta[] => {
         url,
         repository,
         refactorings: c.refactorings
-          .map((r): RefactoringMeta => ({
+          .map((r): RefactoringWithoutCommit => ({
             type: r.type,
             description: r.description,
             sha1: c.sha1,
@@ -62,7 +63,7 @@ export const processRMinerOutput = (output: RMOutput): RefactoringMeta[] => {
   commits.forEach((c) => {
     const methods = extractedMethods(c)
     c.refactorings
-      .filter((r) => r.type === RefactoringType.ExtractMethod)
+      .filter((r) => r.type === RefactoringTypes.ExtractMethod)
       .forEach((r) => {
         r.extractMethod = {
           // Use-case 1: 重複の処理が無い / あるextract

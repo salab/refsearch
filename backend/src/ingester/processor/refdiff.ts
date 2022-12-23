@@ -1,9 +1,10 @@
 import equal from "fast-deep-equal/es6";
 import {RefDiffCommit, RefDiffOutput, RefDiffRefactoring} from "../../../../common/refdiff";
-import {Refactoring, RefactoringMeta, RefactoringType} from "../../../../common/common";
+import {RefactoringType, RefactoringTypes} from "../../../../common/common";
 import {refDiffVersion} from "../../info";
+import {RefactoringWithoutCommit} from "./type";
 
-const formatTypeAndDescription = (ref: RefDiffRefactoring): [typ: Refactoring["type"], desc: string] => {
+const formatTypeAndDescription = (ref: RefDiffRefactoring): [typ: RefactoringType, desc: string] => {
   switch (ref.type) {
     case "CONVERT_TYPE":
       return ["Convert Type", `Converted type of ${ref.after.name} from ${ref.before.type.toLowerCase()} to ${ref.after.type.toLowerCase()} in ${ref.after.location.file}`]
@@ -65,7 +66,7 @@ const extractMethodExtractedLines = (r: RefDiffRefactoring): number => {
   return (endLine - startLine + 1)
 }
 
-export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): RefactoringMeta[] => {
+export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): RefactoringWithoutCommit[] => {
   return output.map((c): RefDiffCommit => {
     c.refactorings = c.refactorings.flatMap((ref): RefDiffRefactoring[] => {
       switch (ref.type) {
@@ -92,13 +93,13 @@ export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): Re
       }
     })
     return c
-  }).flatMap((c): RefactoringMeta[] => {
+  }).flatMap((c): RefactoringWithoutCommit[] => {
     const extractMethodRefactorings = extractedMethods(c)
 
-    return c.refactorings.map((ref): RefactoringMeta => {
+    return c.refactorings.map((ref): RefactoringWithoutCommit => {
       const [typ, description] = formatTypeAndDescription(ref)
 
-      const ret: RefactoringMeta = {
+      const ret: RefactoringWithoutCommit = {
         type: typ,
         description,
         sha1: c.sha1,
@@ -112,7 +113,7 @@ export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): Re
       }
 
       // Pre-compute needed information
-      if (typ === RefactoringType.ExtractMethod) {
+      if (typ === RefactoringTypes.ExtractMethod) {
         ret.extractMethod = {
           // Use-case 1: 重複の処理が無い / あるextract
           sourceMethodsCount: extractSourceMethodsCount(ref, extractMethodRefactorings),
