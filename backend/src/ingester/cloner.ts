@@ -1,7 +1,7 @@
 import {repoDirName, repositoriesDir} from "../info";
 import fs from "fs";
 import simpleGit from "simple-git";
-import {formatTime} from "../utils";
+import {formatTime} from "../../../common/utils";
 
 export const makeSureCloned = async (repoUrl: string): Promise<void> => {
   const dirName = repoDirName(repoUrl)

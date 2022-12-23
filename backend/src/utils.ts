@@ -51,4 +51,3 @@ export const humanishName = (repoUrl: string): string => {
   return match[1]
 }
 
-export const formatTime = (start: number): string => `${Math.floor(performance.now() - start) / 1000} s`

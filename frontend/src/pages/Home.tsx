@@ -4,6 +4,7 @@ import {useGetRefactorings} from "../api/refactorings";
 import {RefactoringCard} from "../components/RefactoringCard";
 import {useSearchParams} from "react-router-dom";
 import {SearchFields} from "../components/SearchFields";
+import {formatDuration} from "../../../common/utils";
 
 const perPage = 10
 
@@ -29,7 +30,7 @@ export const Home: FunctionComponent = () => {
   const [query, setQuery] = useState<string>(params.q)
   const [page, setPage] = useState<number>(params.page)
 
-  const { res, loading, error } = useGetRefactorings(query, perPage, page)
+  const { res, loading, error, time } = useGetRefactorings(query, perPage, page)
 
   useEffect(() => {
     const nextParam: Record<string, string> = {}
@@ -46,23 +47,31 @@ export const Home: FunctionComponent = () => {
 
   const resultText = ((): JSX.Element | undefined => {
     if (loading) {
-      return <span className="text-gray-600">Loading...</span>
+      return <div className="text-gray-600">Loading...</div>
     } else if (res.refactorings) {
-      return <span className="text-gray-900">{res.count}{res.hasMore ? '+' : ''} results</span>
+      return (
+        <div className="text-right">
+          <div className="text-gray-900">{res.count}{res.hasMore ? '+' : ''} results</div>
+          <div className="text-gray-400">({formatDuration(time)})</div>
+        </div>
+      )
     }
   })()
 
   const pager = (
-    <div className="flex relative">
+    <div className="flex justify-between h-12">
+      <div className="my-auto text-md">
+        TODO: Sort
+      </div>
       <Pagination
-        className="mx-auto"
+        className="m-auto"
         size="large"
         page={page+1}
         count={Math.ceil(res.count / perPage) + (res.hasMore ? 1 : 0)}
         onChange={(e, page) => setPage(page-1)}
       />
       {resultText && (
-        <div className="absolute right-0 top-1/2 translate-y-[-50%] my-auto text-md">
+        <div className="my-auto text-md">
           {resultText}
         </div>
       )}

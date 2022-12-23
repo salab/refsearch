@@ -5,7 +5,7 @@ import {refCol} from "../mongo";
 import {RefDiffOutput} from "../../../common/refdiff";
 import {processRMinerOutput} from "./processor/rminer";
 import {processRefDiffOutput} from "./processor/refdiff";
-import {formatTime} from "../utils";
+import {formatTime} from "../../../common/utils";
 
 export const ingestRMinerFile = async (repoUrl: string): Promise<void> => {
   const start = performance.now()

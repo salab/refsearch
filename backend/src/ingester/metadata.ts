@@ -2,7 +2,8 @@ import {repoDirName} from "../info";
 import simpleGit from "simple-git";
 import {CommitMeta, RefactoringType, RepositoryMeta} from "../../../common/common";
 import {commitsCol, refCol, repoCol} from "../mongo";
-import {commitUrl, formatTime} from "../utils";
+import {commitUrl} from "../utils";
+import {formatTime} from "../../../common/utils";
 
 interface RefTypeMeta { sha1: string; type: RefactoringType }
 const getRefactoringTypeMetas = async (repoUrl: string): Promise<RefTypeMeta[]> => {

@@ -1,5 +1,5 @@
 import {refDiffFileName, rminerFileName} from "../info";
-import {formatTime} from "../utils";
+import {formatTime} from "../../../common/utils";
 
 export const runRMiner = async (repoUrl: string): Promise<void> => {
   const start = performance.now()

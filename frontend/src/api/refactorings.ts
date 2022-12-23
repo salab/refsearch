@@ -41,12 +41,14 @@ export const useGetRefactorings = (query: string, perPage: number, page: number)
   }
   loading: boolean
   error: string
+  time: number
 } => {
   const [refactorings, setRefactorings] = useState<RefactoringWithId[]>()
   const [count, setCount] = useState<number>(0)
   const [hasMore, setHasMore] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [time, setTime] = useState(0)
 
   useEffect(() => {
     setCount(0)
@@ -61,6 +63,7 @@ export const useGetRefactorings = (query: string, perPage: number, page: number)
     setLoading(true)
     let cancelled = false
 
+    const start = performance.now()
     getRefactorings(query, limit, offset)
       .then((r) => {
         if (cancelled) {
@@ -68,6 +71,7 @@ export const useGetRefactorings = (query: string, perPage: number, page: number)
         }
 
         setLoading(false)
+        setTime(performance.now() - start)
         if (r.status === 200) {
           setRefactorings(r.resp.refactorings)
           setCount((prev) => Math.max(prev, r.resp.total.count))
@@ -86,7 +90,7 @@ export const useGetRefactorings = (query: string, perPage: number, page: number)
     return () => { cancelled = true }
   }, [query, perPage, page])
 
-  return { res: { refactorings, count, hasMore }, loading, error }
+  return { res: { refactorings, count, hasMore }, loading, error, time }
 }
 
 export type GetRefactoringResponseList = {
