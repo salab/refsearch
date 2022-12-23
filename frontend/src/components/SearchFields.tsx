@@ -54,6 +54,12 @@ export const SearchFields: FunctionComponent<Props> = ({className, query, setQue
 
   const updateFromRichField = (t: string[] = types) => {
     setQuery(richFieldsToRaw({ types: t, commit, repository}))
+    setRawField('')
+  }
+
+  const setFromExample = (q: string) => {
+    setQuery(q)
+    setRawField(q)
   }
 
   return (
@@ -109,8 +115,8 @@ export const SearchFields: FunctionComponent<Props> = ({className, query, setQue
       <Divider flexItem />
       <div className="flex flex-row gap-4">
         <div className="text-md my-auto text-gray-600">Examples</div>
-        <Button variant="outlined" onClick={() => setQuery(examples.useCase1)}>UseCase 1</Button>
-        <Button variant="outlined" onClick={() => setQuery(examples.useCase2)}>UseCase 2</Button>
+        <Button variant="outlined" onClick={() => setFromExample(examples.useCase1)}>UseCase 1</Button>
+        <Button variant="outlined" onClick={() => setFromExample(examples.useCase2)}>UseCase 2</Button>
       </div>
       <Divider flexItem />
       {/* TODO */}
