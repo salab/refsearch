@@ -13,6 +13,8 @@ const useParams = (): {
   params: {
     q: string
     page: number
+    sort: string
+    order: 'asc' | 'desc' | ''
   }
   setSearchParams: ReturnType<typeof useSearchParams>[1]
 } => {
@@ -21,17 +23,20 @@ const useParams = (): {
     params: {
       q: searchParams.get('q') ?? '',
       page: (Number.parseInt(searchParams.get('page') ?? '1') || 1)-1,
+      sort: searchParams.get('sort') ?? '',
+      order: (searchParams.get('order') ?? '') as 'asc' | 'desc' | '',
     },
     setSearchParams
   }
 }
 
-const useSortField = (): {
+const useSortField = (init: string): {
   field: JSX.Element
   sort: string
 } => {
-  const [sort, setSort] = useState('commit.date')
-  const [internal, setInternal] = useState('')
+  const defaultValue = 'commit.date'
+  const [sort, setSort] = useState(init || defaultValue)
+  const [internal, setInternal] = useState(init !== defaultValue ? init : '')
 
   return {
     field: (
@@ -44,14 +49,14 @@ const useSortField = (): {
         value={internal}
         onChange={(e) => setInternal(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === "Enter" && internal !== sort) {
-            setSort(internal)
+          if (e.key === "Enter") {
+            const next = internal || defaultValue
+            if (sort !== next) setSort(next)
           }
         }}
         onBlur={() => {
-          if (internal !== sort && internal) {
-            setSort(internal)
-          }
+          const next = internal || defaultValue
+          if (sort !== next) setSort(next)
         }}
       />
     ),
@@ -59,11 +64,11 @@ const useSortField = (): {
   }
 }
 
-const useOrderButton = (): {
+const useOrderButton = (init: 'asc' | 'desc'): {
   button: JSX.Element
   order: 'asc' | 'desc'
 } => {
-  const [order, setOrder] = useState<'asc' | 'desc'>('desc')
+  const [order, setOrder] = useState<'asc' | 'desc'>(init)
   const tooltip = order === 'asc' ? 'Ascending order' : 'Descending order'
   const toggle = () => setOrder(order === 'asc' ? 'desc' : 'asc')
 
@@ -86,8 +91,8 @@ export const Home: FunctionComponent = () => {
   const { params, setSearchParams } = useParams()
   const [query, setQuery] = useState<string>(params.q)
   const [page, setPage] = useState<number>(params.page)
-  const { sort, field: sortField } = useSortField()
-  const { order, button: orderButton } = useOrderButton()
+  const { sort, field: sortField } = useSortField(params.sort)
+  const { order, button: orderButton } = useOrderButton(params.order || 'desc')
 
   const { res, loading, error, time } = useGetRefactorings(query, perPage, page, sort, order)
 
@@ -99,10 +104,16 @@ export const Home: FunctionComponent = () => {
     if (page || params.page /* page was previously set */) {
       nextParam.page = ''+(page+1)
     }
+    if (sort !== 'commit.date' || params.sort) {
+      nextParam.sort = sort
+    }
+    if (order !== 'desc' || params.order) {
+      nextParam.order = order
+    }
     if (Object.keys(nextParam).length > 0) {
       setSearchParams(nextParam)
     }
-  }, [setSearchParams, params.q, query, params.page, page])
+  }, [setSearchParams, params.q, query, params.page, page, params.sort, sort, params.order, order])
 
   const resultText = ((): JSX.Element | undefined => {
     if (loading) {
