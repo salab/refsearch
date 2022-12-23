@@ -21,6 +21,12 @@ export type GetRefactoringsResponseList = {
     details: string
   }
 } | {
+  status: 400,
+  resp: {
+    message: 'Invalid order',
+    details: string
+  }
+} | {
   status: 200,
   resp: GetRefactoringsResponse
 }

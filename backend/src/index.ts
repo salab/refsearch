@@ -14,25 +14,35 @@ interface GetRefactoringsRequest extends Request {
     q?: string
     limit?: string
     offset?: string
+    sort?: string
+    order?: string
   }
 }
 
 app.get('/api/refactorings', async (req: GetRefactoringsRequest, res) => {
+  // Request
   const q = req.query.q || ''
   const limit = Number.parseInt(req.query.limit ?? '') || 50
   const offset = Math.max(0, Number.parseInt(req.query.offset ?? '') || 0)
+  const sort = req.query.sort || 'commit.date'
+  const order = req.query.order || 'desc'
 
+  // Validate
   const compiledQuery = strToMongoQuery(q)
   if (ParseException.is(compiledQuery)) {
     return res.status(400).json({message: 'Malformed query', details: compiledQuery.message})
   }
+  if (!['asc', 'desc'].includes(order)) {
+    return res.status(400).json({ message: 'Invalid order', details: 'Order must be asc or desc' })
+  }
 
+  // Process
   const limitBulk = 10000
   const countLimit = limitBulk * Math.ceil((offset+limit) / limitBulk)
   const count = await refCol.countDocuments(compiledQuery, { limit: countLimit+1 })
   const hasMore = count > countLimit
 
-  const cursor = refCol.find(compiledQuery)
+  const cursor = refCol.find(compiledQuery, { sort: { [sort]: order as 'asc' | 'desc' } })
   const refactorings: RefactoringMeta[] = []
   cursor.skip(offset)
   cursor.limit(limit)
