@@ -111,7 +111,7 @@ export type GetRefactoringResponseList = {
 } | {
   status: 404,
   resp: {
-    message: 'Refactoring with given id not found'
+    message: 'Document not found'
   }
 }
 

@@ -1,84 +1,8 @@
-import express, {Request} from "express";
-import {strToMongoQuery} from "./query-string";
-import {refCol} from "./mongo";
-import {ObjectId} from "mongodb";
-import {RefactoringMeta} from "../../common/common";
-import {ParseException} from "../../common/parser/exception";
-
-const port: number = Number.parseInt(process.env.PORT ?? '') || 3000
+import express from "express";
+import {registerRoutes} from "./api";
 
 const app = express()
+registerRoutes(app)
 
-interface GetRefactoringsRequest extends Request {
-  query: {
-    q?: string
-    limit?: string
-    offset?: string
-    sort?: string
-    order?: string
-  }
-}
-
-app.get('/api/refactorings', async (req: GetRefactoringsRequest, res) => {
-  // Request
-  const q = req.query.q || ''
-  const limit = Number.parseInt(req.query.limit ?? '') || 50
-  const offset = Math.max(0, Number.parseInt(req.query.offset ?? '') || 0)
-  const sort = req.query.sort || 'commit.date'
-  const order = req.query.order || 'desc'
-
-  // Validate
-  const compiledQuery = strToMongoQuery(q)
-  if (ParseException.is(compiledQuery)) {
-    return res.status(400).json({message: 'Malformed query', details: compiledQuery.message})
-  }
-  if (!['asc', 'desc'].includes(order)) {
-    return res.status(400).json({ message: 'Invalid order', details: 'Order must be asc or desc' })
-  }
-
-  // Process
-  const limitBulk = 10000
-  const countLimit = limitBulk * Math.ceil((offset+limit) / limitBulk)
-  const count = await refCol.countDocuments(compiledQuery, { limit: countLimit+1 })
-  const hasMore = count > countLimit
-
-  const cursor = refCol.find(compiledQuery, { sort: { [sort]: order as 'asc' | 'desc' } })
-  const refactorings: RefactoringMeta[] = []
-  cursor.skip(offset)
-  cursor.limit(limit)
-  await cursor.forEach((r) => {
-    refactorings.push(r)
-  })
-
-  return res.status(200).json({
-    total: {
-      count: Math.min(count, countLimit),
-      hasMore,
-    },
-    refactorings
-  })
-})
-
-app.get('/api/refactorings/:rid', async (req, res) => {
-  let rid: ObjectId
-  try {
-    rid = new ObjectId(req.params.rid)
-  } catch (e: any) {
-    if (e.name === 'BSONTypeError') {
-      return res.status(400).json({message: 'Malformed id', details: e.message})
-    } else {
-      console.trace(e)
-      return res.status(500)
-    }
-  }
-
-  const ref = await refCol.findOne({_id: rid})
-  if (!ref) {
-    return res.status(404).json({
-      message: 'Refactoring with given id not found'
-    })
-  }
-  return res.status(200).json(ref)
-})
-
+const port: number = Number.parseInt(process.env.PORT ?? '') || 3000
 app.listen(port, () => console.log(`API server started on port ${port}`))
