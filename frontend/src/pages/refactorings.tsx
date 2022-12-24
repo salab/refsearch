@@ -30,7 +30,7 @@ export const Refactoring: FunctionComponent = () => {
   const shortSha = ref.sha1.substring(0, 6)
 
   return (
-    <div className="p-12 flex flex-col gap-8">
+    <div className="flex flex-col gap-8">
       <div className="text-3xl font-bold text-gray-700">Refactoring Details</div>
       <Divider />
       <div className="flex flex-col gap-4 text-gray-600">

@@ -206,7 +206,7 @@ export const Index: FunctionComponent = () => {
   )
 
   return (
-    <div className="p-12">
+    <div>
       <SearchFields query={query} setQuery={(q) => {
         setQuery(q)
         setPage(0)

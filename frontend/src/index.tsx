@@ -13,7 +13,9 @@ import {Refactoring} from "./pages/refactorings";
 const Layout: FunctionComponent = () => (
   <div>
     <Header />
-    <Outlet />
+    <div className="p-12">
+      <Outlet />
+    </div>
   </div>
 )
 
