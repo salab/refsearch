@@ -1,15 +1,15 @@
 import {repoDirName} from "../info";
 import simpleGit from "simple-git";
-import {CommitMeta, RefactoringType, RepositoryMeta} from "../../../common/common";
+import {CommitMeta, RefactoringMeta, RefactoringType, RepositoryMeta} from "../../../common/common";
 import {commitsCol, refCol, repoCol} from "../mongo";
 import {commitUrl} from "../utils";
 import {formatTime} from "../../../common/utils";
 
-interface RefTypeMeta { sha1: string; type: RefactoringType }
+type RefTypeMeta = Pick<RefactoringMeta, 'sha1' | 'type' | 'meta'>
 const getRefactoringTypeMetas = async (repoUrl: string): Promise<RefTypeMeta[]> => {
   const start = performance.now()
 
-  const cursor = refCol.find({ repository: repoUrl }, { projection: { sha1: 1, type: 1 } })
+  const cursor = refCol.find({ repository: repoUrl }, { projection: { sha1: 1, type: 1, meta: 1 } })
   const res: RefTypeMeta[] = []
   await cursor.forEach((r) => {
     res.push(r)
@@ -19,6 +19,8 @@ const getRefactoringTypeMetas = async (repoUrl: string): Promise<RefTypeMeta[]> 
   return res
 }
 
+const total = (m: Record<string, number>): number => Object.values(m).reduce((a, r) => a + r, 0)
+
 const storeRepoMetadata = async (repoUrl: string, typeMetas: RefTypeMeta[]): Promise<void> => {
   const start = performance.now()
 
@@ -27,9 +29,20 @@ const storeRepoMetadata = async (repoUrl: string, typeMetas: RefTypeMeta[]): Pro
     acc[r.type]++
     return acc
   }, {} as Record<RefactoringType, number>)
+  const countPerTool = typeMetas.reduce((acc, r) => {
+    if (r.meta.tool) {
+      acc[r.meta.tool] ??= 0
+      acc[r.meta.tool]++
+    }
+    return acc
+  }, {} as Record<string, number>)
   const repoMeta: RepositoryMeta = {
     _id: repoUrl,
-    refactorings: countPerType,
+    refactorings: {
+      total: typeMetas.length,
+      perType: countPerType,
+      perTool: countPerTool,
+    },
   }
 
   const res = await repoCol.replaceOne({ _id: repoUrl }, repoMeta, { upsert: true })
@@ -52,6 +65,14 @@ const storeCommitMetadata = async (repoUrl: string, typeMetas: RefTypeMeta[]): P
     acc[r.sha1][r.type]++
     return acc
   }, {} as Record<string, Record<RefactoringType, number>>)
+  const countPerTool = typeMetas.reduce((acc, r) => {
+    acc[r.sha1] ??= {}
+    if (r.meta.tool) {
+      acc[r.sha1][r.meta.tool] ??= 0
+      acc[r.sha1][r.meta.tool]++
+    }
+    return acc
+  }, {} as Record<string, Record<string, number>>)
 
   const commits = gitLog.all.map((e): CommitMeta => ({
     _id: e.hash,
@@ -63,7 +84,11 @@ const storeCommitMetadata = async (repoUrl: string, typeMetas: RefTypeMeta[]): P
     authorEmail: e.author_email,
     url: commitUrl(repoUrl, e.hash),
     repository: repoUrl,
-    refactorings: countPerType[e.hash] ?? {},
+    refactorings: {
+      total: total(countPerType[e.hash] ?? {}),
+      perType: countPerType[e.hash] ?? {},
+      perTool: countPerTool[e.hash] ?? {},
+    },
   }))
 
   const res = await commitsCol.bulkWrite(commits.map((c) => ({

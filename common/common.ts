@@ -43,6 +43,12 @@ export type RefactoringMeta = {
 
 export type RefactoringWithId = { _id: string } & RefactoringMeta
 
+export interface RefactoringsCount {
+  total: number
+  perType: Record<RefactoringType, number>
+  perTool: Record<string, number>
+}
+
 export interface CommitMeta {
   _id: string // hash
   date: Date
@@ -53,10 +59,10 @@ export interface CommitMeta {
   authorEmail: string
   url: string
   repository: string
-  refactorings: { [key in RefactoringType]?: number }
+  refactorings: RefactoringsCount
 }
 
 export interface RepositoryMeta {
   _id: string // url
-  refactorings: { [key in RefactoringType]?: number }
+  refactorings: RefactoringsCount
 }
