@@ -50,7 +50,7 @@ export const searchRequestHandler = <T extends Document>(collection: Collection<
         count: Math.min(count, countLimit),
         hasMore,
       },
-      refactorings: result
+      result,
     })
   }
 

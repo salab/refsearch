@@ -7,7 +7,7 @@ export interface GetRefactoringsResponse {
     count: number
     hasMore: boolean
   }
-  refactorings: RefactoringWithId[]
+  result: RefactoringWithId[]
 }
 export type GetRefactoringsResponseList = {
   status: 400,
@@ -79,7 +79,7 @@ export const useGetRefactorings = (query: string, perPage: number, page: number,
         setLoading(false)
         setTime(performance.now() - start)
         if (r.status === 200) {
-          setRefactorings(r.resp.refactorings)
+          setRefactorings(r.resp.result)
           setCount((prev) => Math.max(prev, r.resp.total.count))
           setHasMore((prev) => prev && r.resp.total.hasMore)
 
