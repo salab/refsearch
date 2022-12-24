@@ -50,4 +50,3 @@ export const humanishName = (repoUrl: string): string => {
   }
   return match[1]
 }
-
