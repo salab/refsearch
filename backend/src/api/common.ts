@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import {Collection, Document, Filter, ObjectId} from "mongodb";
+import {Collection, Document, Filter} from "mongodb";
 import {strToMongoQuery} from "../query-string";
 import {ParseException} from "../../../common/parser/exception";
 
@@ -56,19 +56,7 @@ export const searchRequestHandler = <T extends Document>(collection: Collection<
 
 export const retrieveDocumentHandler = <T extends Document>(collection: Collection<T>) =>
   async (req: Request, res: Response) => {
-    let id: ObjectId
-    try {
-      id = new ObjectId(req.params.id)
-    } catch (e: any) {
-      if (e.name === 'BSONTypeError') {
-        return res.status(400).json({ message: 'Malformed id', details: e.message })
-      } else {
-        console.trace(e)
-        return res.status(500)
-      }
-    }
-
-    const ref = await collection.findOne({ _id: id } as unknown as Filter<T>)
+    const ref = await collection.findOne({ _id: req.params.id } as unknown as Filter<T>)
     if (!ref) {
       return res.status(404).json({
         message: 'Document not found'
