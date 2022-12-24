@@ -11,13 +11,11 @@ import ContentCopy from "@mui/icons-material/ContentCopy";
 import Build from "@mui/icons-material/Build";
 import {useGetRefactoring} from "../api/documents";
 import {fromGitHub, gitHubRepoName, shortSha} from "../../../common/utils";
-
-const copyToClipboard = (s: string): void => void navigator.clipboard.writeText(s)
+import {copyToClipboard} from "../libs/utils";
 
 export const Refactoring: FunctionComponent = () => {
-  const {rid} = useParams<{ rid: string }>()
-
-  const state = useGetRefactoring(rid ?? '')
+  const {id} = useParams<{ id: string }>()
+  const state = useGetRefactoring(id ?? '')
 
   switch (state.state) {
     case 'loading':

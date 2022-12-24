@@ -8,7 +8,8 @@ import './index.css';
 import {Header} from "./components/Header";
 import {Index} from './pages';
 import {Commits} from "./pages/commits";
-import {Refactoring} from "./pages/refactorings";
+import {Refactoring} from "./pages/refactoring";
+import {Commit} from "./pages/commit";
 
 const Layout: FunctionComponent = () => (
   <div>
@@ -28,13 +29,17 @@ const router = createBrowserRouter([
         element: <Index />
       },
       {
+        path: '/refactorings/:id',
+        element: <Refactoring />
+      },
+      {
         path: '/commits',
         element: <Commits />
       },
       {
-        path: '/refactorings/:rid',
-        element: <Refactoring />
-      }
+        path: '/commits/:id',
+        element: <Commit />
+      },
     ]
   }
 ])

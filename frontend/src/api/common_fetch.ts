@@ -64,7 +64,7 @@ export const useGetDocument = <T>(basePath: string, id: string): FetchState<T> =
         } else if (r.status === 400) {
           setState({ state: 'error', error: 'Malformed id', time, res: undefined })
         } else if (r.status === 404) {
-          setState({ state: 'error', error: `Refactoring with id ${id} not found`, time, res: undefined })
+          setState({ state: 'error', error: `Document with id ${id} not found`, time, res: undefined })
         } else {
           unreachable(r)
         }
