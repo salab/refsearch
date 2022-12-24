@@ -87,7 +87,7 @@ const useOrderButton = (init: 'asc' | 'desc'): {
   }
 }
 
-export const Home: FunctionComponent = () => {
+export const Index: FunctionComponent = () => {
   const { params, setSearchParams } = useParams()
   const [query, setQuery] = useState<string>(params.q)
   const [page, setPage] = useState<number>(params.page)

@@ -1,21 +1,39 @@
-import React from 'react';
+import React, {FunctionComponent} from 'react';
 import ReactDOM from 'react-dom/client';
 import {
-  createBrowserRouter,
+  createBrowserRouter, Outlet,
   RouterProvider,
 } from 'react-router-dom';
-import {Home} from './pages/Home';
 import './index.css';
-import {Refactoring} from "./pages/Refactoring";
+import {Header} from "./components/Header";
+import {Index} from './pages';
+import {Commits} from "./pages/commits";
+import {Refactoring} from "./pages/refactorings";
+
+const Layout: FunctionComponent = () => (
+  <div>
+    <Header />
+    <Outlet />
+  </div>
+)
 
 const router = createBrowserRouter([
   {
-    path: '/',
-    element: <Home />
-  },
-  {
-    path: '/refactorings/:rid',
-    element: <Refactoring />
+    element: <Layout />,
+    children: [
+      {
+        path: '/',
+        element: <Index />
+      },
+      {
+        path: '/commits',
+        element: <Commits />
+      },
+      {
+        path: '/refactorings/:rid',
+        element: <Refactoring />
+      }
+    ]
   }
 ])
 
