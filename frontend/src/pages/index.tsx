@@ -56,8 +56,12 @@ interface Props {
 
 const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, queryError}) => {
   const [types, setTypes] = useState<string[]>([])
-  const { internal: commit, field: commitField } = useSearchField({ init: '', size: 'small', variant: 'outlined', update: (s) => updateFromRichField({ commit: s }) })
-  const { internal: repository, field: repoField } = useSearchField({ init: '', size: 'small', variant: 'outlined', update: (s) => updateFromRichField({ repository: s }) })
+  const { setValue: setCommit, internal: commit, field: commitField } = useSearchField({
+    init: '', size: 'small', variant: 'outlined', update: (s) => updateFromRichField({ commit: s })
+  })
+  const { setValue: setRepository, internal: repository, field: repoField } = useSearchField({
+    init: '', size: 'small', variant: 'outlined', update: (s) => updateFromRichField({ repository: s })
+  })
 
   const richFieldQuery = richFieldsToRaw({ types, commit, repository })
   const { setValue: setRaw, field: rawField } = useSearchField({
@@ -67,8 +71,17 @@ const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, que
     label: 'Query',
     shrink: true,
     placeholder: richFieldQuery,
-    update: (s) => setQuery(s),
+    update: (s) => {
+      setQuery(s)
+      clearRichFields()
+    },
   })
+
+  const clearRichFields = () => {
+    setTypes([])
+    setCommit('')
+    setRepository('')
+  }
 
   const updateFromRichField = (f: Partial<RichFields>) => {
     setQuery(richFieldsToRaw({ types, commit, repository, ...f }))
