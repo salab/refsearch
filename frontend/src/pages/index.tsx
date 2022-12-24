@@ -1,4 +1,4 @@
-import React, {FunctionComponent, useEffect, useState} from 'react';
+import React, {FunctionComponent, useState} from 'react';
 import {
   Checkbox,
   CircularProgress,
@@ -9,7 +9,7 @@ import {
   Select
 } from "@mui/material";
 import {RefactoringCard} from "../components/RefactoringCard";
-import {useParsedSearchParams} from "../libs/params";
+import {useParsedSearchParams, useSearchParamsEffect} from "../libs/params";
 import {useOrderButton} from "../components/OrderButton";
 import {useSearchField} from "../components/SearchField";
 import {RefactoringTypes} from "../../../common/common";
@@ -151,27 +151,10 @@ export const Index: FunctionComponent = () => {
   })
   const { order, button: orderButton } = useOrderButton(params.order || 'desc')
 
+  useSearchParamsEffect(params, setSearchParams, { query, page, sort, order }, 'commit.date')
+
   const state = useGetRefactorings(query, perPage, page, sort, order)
   const { pager, resultText } = usePager(page, setPage, state, perPage)
-
-  useEffect(() => {
-    const nextParam: Record<string, string> = {}
-    if (query || params.q /* q was previously set */) {
-      nextParam.q = query
-    }
-    if (page || params.page /* page was previously set */) {
-      nextParam.page = ''+(page+1)
-    }
-    if (sort !== 'commit.date' || params.sort) {
-      nextParam.sort = sort
-    }
-    if (order !== 'desc' || params.order) {
-      nextParam.order = order
-    }
-    if (Object.keys(nextParam).length > 0) {
-      setSearchParams(nextParam)
-    }
-  }, [setSearchParams, params.q, query, params.page, page, params.sort, sort, params.order, order])
 
   const pagerBar = (
     <div className="flex justify-between h-12">

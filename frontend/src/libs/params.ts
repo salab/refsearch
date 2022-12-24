@@ -1,12 +1,15 @@
 import {useSearchParams} from "react-router-dom";
+import {useEffect} from "react";
+
+export interface ParsedSearchParams {
+  q: string
+  page: number
+  sort: string
+  order: 'asc' | 'desc' | ''
+}
 
 export const useParsedSearchParams = (): {
-  params: {
-    q: string
-    page: number
-    sort: string
-    order: 'asc' | 'desc' | ''
-  }
+  params: ParsedSearchParams
   setSearchParams: ReturnType<typeof useSearchParams>[1]
 } => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -19,4 +22,42 @@ export const useParsedSearchParams = (): {
     },
     setSearchParams
   }
+}
+
+export interface CurrentState {
+  query: string
+  page: number
+  sort: string
+  order: 'asc' | 'desc'
+}
+
+export const useSearchParamsEffect = (
+  params: ParsedSearchParams,
+  setSearchParams: ReturnType<typeof useSearchParams>[1],
+  current: CurrentState,
+  defaultSort: string,
+) => {
+  const { query, page, sort, order } = current
+  useEffect(() => {
+    const nextParam: Record<string, string> = {}
+    if (query || params.q /* q was previously set */) {
+      nextParam.q = query
+    }
+    if (page || params.page /* page was previously set */) {
+      nextParam.page = ''+(page+1)
+    }
+    if (sort !== defaultSort || params.sort) {
+      nextParam.sort = sort
+    }
+    if (order !== 'desc' || params.order) {
+      nextParam.order = order
+    }
+    if (Object.keys(nextParam).length > 0) {
+      setSearchParams(nextParam)
+    }
+  }, [
+    setSearchParams, defaultSort,
+    params.q, params.page, params.sort, params.order,
+    query, page, sort, order,
+  ])
 }
