@@ -10,6 +10,7 @@ import Description from "@mui/icons-material/Description";
 import ContentCopy from "@mui/icons-material/ContentCopy";
 import Build from "@mui/icons-material/Build";
 import {useGetRefactoring} from "../api/documents";
+import {fromGitHub, gitHubRepoName, shortSha} from "../../../common/utils";
 
 const copyToClipboard = (s: string): void => void navigator.clipboard.writeText(s)
 
@@ -26,8 +27,8 @@ export const Refactoring: FunctionComponent = () => {
   }
 
   const ref = state.res
-  const fromGitHub = ref.repository.startsWith('https://github.com/')
-  const shortSha = ref.sha1.substring(0, 6)
+  const isGitHub = fromGitHub(ref.repository)
+  const short = shortSha(ref.sha1)
 
   return (
     <div className="flex flex-col gap-8">
@@ -35,15 +36,15 @@ export const Refactoring: FunctionComponent = () => {
       <Divider />
       <div className="flex flex-col gap-4 text-gray-600">
         <div className="flex flex-row gap-2">
-          {fromGitHub ? <GitHub /> : <Storage />}
+          {isGitHub ? <GitHub /> : <Storage />}
           <div className="font-semibold">Repository</div>
-          <ExternalLink href={ref.repository} text={fromGitHub ? ref.repository.substring("https://github.com/".length) : ref.repository} />
+          <ExternalLink href={ref.repository} text={isGitHub ? gitHubRepoName(ref.repository) : ref.repository} />
           <ContentCopy className="translate-y-1" cursor="pointer" fontSize="small" onClick={() => copyToClipboard(ref.repository)} />
         </div>
         <div className="flex flex-row gap-2">
           <Commit />
           <div className="font-semibold">Commit</div>
-          <ExternalLink href={ref.commit.url} text={shortSha} />
+          <ExternalLink href={ref.commit.url} text={short} />
           <ContentCopy className="translate-y-1" cursor="pointer" fontSize="small" onClick={() => copyToClipboard(ref.sha1)} />
         </div>
         <div className="flex flex-row gap-2">
