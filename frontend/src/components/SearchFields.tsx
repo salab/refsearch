@@ -1,7 +1,7 @@
 import React, {FunctionComponent, useState} from "react";
-import {Button, Checkbox, Divider, FormControl, ListItemText, MenuItem, Select, TextField} from "@mui/material";
+import {Button, Checkbox, Divider, FormControl, ListItemText, MenuItem, Select} from "@mui/material";
 import {RefactoringTypes} from "../../../common/common";
-import {SearchField} from "./SearchField";
+import {useSearchField} from "./SearchField";
 
 const examples = {
   // Use-case 1: 重複の処理が無いextract
@@ -40,51 +40,34 @@ interface Props {
 }
 
 export const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, queryError}) => {
-  const [rawField, setRawField] = useState(query)
-
   const [types, setTypes] = useState<string[]>([])
-  const [commit, setCommit] = useState('')
-  const [repository, setRepository] = useState('')
+  const { internal: commit, field: commitField } = useSearchField({ init: '', size: 'small', variant: 'outlined', update: () => updateFromRichField() })
+  const { internal: repository, field: repoField } = useSearchField({ init: '', size: 'small', variant: 'outlined', update: () => updateFromRichField() })
 
   const richFieldQuery = richFieldsToRaw({ types, commit, repository })
-
-  const updateFromRawField = () => {
-    setQuery(rawField)
-  }
+  const { value: raw, setValue: setRaw, field: rawField } = useSearchField({
+    init: query,
+    variant: 'standard',
+    error: queryError,
+    label: 'Query',
+    shrink: true,
+    placeholder: richFieldQuery,
+    update: () => setQuery(raw),
+  })
 
   const updateFromRichField = (t: string[] = types) => {
     setQuery(richFieldsToRaw({ types: t, commit, repository}))
-    setRawField('')
+    setRaw('')
   }
 
   const setFromExample = (q: string) => {
     setQuery(q)
-    setRawField(q)
+    setRaw(q)
   }
 
   return (
     <div className={`${className} flex flex-col gap-4`}>
-      <TextField
-        label="Query"
-        variant="standard"
-        InputLabelProps={{ shrink: true }}
-        placeholder={richFieldQuery}
-        fullWidth
-        value={rawField}
-        onChange={(e) => setRawField(e.target.value)}
-        error={queryError !== ''}
-        helperText={queryError}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && query !== rawField) {
-            updateFromRawField()
-          }
-        }}
-        onBlur={() => {
-          if (query !== rawField && rawField) {
-            updateFromRawField()
-          }
-        }}
-      />
+      {rawField}
       <FormControl size="small">
         <div className="flex flex-row flex-wrap grid-cols-2 gap-4">
           <div className="flex flex-row gap-2">
@@ -108,8 +91,14 @@ export const SearchFields: FunctionComponent<Props> = ({className, query, setQue
               ))}
             </Select>
           </div>
-          <SearchField name="Commit" value={commit} setValue={setCommit} update={updateFromRichField} />
-          <SearchField name="Repository" value={repository} setValue={setRepository} update={updateFromRichField} />
+          <div className="flex flex-row gap-2">
+            <div className="flex-none my-auto">Commit =</div>
+            {commitField}
+          </div>
+          <div className="flex flex-row gap-2">
+            <div className="flex-none my-auto">Repository =</div>
+            {repoField}
+          </div>
         </div>
       </FormControl>
       <Divider flexItem />

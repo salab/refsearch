@@ -1,36 +1,82 @@
-import React, {FunctionComponent, useState} from "react";
-import {TextField} from "@mui/material";
+import React, {useEffect, useState} from "react";
+import {TextField, TextFieldProps} from "@mui/material";
 
 interface Props {
-  name: string
-  value: string
-  setValue: (s: string) => void
-  update: () => void
+  init: string
+  placeholder?: string
+  variant: TextFieldProps['variant']
+  label?: string
+  shrink?: boolean
+  size?: TextFieldProps['size']
+  error?: string
+  update?: () => void
 }
 
-export const SearchField: FunctionComponent<Props> = ({ name, value, setValue, update }) => {
-  const [last, setLast] = useState(value)
-  return (
-    <div className="flex flex-row gap-2">
-      <div className="flex-none my-auto">{name} =</div>
+export const useSearchField = ({
+  init,
+  placeholder = '',
+  variant,
+  label = '',
+  shrink = false,
+  size = 'medium',
+  error = '',
+  update,
+}: Props): {
+  field: JSX.Element
+  internal: string
+  value: string
+  setValue: (s: string) => void
+} => {
+  const [internal, setInternal] = useState(init !== placeholder ? init : '')
+  const [value, setValue] = useState(internal || placeholder)
+
+  useEffect(() => {
+    if (internal === '') {
+      setValue(placeholder)
+    }
+  }, [placeholder])
+
+  return {
+    field: (
       <TextField
-        variant="outlined"
-        size="small"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
+        label={label}
+        variant={variant}
+        InputLabelProps={{ shrink }}
+        placeholder={placeholder}
+        fullWidth
+        value={internal}
+        size={size}
+        error={error !== ''}
+        helperText={error}
+        onChange={(e) => setInternal(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === "Enter" && value !== last) {
-            update()
-            setLast(value)
+          if (e.key === "Enter") {
+            const next = internal || placeholder
+            if (value !== next) {
+              setValue(next)
+              update?.()
+            }
           }
         }}
         onBlur={() => {
-          if (value !== last) {
-            update()
-            setLast(value)
+          const next = internal || placeholder
+          if (value !== next) {
+            setValue(next)
+            update?.()
           }
         }}
       />
-    </div>
-  )
+    ),
+    internal,
+    value,
+    setValue: (s) => {
+      if (s === placeholder) {
+        setInternal('')
+        setValue(s)
+      } else {
+        setInternal(s)
+        setValue(s)
+      }
+    }
+  }
 }

@@ -1,97 +1,20 @@
 import React, {FunctionComponent, useEffect, useState} from 'react';
-import {CircularProgress, IconButton, Pagination, TextField, Tooltip} from "@mui/material";
+import {CircularProgress, Pagination} from "@mui/material";
 import {useGetRefactorings} from "../api/refactorings";
 import {RefactoringCard} from "../components/RefactoringCard";
-import {useSearchParams} from "react-router-dom";
 import {SearchFields} from "../components/SearchFields";
 import {formatDuration} from "../../../common/utils";
-import {ArrowDownward, ArrowUpward} from "@mui/icons-material";
+import {useParsedSearchParams} from "../libs/params";
+import {useOrderButton} from "../components/OrderButton";
+import {useSearchField} from "../components/SearchField";
 
 const perPage = 10
 
-const useParams = (): {
-  params: {
-    q: string
-    page: number
-    sort: string
-    order: 'asc' | 'desc' | ''
-  }
-  setSearchParams: ReturnType<typeof useSearchParams>[1]
-} => {
-  const [searchParams, setSearchParams] = useSearchParams()
-  return {
-    params: {
-      q: searchParams.get('q') ?? '',
-      page: (Number.parseInt(searchParams.get('page') ?? '1') || 1)-1,
-      sort: searchParams.get('sort') ?? '',
-      order: (searchParams.get('order') ?? '') as 'asc' | 'desc' | '',
-    },
-    setSearchParams
-  }
-}
-
-const useSortField = (init: string): {
-  field: JSX.Element
-  sort: string
-} => {
-  const defaultValue = 'commit.date'
-  const [sort, setSort] = useState(init || defaultValue)
-  const [internal, setInternal] = useState(init !== defaultValue ? init : '')
-
-  return {
-    field: (
-      <TextField
-        label="Sort Field"
-        variant="standard"
-        InputLabelProps={{ shrink: true }}
-        placeholder='commit.date'
-        fullWidth
-        value={internal}
-        onChange={(e) => setInternal(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            const next = internal || defaultValue
-            if (sort !== next) setSort(next)
-          }
-        }}
-        onBlur={() => {
-          const next = internal || defaultValue
-          if (sort !== next) setSort(next)
-        }}
-      />
-    ),
-    sort
-  }
-}
-
-const useOrderButton = (init: 'asc' | 'desc'): {
-  button: JSX.Element
-  order: 'asc' | 'desc'
-} => {
-  const [order, setOrder] = useState<'asc' | 'desc'>(init)
-  const tooltip = order === 'asc' ? 'Ascending order' : 'Descending order'
-  const toggle = () => setOrder(order === 'asc' ? 'desc' : 'asc')
-
-  return {
-    button: (
-      <Tooltip title={tooltip}>
-        <IconButton onClick={toggle}>
-          {order === 'asc' ?
-            <ArrowUpward fontSize="medium" /> :
-            <ArrowDownward fontSize="medium" />
-          }
-        </IconButton>
-      </Tooltip>
-    ),
-    order
-  }
-}
-
 export const Index: FunctionComponent = () => {
-  const { params, setSearchParams } = useParams()
+  const { params, setSearchParams } = useParsedSearchParams()
   const [query, setQuery] = useState<string>(params.q)
   const [page, setPage] = useState<number>(params.page)
-  const { sort, field: sortField } = useSortField(params.sort)
+  const { value: sort, field: sortField } = useSearchField({ init: params.sort, placeholder: 'commit.date', variant: 'standard', label: 'Sort Field', shrink: true })
   const { order, button: orderButton } = useOrderButton(params.order || 'desc')
 
   const { res, loading, error, time } = useGetRefactorings(query, perPage, page, sort, order)
