@@ -1,15 +1,14 @@
-import {RefactoringWithId} from "../../../common/common";
 import {useEffect, useState} from "react";
 import {unreachable} from "../../../common/utils";
 
-export interface GetRefactoringsResponse {
+export interface SearchResponse<T> {
   total: {
     count: number
     hasMore: boolean
   }
-  result: RefactoringWithId[]
+  result: T[]
 }
-export type GetRefactoringsResponseList = {
+export type SearchResponseList<T> = {
   status: 400,
   resp: {
     message: 'q parameter is required'
@@ -28,20 +27,20 @@ export type GetRefactoringsResponseList = {
   }
 } | {
   status: 200,
-  resp: GetRefactoringsResponse
+  resp: SearchResponse<T>
 }
 
-export const getRefactorings = async (query: string, limit: number, offset: number, sort: string, order: 'asc' | 'desc'): Promise<GetRefactoringsResponseList> => {
-  const resp = await fetch(`/api/refactorings?q=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}&sort=${sort}&order=${order}`)
+export const search = async <T>(path: string, query: string, limit: number, offset: number, sort: string, order: 'asc' | 'desc'): Promise<SearchResponseList<T>> => {
+  const resp = await fetch(`${path}?q=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}&sort=${sort}&order=${order}`)
   return {
-    status: resp.status as GetRefactoringsResponseList['status'],
+    status: resp.status as SearchResponseList<T>['status'],
     resp: await resp.json()
   }
 }
 
-export const useGetRefactorings = (query: string, perPage: number, page: number, sort: string, order: 'asc' | 'desc'): {
+export const useSearch = <T>(path: string, query: string, perPage: number, page: number, sort: string, order: 'asc' | 'desc'): {
   res: {
-    refactorings: RefactoringWithId[] | undefined
+    result: T[] | undefined
     count: number
     hasMore: boolean
   }
@@ -49,7 +48,7 @@ export const useGetRefactorings = (query: string, perPage: number, page: number,
   error: string
   time: number
 } => {
-  const [refactorings, setRefactorings] = useState<RefactoringWithId[]>()
+  const [result, setResult] = useState<T[]>()
   const [count, setCount] = useState<number>(0)
   const [hasMore, setHasMore] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -65,12 +64,12 @@ export const useGetRefactorings = (query: string, perPage: number, page: number,
     const limit = perPage
     const offset = perPage * page
 
-    setRefactorings(undefined)
+    setResult(undefined)
     setLoading(true)
     let cancelled = false
 
     const start = performance.now()
-    getRefactorings(query, limit, offset, sort, order)
+    search<T>(path, query, limit, offset, sort, order)
       .then((r) => {
         if (cancelled) {
           return
@@ -79,7 +78,7 @@ export const useGetRefactorings = (query: string, perPage: number, page: number,
         setLoading(false)
         setTime(performance.now() - start)
         if (r.status === 200) {
-          setRefactorings(r.resp.result)
+          setResult(r.resp.result)
           setCount((prev) => Math.max(prev, r.resp.total.count))
           setHasMore((prev) => prev && r.resp.total.hasMore)
 
@@ -94,14 +93,14 @@ export const useGetRefactorings = (query: string, perPage: number, page: number,
       })
 
     return () => { cancelled = true }
-  }, [query, perPage, page, sort, order])
+  }, [path, query, perPage, page, sort, order])
 
-  return { res: { refactorings, count, hasMore }, loading, error, time }
+  return { res: { result, count, hasMore }, loading, error, time }
 }
 
-export type GetRefactoringResponseList = {
+export type GetDocumentResponseList<T> = {
   status: 200,
-  resp: RefactoringWithId
+  resp: T
 } | {
   status: 400,
   resp: {
@@ -115,20 +114,20 @@ export type GetRefactoringResponseList = {
   }
 }
 
-export const getRefactoring = async (id: string): Promise<GetRefactoringResponseList> => {
-  const resp = await fetch(`/api/refactorings/${id}`)
+export const getDocument = async <T>(basePath: string, id: string): Promise<GetDocumentResponseList<T>> => {
+  const resp = await fetch(`${basePath}/${id}`)
   return {
-    status: resp.status as GetRefactoringResponseList['status'],
+    status: resp.status as GetDocumentResponseList<T>['status'],
     resp: await resp.json()
   }
 }
 
-export const useGetRefactoring = (id: string): {
-  result: RefactoringWithId | undefined
+export const useGetDocument = <T>(basePath: string, id: string): {
+  result: T | undefined
   loading: boolean
   error: string
 } => {
-  const [result, setResult] = useState<RefactoringWithId>()
+  const [result, setResult] = useState<T>()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -136,7 +135,7 @@ export const useGetRefactoring = (id: string): {
     setLoading(true)
     let cancelled = false
 
-    getRefactoring(id)
+    getDocument<T>(basePath, id)
       .then((r) => {
         if (cancelled) {
           return
@@ -155,7 +154,7 @@ export const useGetRefactoring = (id: string): {
       })
 
     return () => { cancelled = true }
-  }, [id])
+  }, [basePath, id])
 
   return { result, loading, error }
 }

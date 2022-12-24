@@ -1,7 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {useParams} from "react-router";
 import {Highlight} from "../components/Highlight";
-import {useGetRefactoring} from "../api/refactorings";
 import {Divider} from "@mui/material";
 import {ExternalLink} from "../components/ExternalLink";
 import GitHub from "@mui/icons-material/GitHub";
@@ -10,6 +9,7 @@ import Commit from "@mui/icons-material/Commit";
 import Description from "@mui/icons-material/Description";
 import ContentCopy from "@mui/icons-material/ContentCopy";
 import Build from "@mui/icons-material/Build";
+import {useGetRefactoring} from "../api/documents";
 
 const copyToClipboard = (s: string): void => void navigator.clipboard.writeText(s)
 

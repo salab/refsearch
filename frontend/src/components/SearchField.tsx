@@ -9,7 +9,7 @@ interface Props {
   shrink?: boolean
   size?: TextFieldProps['size']
   error?: string
-  update?: () => void
+  update?: (s: string) => void
 }
 
 export const useSearchField = ({
@@ -34,6 +34,7 @@ export const useSearchField = ({
     if (internal === '') {
       setValue(placeholder)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [placeholder])
 
   return {
@@ -54,7 +55,7 @@ export const useSearchField = ({
             const next = internal || placeholder
             if (value !== next) {
               setValue(next)
-              update?.()
+              update?.(next)
             }
           }
         }}
@@ -62,7 +63,7 @@ export const useSearchField = ({
           const next = internal || placeholder
           if (value !== next) {
             setValue(next)
-            update?.()
+            update?.(next)
           }
         }}
       />

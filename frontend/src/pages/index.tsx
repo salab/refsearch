@@ -9,7 +9,6 @@ import {
   Pagination,
   Select
 } from "@mui/material";
-import {useGetRefactorings} from "../api/refactorings";
 import {RefactoringCard} from "../components/RefactoringCard";
 import {formatDuration} from "../../../common/utils";
 import {useParsedSearchParams} from "../libs/params";
@@ -17,6 +16,7 @@ import {useOrderButton} from "../components/OrderButton";
 import {useSearchField} from "../components/SearchField";
 import {RefactoringTypes} from "../../../common/common";
 import {RoundButton} from "../components/RoundButton";
+import {useGetRefactorings} from "../api/documents";
 
 const examples = [
   // Use-case 1: 重複の処理が無いextract
@@ -56,22 +56,22 @@ interface Props {
 
 const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, queryError}) => {
   const [types, setTypes] = useState<string[]>([])
-  const { internal: commit, field: commitField } = useSearchField({ init: '', size: 'small', variant: 'outlined', update: () => updateFromRichField() })
-  const { internal: repository, field: repoField } = useSearchField({ init: '', size: 'small', variant: 'outlined', update: () => updateFromRichField() })
+  const { internal: commit, field: commitField } = useSearchField({ init: '', size: 'small', variant: 'outlined', update: (s) => updateFromRichField({ commit: s }) })
+  const { internal: repository, field: repoField } = useSearchField({ init: '', size: 'small', variant: 'outlined', update: (s) => updateFromRichField({ repository: s }) })
 
   const richFieldQuery = richFieldsToRaw({ types, commit, repository })
-  const { value: raw, setValue: setRaw, field: rawField } = useSearchField({
+  const { setValue: setRaw, field: rawField } = useSearchField({
     init: query,
     variant: 'standard',
     error: queryError,
     label: 'Query',
     shrink: true,
     placeholder: richFieldQuery,
-    update: () => setQuery(raw),
+    update: (s) => setQuery(s),
   })
 
-  const updateFromRichField = (t: string[] = types) => {
-    setQuery(richFieldsToRaw({ types: t, commit, repository}))
+  const updateFromRichField = (f: Partial<RichFields>) => {
+    setQuery(richFieldsToRaw({ types, commit, repository, ...f }))
     setRaw('')
   }
 
@@ -95,7 +95,7 @@ const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, que
                 const val = e.target.value
                 const types = typeof val === 'string' ? val.split(",") : val
                 setTypes(types)
-                updateFromRichField(types)
+                updateFromRichField({ types })
               }}
             >
               {Object.values(RefactoringTypes).map((refType) => (
@@ -161,7 +161,7 @@ export const Index: FunctionComponent = () => {
   const resultText = ((): JSX.Element | undefined => {
     if (loading) {
       return <div className="text-gray-600">Loading...</div>
-    } else if (res.refactorings) {
+    } else if (res.result) {
       return (
         <div className="text-right">
           <div className="text-gray-900">{res.count}{res.hasMore ? '+' : ''} results</div>
@@ -202,7 +202,7 @@ export const Index: FunctionComponent = () => {
         {pager}
         {loading ? (
           <CircularProgress className="mx-auto" />
-        ) : res.refactorings && res.refactorings.map((ref, i) => (
+        ) : res.result && res.result.map((ref, i) => (
           <div key={i}>
             <RefactoringCard refactoring={ref}/>
           </div>
