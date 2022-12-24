@@ -1,5 +1,6 @@
-import {useGetDocument, useSearch} from "./common";
 import {CommitMeta, RefactoringWithId} from "../../../common/common";
+import {useSearch} from "./common_search";
+import {useGetDocument} from "./common_fetch";
 
 export const useGetRefactorings = (query: string, perPage: number, page: number, sort: string, order: 'asc' | 'desc') =>
   useSearch<RefactoringWithId>('/api/refactorings', query, perPage, page, sort, order)

@@ -16,16 +16,16 @@ const copyToClipboard = (s: string): void => void navigator.clipboard.writeText(
 export const Refactoring: FunctionComponent = () => {
   const {rid} = useParams<{ rid: string }>()
 
-  const { result: ref, loading, error } = useGetRefactoring(rid ?? '')
+  const state = useGetRefactoring(rid ?? '')
 
-  if (loading || error || !ref) {
-    return (
-      <div>
-        {loading ? 'Loading...' : `Error: ${error}`}
-      </div>
-    )
+  switch (state.state) {
+    case 'loading':
+      return <div>Loading...</div>
+    case 'error':
+      return <div>Error: {state.error}</div>
   }
 
+  const ref = state.res
   const fromGitHub = ref.repository.startsWith('https://github.com/')
   const shortSha = ref.sha1.substring(0, 6)
 
