@@ -1,6 +1,7 @@
 import {Request, Response} from "express";
-import {Job, jobOrder, JobStatus, JobType} from "../type";
+import {Job, JobStatus, JobType, pipelines} from "../type";
 import {jobCol} from "../mongo";
+import {randomUUID} from "crypto";
 
 interface ScheduleJobRequest extends Request {
   body: {
@@ -12,7 +13,7 @@ interface ScheduleJobRequest extends Request {
 export const scheduleJob = async (req: ScheduleJobRequest, res: Response) => {
   // Bind and validate
   req.body.skip ||= []
-  const invalidSkip = req.body.skip.find((j) => !jobOrder.includes(j))
+  const invalidSkip = req.body.skip.find((j) => Object.values(JobType).includes(j))
   if (invalidSkip) {
     return res.status(400).json({ message: `skip "${invalidSkip}" is invalid` })
   }
@@ -22,15 +23,19 @@ export const scheduleJob = async (req: ScheduleJobRequest, res: Response) => {
 
   // Process
   const now = new Date()
-  const newJobs = jobOrder
-    .filter((jobType) => !req.body.skip.includes(jobType))
-    .map((jobType, i): Job => ({
-      repoUrl: req.body.repoUrl,
-      type: jobType,
-      status: JobStatus.Waiting,
-      order: i+1,
-      queuedAt: now,
-    }))
+  const newJobs = pipelines.flatMap((pipeline) => {
+    const pipelineId = randomUUID()
+    return pipeline
+      .filter((jobType) => !req.body.skip.includes(jobType))
+      .map((jobType, i): Job => ({
+        repoUrl: req.body.repoUrl,
+        pipeline: pipelineId,
+        pipelineOrder: i+1,
+        type: jobType,
+        status: JobStatus.Waiting,
+        queuedAt: now,
+      }))
+  })
   const insertResult = await jobCol.insertMany(newJobs)
 
   if (!insertResult.acknowledged) {

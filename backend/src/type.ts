@@ -17,12 +17,17 @@ export enum JobType {
   StoreMetadata = 'storeMedata',
 }
 
-export const jobOrder: JobType[] = [
-  JobType.RunRMiner,
-  JobType.RunRefDiff,
-  JobType.IngestRMiner,
-  JobType.IngestRefDiff,
-  JobType.StoreMetadata,
+export const pipelines: JobType[][] = [
+  [
+    JobType.RunRMiner,
+    JobType.IngestRMiner,
+    JobType.StoreMetadata,
+  ],
+  [
+    JobType.RunRefDiff,
+    JobType.IngestRefDiff,
+    JobType.StoreMetadata,
+  ],
 ]
 
 export interface JobRunner {
@@ -40,9 +45,10 @@ export const jobRunners: Record<JobType, JobRunner> = {
 
 export interface Job {
   repoUrl: string
+  pipeline: string
+  pipelineOrder: number
   type: JobType
   status: JobStatus
-  order: number
   queuedAt: Date
   startedAt?: Date
   completedAt?: Date
