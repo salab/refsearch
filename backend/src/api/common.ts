@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import {Collection, Document, Filter} from "mongodb";
+import {Collection, Document, Filter, ObjectId} from "mongodb";
 import {strToMongoQuery} from "./query-string";
 import {ParseException} from "../../../common/parser/exception";
 
@@ -56,7 +56,13 @@ export const searchRequestHandler = <T extends Document>(collection: Collection<
 
 export const retrieveDocumentHandler = <T extends Document>(collection: Collection<T>) =>
   async (req: Request, res: Response) => {
-    const ref = await collection.findOne({ _id: req.params.id } as unknown as Filter<T>)
+    let id: ObjectId | string = req.params.id
+    try {
+      id = new ObjectId(id)
+    } catch (e) {
+      // ignore
+    }
+    const ref = await collection.findOne({ _id: id } as unknown as Filter<T>)
     if (!ref) {
       return res.status(404).json({
         message: 'Document not found'
