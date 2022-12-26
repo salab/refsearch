@@ -12,10 +12,10 @@ const nextBackoff = (prev: number): number => Math.min(backoffMax, prev * 2)
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
 
 const saveStarted = async (job: JobWithId): Promise<void> => {
-  await jobCol.updateOne({ _id: job._id }, { $set: { status: JobStatus.Running } })
+  await jobCol.updateOne({ _id: job._id }, { $set: { status: JobStatus.Running, startedAt: new Date() } })
 }
 const saveFinished = async (job: JobWithId): Promise<void> => {
-  await jobCol.updateOne({ _id: job._id }, { $set: { status: JobStatus.Completed } })
+  await jobCol.updateOne({ _id: job._id }, { $set: { status: JobStatus.Completed, completedAt: new Date() } })
 }
 const saveErrored = async (job: JobWithId, error: string): Promise<void> => {
   await jobCol.updateOne({ _id: job._id }, { $set: { status: JobStatus.Errored, error } })
