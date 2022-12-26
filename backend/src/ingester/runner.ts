@@ -1,20 +1,21 @@
-import {refDiffFileName, rminerFileName} from "../info";
-import {formatTime} from "../../../common/utils";
+import {refDiffFileName, rminerFileName} from "./info";
 
 export const runRMiner = async (repoUrl: string): Promise<void> => {
-  const start = performance.now()
-
   const filename = rminerFileName(repoUrl)
   // TODO
+}
 
-  console.log(`[runner > rminer] Completed on ${repoUrl} in ${formatTime(start)}.`)
+export const runRMinerFinished = async (repoUrl: string): Promise<boolean> => {
+  // TODO
+  return true
 }
 
 export const runRefDiff = async (repoUrl: string): Promise<void> => {
-  const start = performance.now()
-
   const filename = refDiffFileName(repoUrl)
   // TODO
+}
 
-  console.log(`[runner > refdiff] Completed on ${repoUrl} in ${formatTime(start)}.`)
+export const runRefDiffFinished = async (repoUrl: string): Promise<boolean> => {
+  // TODO
+  return true
 }

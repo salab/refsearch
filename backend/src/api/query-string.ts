@@ -1,8 +1,8 @@
 import {Document, Filter} from "mongodb";
-import {ParseException} from "../../common/parser/exception";
-import {tokenize} from "../../common/parser/tokenizer";
-import {AST, parse} from "../../common/parser/parser";
-import {unreachable} from "../../common/utils";
+import {ParseException} from "../../../common/parser/exception";
+import {tokenize} from "../../../common/parser/tokenizer";
+import {AST, parse} from "../../../common/parser/parser";
+import {unreachable} from "../../../common/utils";
 
 const maybeParseNum = (token: string): string | number => {
   const num = +token

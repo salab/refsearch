@@ -1,9 +1,10 @@
-import {repoDirName} from "../info";
+import {repoDirName} from "./info";
 import simpleGit from "simple-git";
 import {CommitMeta, RefactoringMeta, RefactoringType, RepositoryMeta} from "../../../common/common";
 import {commitsCol, refCol, repoCol} from "../mongo";
 import {commitUrl} from "../utils";
 import {formatTime} from "../../../common/utils";
+import {makeSureCloned} from "./cloner";
 
 type RefTypeMeta = Pick<RefactoringMeta, 'sha1' | 'type' | 'meta'>
 const getRefactoringTypeMetas = async (repoUrl: string): Promise<RefTypeMeta[]> => {
@@ -120,6 +121,7 @@ const mergeCommitMetadata = async (repoUrl: string): Promise<void> => {
 }
 
 export const storeMetadata = async (repoUrl: string): Promise<void> => {
+  await makeSureCloned(repoUrl)
   const typeMetas = await getRefactoringTypeMetas(repoUrl)
   await storeRepoMetadata(repoUrl, typeMetas)
   await storeCommitMetadata(repoUrl, typeMetas)

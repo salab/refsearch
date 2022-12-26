@@ -9,7 +9,7 @@ COPY backend .
 COPY common /work/common/
 RUN yarn compile
 
-FROM node:18-alpine AS runner
+FROM node:18-alpine AS runner-base
 
 WORKDIR /work
 
@@ -20,6 +20,14 @@ RUN yarn --production
 
 COPY --from=builder /work/backend/out .
 
+FROM runner-base AS api-runner
+
 # NOTE: "node pid 1 problem"
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["node", "backend/src/index.js"]
+CMD ["node", "backend/src/cmd/index.js"]
+
+FROM runner-base AS job-runner
+
+# NOTE: "node pid 1 problem"
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["node", "backend/src/cmd/jobRunner.js"]

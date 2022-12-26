@@ -1,4 +1,4 @@
-import {repoDirName, repositoriesDir} from "../info";
+import {repoDirName, repositoriesDir} from "./info";
 import fs from "fs";
 import simpleGit from "simple-git";
 import {formatTime} from "../../../common/utils";

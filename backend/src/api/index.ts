@@ -1,6 +1,7 @@
 import {Express} from "express";
 import {retrieveDocumentHandler, searchRequestHandler} from "./common";
 import {commitsCol, refCol, repoCol} from "../mongo";
+import {scheduleJob} from "./jobs";
 
 export const registerRoutes = (app: Express): void => {
   app.get('/api/refactorings', searchRequestHandler(refCol, 'commit.date'))
@@ -9,4 +10,6 @@ export const registerRoutes = (app: Express): void => {
   app.get('/api/commits/:id', retrieveDocumentHandler(commitsCol))
   app.get('/api/repositories', searchRequestHandler(repoCol, '_id'))
   app.get('/api/repositories/:id', retrieveDocumentHandler(repoCol))
+
+  app.post('/api/jobs', scheduleJob)
 }

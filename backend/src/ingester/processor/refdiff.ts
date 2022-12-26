@@ -1,7 +1,7 @@
 import equal from "fast-deep-equal/es6";
 import {RefDiffCommit, RefDiffOutput, RefDiffRefactoring} from "../../../../common/refdiff";
 import {RefactoringType, RefactoringTypes} from "../../../../common/common";
-import {refDiffVersion} from "../../info";
+import {refDiffVersion} from "../info";
 import {RefactoringWithoutCommit} from "./type";
 
 const formatTypeAndDescription = (ref: RefDiffRefactoring): [typ: RefactoringType, desc: string] => {

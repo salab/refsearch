@@ -1,8 +1,9 @@
-version: '3'
+version: '3.8'
 
 services:
   frontend:
     container_name: rs-frontend
+    restart: always
     build:
      context: .
      dockerfile: ./frontend.Dockerfile
@@ -14,13 +15,28 @@ services:
 
   backend:
     container_name: rs-backend
+    restart: always
     build:
       context: .
       dockerfile: ./backend.Dockerfile
+      target: api-runner
     ports:
       - "3000:3000"
     environment:
       PORT: 3000
+      MONGODB_USER: root
+      MONGODB_PASSWORD: password
+      MONGODB_HOST: rs-mongo
+      MONGODB_PORT: 27017
+
+  runner:
+    container_name: rs-runner
+    restart: always
+    build:
+      context: .
+      dockerfile: ./backend.Dockerfile
+      target: job-runner
+    environment:
       MONGODB_USER: root
       MONGODB_PASSWORD: password
       MONGODB_HOST: rs-mongo
@@ -30,6 +46,7 @@ services:
 
   mongodb:
     container_name: rs-mongo
+    restart: always
     image: mongo:5.0.14
     ports:
       - "27017:27017"

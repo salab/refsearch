@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
 import {Collection, Document, Filter} from "mongodb";
-import {strToMongoQuery} from "../query-string";
+import {strToMongoQuery} from "./query-string";
 import {ParseException} from "../../../common/parser/exception";
 
 interface SearchRequest extends Request {

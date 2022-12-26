@@ -1,4 +1,4 @@
-import {humanishName} from "./utils";
+import {humanishName} from "../utils";
 import fs from "fs";
 
 export const repositoriesDir = './data/repos'
@@ -18,4 +18,4 @@ const makeDirIfNotExists = (dir: string) => {
   }
 }
 
-[repositoriesDir, rminerDir, refDiffDir].forEach(makeDirIfNotExists)
+export const makeMissingDirs = () => [repositoriesDir, rminerDir, refDiffDir].forEach(makeDirIfNotExists)
