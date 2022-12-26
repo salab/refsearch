@@ -13,20 +13,30 @@ FROM node:18-alpine AS runner-base
 
 WORKDIR /work
 
-RUN apk add --no-cache tini git
-
 COPY backend/package.json backend/yarn.lock ./
 RUN yarn --production
 
-COPY --from=builder /work/backend/out .
+FROM node:18-alpine AS api-runner
 
-FROM runner-base AS api-runner
+WORKDIR /work
+
+RUN apk add --no-cache tini
+
+COPY --from=runner-base /work/node_modules node_modules/
+COPY --from=builder /work/backend/out .
 
 # NOTE: "node pid 1 problem"
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["node", "backend/src/cmd/index.js"]
 
-FROM runner-base AS job-runner
+FROM node:18-alpine AS job-runner
+
+WORKDIR /work
+
+RUN apk add --no-cache tini git docker
+
+COPY --from=runner-base /work/node_modules node_modules/
+COPY --from=builder /work/backend/out .
 
 # NOTE: "node pid 1 problem"
 ENTRYPOINT ["/sbin/tini", "--"]

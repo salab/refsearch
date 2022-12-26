@@ -26,6 +26,6 @@ export const makeSureCloned = async (repoUrl: string): Promise<void> => {
   }
 
   const start = performance.now()
-  await simpleGit(repositoriesDir).clone(repoUrl)
+  await simpleGit(repositoriesDir()).clone(repoUrl)
   console.log(`[cloner] Clone from ${repoUrl} to ${dirName} complete in ${formatTime(start)}.`)
 }

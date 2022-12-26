@@ -1,3 +1,5 @@
+import {createHash} from "crypto";
+
 export const sshUrlToHttpsUrl = (url: string): string => {
   const replacements: [RegExp, (match: string[]) => string][] = [
     [
@@ -49,4 +51,9 @@ export const humanishName = (repoUrl: string): string => {
     return repoUrl
   }
   return match[1]
+}
+
+export const md5Hash = (s: string): string => {
+  const h = createHash('md5')
+  return h.update(s).digest('hex')
 }

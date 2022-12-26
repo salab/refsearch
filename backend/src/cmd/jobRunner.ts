@@ -43,8 +43,8 @@ const waitJob = async (runner: JobRunner, job: JobWithId): Promise<void> => {
 
   let backoff = backoffStart
   while (!(await runner.isFinished(job.repoUrl))) {
-    backoff = nextBackoff(backoff)
     await sleep(backoff)
+    backoff = nextBackoff(backoff)
   }
   await saveFinished(job)
 
@@ -66,10 +66,11 @@ export const runJobLoop = async () => {
   while (true) {
     const job = await findNextJob()
     if (!job) {
-      backoff = nextBackoff(backoff)
       await sleep(backoff)
+      backoff = nextBackoff(backoff)
       continue
     }
+    backoff = backoffStart
 
     const runner = jobRunners[job.type]
     if (!runner) {
