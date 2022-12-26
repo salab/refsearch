@@ -2,7 +2,7 @@ import {humanishName} from "../utils";
 import fs from "fs";
 import path from "path";
 
-export const dataDir = path.resolve(__dirname, '../../../data')
+export const dataDir = process.env.DATA_DIR || path.resolve(__dirname, '../../../data')
 
 export const repositoriesDir = (baseDir: string = dataDir) => path.resolve(baseDir, './repos')
 export const repoDirName = (repoUrl: string, baseDir: string = dataDir): string => `${repositoriesDir(baseDir)}/${humanishName(repoUrl)}`

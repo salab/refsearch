@@ -41,9 +41,10 @@ services:
       MONGODB_PASSWORD: password
       MONGODB_HOST: rs-mongo
       MONGODB_PORT: 27017
-      HOST_DATA_DIR: ${PWD}/backend/data
+      DATA_DIR: /work/data
+      HOST_DATA_DIR: ${PWD}/data
     volumes:
-      - ./backend/data:/work/data
+      - ./data:/work/data
       - /var/run/docker.sock:/var/run/docker.sock
 
   mongodb:
