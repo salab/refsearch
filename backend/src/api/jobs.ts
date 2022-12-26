@@ -12,6 +12,10 @@ interface ScheduleJobRequest extends Request {
 export const scheduleJob = async (req: ScheduleJobRequest, res: Response) => {
   // Bind and validate
   req.body.skip ||= []
+  const invalidSkip = req.body.skip.find((j) => !jobOrder.includes(j))
+  if (invalidSkip) {
+    return res.status(400).json({ message: `skip "${invalidSkip}" is invalid` })
+  }
   if (!req.body.repoUrl) {
     return res.status(400).json({ message: 'repoUrl is required' })
   }
