@@ -9,9 +9,15 @@ import {spawnSync} from "child_process";
 import {md5Hash} from "../utils";
 import {makeSureCloned} from "./cloner";
 
+const maxLogLength = 10000
 const hostDataDir = process.env.HOST_DATA_DIR
-
+const trimStart = (s: string, maxLen: number) => s.length <= maxLen ? s : `(... trimmed ${s.length-maxLen} chars at start)\n${s.substring(s.length - maxLen, s.length)}`
 const calcContainerName = (tool: string, repoUrl: string): string => `rs-runner-${tool}-${md5Hash(repoUrl).substring(0, 7)}`
+
+const formatOutput = (res: ReturnType<typeof spawnSync>): string => `stdout:
+${trimStart(res.stdout.toString(), maxLogLength)}
+stderr:
+${trimStart(res.stderr.toString(), maxLogLength)}`
 
 const spawnOrError = (cmd: string, args: string[]): ReturnType<typeof spawnSync> | Error => {
   const res = spawnSync(cmd, args)
@@ -19,7 +25,7 @@ const spawnOrError = (cmd: string, args: string[]): ReturnType<typeof spawnSync>
     return res.error
   }
   if (res.status !== 0) {
-    return new Error(`'${[cmd, ...args].join(' ')}' spawn error: status ${res.status}\nstdout:\n${res.stdout.toString()}\nstderr:\n${res.stderr.toString()}`)
+    return new Error(`'${[cmd, ...args].join(' ')}' spawn error: status ${res.status}\n${formatOutput(res)}`)
   }
   return res
 }
@@ -27,7 +33,7 @@ const spawnOrError = (cmd: string, args: string[]): ReturnType<typeof spawnSync>
 const getContainerLogs = (containerName: string): string | Error => {
   const res = spawnOrError('docker', ['logs', containerName])
   if (res instanceof Error) return res
-  return 'stdout:\n'+res.stdout.toString()+'\nstderr:\n'+res.stderr.toString()
+  return formatOutput(res)
 }
 
 const checkContainerExited = (containerName: string): boolean | Error => {

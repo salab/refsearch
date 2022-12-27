@@ -20,10 +20,10 @@ const saveFinished = async (job: JobWithId): Promise<void> => {
 const saveErrored = async (job: JobWithId, error: string): Promise<void> => {
   await jobCol.updateOne({ _id: job._id }, { $set: { status: JobStatus.Errored, error } })
 }
-const saveErroredForUrl = async (repoUrl: string, error: string): Promise<void> => {
+const cancelPipeline = async (job: JobWithId): Promise<void> => {
   await jobCol.updateMany(
-    { repoUrl: repoUrl, status: { '$in': [JobStatus.Waiting, JobStatus.Running] } },
-    { $set: { status: JobStatus.Errored, error } }
+    { pipeline: job.pipeline, status: { '$in': [JobStatus.Waiting, JobStatus.Running] } },
+    { $set: { status: JobStatus.Errored, error: 'Pipeline aborted' } }
   )
 }
 
@@ -52,9 +52,10 @@ const waitJob = async (runner: JobRunner, job: JobWithId): Promise<void> => {
 }
 
 const findNextJob = async (): Promise<JobWithId | undefined> => {
-  const running = await jobCol.findOne({ status: JobStatus.Running }, { sort: [['queuedAt', 'asc'], ['order', 'asc']] })
+  const order: [keyof Job, 'asc' | 'desc'][] = [['queuedAt', 'asc'], ['pipeline', 'asc'], ['pipelineOrder', 'asc']]
+  const running = await jobCol.findOne({ status: JobStatus.Running }, { sort: order })
   if (running) return running
-  const waiting = await jobCol.findOne({ status: JobStatus.Waiting }, { sort: [['queuedAt', 'asc'], ['order', 'asc']] })
+  const waiting = await jobCol.findOne({ status: JobStatus.Waiting }, { sort: order })
   if (waiting) return waiting
   return undefined
 }
@@ -89,7 +90,7 @@ export const runJobLoop = async () => {
       console.log(`[job runner] Encountered an error while running job ${job.type} for ${job.repoUrl}, skipping`)
       console.trace(e)
       await saveErrored(job, `Runtime error: ${e.message}`)
-      await saveErroredForUrl(job.repoUrl, `Runtime error: ${e.message}`)
+      await cancelPipeline(job)
     }
   }
 }
