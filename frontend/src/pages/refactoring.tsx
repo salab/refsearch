@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {useParams} from "react-router";
 import {Highlight} from "../components/Highlight";
-import {Divider} from "@mui/material";
+import {Divider, Tooltip} from "@mui/material";
 import {ExternalLink} from "../components/ExternalLink";
 import GitHub from "@mui/icons-material/GitHub";
 import Storage from "@mui/icons-material/Storage";
@@ -11,6 +11,8 @@ import Build from "@mui/icons-material/Build";
 import {useGetRefactoring} from "../api/documents";
 import {fromGitHub, gitHubRepoName, shortSha} from "../../../common/utils";
 import {CopyButton} from "../components/CopyButton";
+import {Search} from "@mui/icons-material";
+import {Link} from "react-router-dom";
 
 export const Refactoring: FunctionComponent = () => {
   const {id} = useParams<{ id: string }>()
@@ -43,6 +45,11 @@ export const Refactoring: FunctionComponent = () => {
           <div className="font-semibold">Commit</div>
           <ExternalLink href={ref.commit.url} text={short} />
           <CopyButton tooltip="Copy URL" copyText={ref.sha1} />
+          <Tooltip title="View commit">
+            <Link to={`/commits/${ref.sha1}`}>
+              <Search className="cursor-pointer" fontSize="small" />
+            </Link>
+          </Tooltip>
         </div>
         <div className="flex flex-row gap-2">
           <Build />
