@@ -17,11 +17,11 @@ import {RoundButton} from "../components/RoundButton";
 import {useGetRefactorings} from "../api/documents";
 import {usePager} from "../components/Pager";
 
-const examples = [
+const examples: [query: string, tooltip: string][] = [
   // Use-case 1: 重複の処理が無いextract
-  'type = "Extract Method" & extractMethod.sourceMethodsCount > 1',
+  ['type = "Extract Method" & extractMethod.sourceMethodsCount >= 2', 'Removed duplicated code'],
   // Use-case 2: 数行のみのextract,  extractする前の行数
-  'type = "Extract Method" & extractMethod.extractedLines >= 3',
+  ['type = "Extract Method" & extractMethod.extractedLines >= 10', 'Extracted 10+ lines'],
   // TODO: Use-case 3: 具体的なrenameした単語
 ]
 
@@ -131,8 +131,8 @@ const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, que
       <Divider flexItem />
       <div className="flex flex-row gap-4">
         <div className="text-md my-auto text-gray-600">Examples</div>
-        {examples.map((ex, i) => (
-          <RoundButton key={i} onClick={() => setFromExample(ex)}>{i+1}</RoundButton>
+        {examples.map(([q, tooltip], i) => (
+          <RoundButton key={i} onClick={() => setFromExample(q)} tooltip={tooltip}>{i+1}</RoundButton>
         ))}
       </div>
       <Divider flexItem />

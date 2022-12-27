@@ -8,10 +8,10 @@ import {useGetCommits} from "../api/documents";
 import {usePager} from "../components/Pager";
 import {CommitCard} from "../components/CommitCard";
 
-const examples = [
-  'message ~ [Rr]efactor',
-  'refactorings.total >= 10',
-  '"refactorings.perType.Rename Method" >= 10',
+const examples: [query: string, tooltip: string][] = [
+  ['message ~ [Rr]efactor', 'Self-affirmed refactoring'],
+  ['refactorings.total >= 10', 'Commits with 10+ refactorings'],
+  ['"refactorings.perType.Rename Method" >= 10', 'Commits with 10+ Rename Method refactorings'],
 ]
 
 interface RichFields {
@@ -101,8 +101,8 @@ const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, que
       <Divider flexItem />
       <div className="flex flex-row gap-4">
         <div className="text-md my-auto text-gray-600">Examples</div>
-        {examples.map((ex, i) => (
-          <RoundButton key={i} onClick={() => setFromExample(ex)}>{i+1}</RoundButton>
+        {examples.map(([q, tooltip], i) => (
+          <RoundButton key={i} onClick={() => setFromExample(q)} tooltip={tooltip}>{i+1}</RoundButton>
         ))}
       </div>
       <Divider flexItem />

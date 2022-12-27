@@ -3,6 +3,8 @@ import React from "react";
 import {Pagination} from "@mui/material";
 import {SearchState} from "../api/common_search";
 
+const maxPageCount = 1000
+
 export const usePager = (page: number, setPage: (p: number) => void, state: SearchState<any>, perPage: number): {
   pager: JSX.Element
   resultText: JSX.Element
@@ -32,7 +34,7 @@ export const usePager = (page: number, setPage: (p: number) => void, state: Sear
     <Pagination
       size="large"
       page={page+1}
-      count={pageCount}
+      count={Math.min(pageCount, maxPageCount)}
       onChange={(e, page) => setPage(page-1)}
     />
   )
