@@ -7,11 +7,10 @@ import GitHub from "@mui/icons-material/GitHub";
 import Storage from "@mui/icons-material/Storage";
 import Commit from "@mui/icons-material/Commit";
 import Description from "@mui/icons-material/Description";
-import ContentCopy from "@mui/icons-material/ContentCopy";
 import Build from "@mui/icons-material/Build";
 import {useGetRefactoring} from "../api/documents";
 import {fromGitHub, gitHubRepoName, shortSha} from "../../../common/utils";
-import {copyToClipboard} from "../libs/utils";
+import {CopyButton} from "../components/CopyButton";
 
 export const Refactoring: FunctionComponent = () => {
   const {id} = useParams<{ id: string }>()
@@ -33,17 +32,17 @@ export const Refactoring: FunctionComponent = () => {
       <div className="text-3xl font-bold text-gray-700">Refactoring Details</div>
       <Divider />
       <div className="flex flex-col gap-4 text-gray-600">
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row gap-2 content-center">
           {isGitHub ? <GitHub /> : <Storage />}
           <div className="font-semibold">Repository</div>
           <ExternalLink href={ref.repository} text={isGitHub ? gitHubRepoName(ref.repository) : ref.repository} />
-          <ContentCopy className="translate-y-1" cursor="pointer" fontSize="small" onClick={() => copyToClipboard(ref.repository)} />
+          <CopyButton tooltip="Copy URL" copyText={ref.repository} />
         </div>
         <div className="flex flex-row gap-2">
           <Commit />
           <div className="font-semibold">Commit</div>
           <ExternalLink href={ref.commit.url} text={short} />
-          <ContentCopy className="translate-y-1" cursor="pointer" fontSize="small" onClick={() => copyToClipboard(ref.sha1)} />
+          <CopyButton tooltip="Copy URL" copyText={ref.sha1} />
         </div>
         <div className="flex flex-row gap-2">
           <Build />

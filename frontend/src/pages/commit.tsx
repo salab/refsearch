@@ -6,13 +6,12 @@ import {CircularProgress, Divider} from "@mui/material";
 import GitHub from "@mui/icons-material/GitHub";
 import Storage from "@mui/icons-material/Storage";
 import {ExternalLink} from "../components/ExternalLink";
-import ContentCopy from "@mui/icons-material/ContentCopy";
 import Description from "@mui/icons-material/Description";
 import CommitIcon from "@mui/icons-material/Commit";
 import {Highlight} from "../components/Highlight";
-import {copyToClipboard} from "../libs/utils";
 import {usePager} from "../components/Pager";
 import {RefactoringCard} from "../components/RefactoringCard";
+import {CopyButton} from "../components/CopyButton";
 
 const perPage = 10
 
@@ -44,13 +43,13 @@ export const Commit: FunctionComponent = () => {
           {isGitHub ? <GitHub /> : <Storage />}
           <div className="font-semibold">Repository</div>
           <ExternalLink href={c.repository} text={isGitHub ? gitHubRepoName(c.repository) : c.repository} />
-          <ContentCopy className="translate-y-1" cursor="pointer" fontSize="small" onClick={() => copyToClipboard(c.repository)} />
+          <CopyButton tooltip="Copy URL" copyText={c.repository} />
         </div>
         <div className="flex flex-row gap-2">
           <CommitIcon />
           <div className="font-semibold">Commit</div>
           <ExternalLink href={c.url} text={short} />
-          <ContentCopy className="translate-y-1" cursor="pointer" fontSize="small" onClick={() => copyToClipboard(c._id)} />
+          <CopyButton tooltip="Copy hash" copyText={c._id} />
         </div>
         <div className="flex flex-row gap-2">
           <Description />
