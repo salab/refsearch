@@ -10,6 +10,7 @@ import {Index} from './pages';
 import {Commits} from "./pages/commits";
 import {Refactoring} from "./pages/refactoring";
 import {Commit} from "./pages/commit";
+import {Repositories} from "./pages/repositories";
 
 const Layout: FunctionComponent = () => (
   <div>
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
       {
         path: '/commits/:id',
         element: <Commit />
+      },
+      {
+        path: '/repositories',
+        element: <Repositories />
       },
     ]
   }

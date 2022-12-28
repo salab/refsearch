@@ -1,4 +1,4 @@
-import {CommitMeta, RefactoringWithId} from "../../../common/common";
+import {CommitMeta, RefactoringWithId, RepositoryMeta} from "../../../common/common";
 import {useSearch} from "./common_search";
 import {useGetDocument} from "./common_fetch";
 
@@ -11,6 +11,6 @@ export const useGetCommits = (query: string, perPage: number, page: number, sort
 export const useGetCommit = (hash: string) =>
   useGetDocument<CommitMeta>('/api/commits', hash)
 export const useGetRepositories = (query: string, perPage: number, page: number, sort: string, order: 'asc' | 'desc') =>
-  useSearch<CommitMeta>('/api/repositories', query, perPage, page, sort, order)
+  useSearch<RepositoryMeta>('/api/repositories', query, perPage, page, sort, order)
 export const useGetRepository = (url: string) =>
-  useGetDocument<CommitMeta>('/api/repositories', url)
+  useGetDocument<RepositoryMeta>('/api/repositories', url)
