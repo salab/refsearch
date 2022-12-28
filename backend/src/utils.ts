@@ -46,7 +46,7 @@ export const humanishName = (repoUrl: string): string => {
   while (repoUrl.endsWith('/')) {
     repoUrl = repoUrl.substring(0, repoUrl.length - 1)
   }
-  const match = /^.+?([a-zA-Z0-9_-]+)$/.exec(repoUrl)
+  const match = /\/([^/]+?)$/.exec(repoUrl)
   if (match === null) {
     return repoUrl
   }
