@@ -1,7 +1,8 @@
 import React, {FunctionComponent} from 'react';
 import ReactDOM from 'react-dom/client';
 import {
-  createBrowserRouter, Outlet,
+  createBrowserRouter,
+  Outlet,
   RouterProvider,
 } from 'react-router-dom';
 import './index.css';
@@ -11,6 +12,7 @@ import {Commits} from "./pages/commits";
 import {Refactoring} from "./pages/refactoring";
 import {Commit} from "./pages/commit";
 import {Repositories} from "./pages/repositories";
+import {Repository} from "./pages/repository";
 
 const Layout: FunctionComponent = () => (
   <div>
@@ -44,6 +46,10 @@ const router = createBrowserRouter([
       {
         path: '/repositories',
         element: <Repositories />
+      },
+      {
+        path: '/repositories/:id',
+        element: <Repository />
       },
     ]
   }

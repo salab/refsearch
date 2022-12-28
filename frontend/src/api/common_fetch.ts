@@ -18,7 +18,7 @@ type GetDocumentResponseList<T> = {
 }
 
 export const getDocument = async <T>(basePath: string, id: string): Promise<GetDocumentResponseList<T>> => {
-  const resp = await fetch(`${basePath}/${id}`)
+  const resp = await fetch(`${basePath}/${encodeURIComponent(id)}`)
   return {
     status: resp.status as GetDocumentResponseList<T>['status'],
     resp: await resp.json()
