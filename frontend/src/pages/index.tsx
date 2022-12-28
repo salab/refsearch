@@ -151,7 +151,7 @@ export const Index: FunctionComponent = () => {
   })
   const { order, button: orderButton } = useOrderButton(params.order || 'desc')
 
-  useSearchParamsEffect(params, setSearchParams, { query, page, sort, order }, 'commit.date')
+  useSearchParamsEffect(params, setSearchParams, { query, page, sort, order }, 'commit.date', 'desc')
 
   const state = useGetRefactorings(query, perPage, page, sort, order)
   const { pager, resultText } = usePager(page, setPage, state, perPage)

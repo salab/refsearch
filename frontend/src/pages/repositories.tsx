@@ -77,9 +77,9 @@ export const Repositories: FunctionComponent = () => {
   const { value: sort, field: sortField } = useSearchField({
     init: params.sort, placeholder: '_id', variant: 'standard', label: 'Sort Field', shrink: true
   })
-  const { order, button: orderButton } = useOrderButton(params.order || 'desc')
+  const { order, button: orderButton } = useOrderButton(params.order || 'asc')
 
-  useSearchParamsEffect(params, setSearchParams, { query, page, sort, order }, 'date')
+  useSearchParamsEffect(params, setSearchParams, { query, page, sort, order }, '_id', 'asc')
 
   const state = useGetRepositories(query, perPage, page, sort, order)
   const { pager, resultText } = usePager(page, setPage, state, perPage)

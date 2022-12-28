@@ -36,6 +36,7 @@ export const useSearchParamsEffect = (
   setSearchParams: ReturnType<typeof useSearchParams>[1],
   current: CurrentState,
   defaultSort: string,
+  defaultOrder: 'asc' | 'desc',
 ) => {
   const { query, page, sort, order } = current
   useEffect(() => {
@@ -49,14 +50,14 @@ export const useSearchParamsEffect = (
     if (sort !== defaultSort || params.sort) {
       nextParam.sort = sort
     }
-    if (order !== 'desc' || params.order) {
+    if (order !== defaultOrder || params.order) {
       nextParam.order = order
     }
     if (Object.keys(nextParam).length > 0) {
       setSearchParams(nextParam)
     }
   }, [
-    setSearchParams, defaultSort,
+    setSearchParams, defaultSort, defaultOrder,
     params.q, params.page, params.sort, params.order,
     query, page, sort, order,
   ])
