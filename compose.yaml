@@ -58,6 +58,10 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: password
     volumes:
       - ./data/mongodb:/data/db
+    deploy:
+      resources:
+        limits:
+          memory: 2G
 
 volumes:
   caddy_data:

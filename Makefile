@@ -1,6 +1,6 @@
 .PHONY: up
 up:
-	PWD=`pwd` docker compose up -d --build
+	PWD=`pwd` docker compose --compatibility up -d --build
 
 .PHONY: down
 down:
