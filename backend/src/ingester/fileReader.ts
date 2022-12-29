@@ -5,9 +5,9 @@ import {refCol} from "../mongo";
 import {RefDiffOutput} from "../../../common/refdiff";
 import {processRMinerOutput} from "./processor/rminer";
 import {processRefDiffOutput} from "./processor/refdiff";
-import {Job} from "../type";
+import {JobWithId} from "../jobs";
 
-export const ingestRMinerFile = async ({ data }: Job): Promise<void> => {
+export const ingestRMinerFile = async ({ data }: JobWithId): Promise<void> => {
   const filename = rminerFileName(data.repoUrl)
   const output = JSON.parse(fs.readFileSync(filename).toString()) as RMOutput
   const refactorings = processRMinerOutput(output)
@@ -16,7 +16,7 @@ export const ingestRMinerFile = async ({ data }: Job): Promise<void> => {
   console.log(`[reader > rminer] Processed ${output.commits.length} commits and inserted ${res.insertedCount} refactoring instances.`)
 }
 
-export const ingestRefDiffFile = async ({ data }: Job): Promise<void> => {
+export const ingestRefDiffFile = async ({ data }: JobWithId): Promise<void> => {
   const filename = refDiffFileName(data.repoUrl)
   const output = JSON.parse(fs.readFileSync(filename).toString()) as RefDiffOutput
   const refactorings = processRefDiffOutput(data.repoUrl, output)

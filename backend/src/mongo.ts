@@ -1,6 +1,6 @@
 import {MongoClient} from "mongodb";
 import {CommitMeta, RefactoringMeta, RepositoryMeta} from "../../common/common";
-import {Job} from "./type";
+import {Job} from "../../common/jobs";
 
 const env = {
   user: process.env.MONGODB_USER || 'root',

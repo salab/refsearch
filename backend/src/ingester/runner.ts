@@ -7,7 +7,7 @@ import {
 } from "./info";
 import {spawnSync} from "child_process";
 import {md5Hash} from "../utils";
-import {Job} from "../type";
+import {JobWithId} from "../jobs";
 
 const maxLogLength = 10000
 const hostDataDir = process.env.HOST_DATA_DIR
@@ -65,7 +65,7 @@ const removeContainer = (containerName: string, force?: boolean): Error | undefi
   if (res instanceof Error) return res
 }
 
-export const runRMiner = async ({ data }: Job): Promise<void> => {
+export const runRMiner = async ({ data }: JobWithId): Promise<void> => {
   if (!data.startCommit || !data.endCommit) throw new Error('start/end commit not found')
   const { repoUrl, startCommit, endCommit } = data
   const containerName = calcContainerName('RMiner', data.repoUrl)
@@ -84,7 +84,7 @@ export const runRMiner = async ({ data }: Job): Promise<void> => {
   if (res instanceof Error) throw res
 }
 
-export const isRMinerFinished = async ({ data }: Job): Promise<boolean> => {
+export const isRMinerFinished = async ({ data }: JobWithId): Promise<boolean> => {
   const containerName = calcContainerName('RMiner', data.repoUrl)
   const exited = checkContainerExited(containerName)
   if (exited instanceof Error) throw exited
@@ -96,13 +96,13 @@ export const isRMinerFinished = async ({ data }: Job): Promise<boolean> => {
   return exited
 }
 
-export const killRMiner = async ({ data }: Job): Promise<void> => {
+export const killRMiner = async ({ data }: JobWithId): Promise<void> => {
   const containerName = calcContainerName('RMiner', data.repoUrl)
   const rmResult = removeContainer(containerName, true)
   if (rmResult instanceof Error) throw rmResult
 }
 
-export const runRefDiff = async ({ data }: Job): Promise<void> => {
+export const runRefDiff = async ({ data }: JobWithId): Promise<void> => {
   if (!data.startCommit || !data.endCommit) throw new Error('start/end commit not found')
   const { repoUrl, startCommit, endCommit } = data
   const containerName = calcContainerName('RefDiff', repoUrl)
@@ -122,7 +122,7 @@ export const runRefDiff = async ({ data }: Job): Promise<void> => {
   if (res instanceof Error) throw res
 }
 
-export const isRefDiffFinished = async ({ data }: Job): Promise<boolean> => {
+export const isRefDiffFinished = async ({ data }: JobWithId): Promise<boolean> => {
   const containerName = calcContainerName('RefDiff', data.repoUrl)
   const exited = checkContainerExited(containerName)
   if (exited instanceof Error) throw exited
@@ -134,7 +134,7 @@ export const isRefDiffFinished = async ({ data }: Job): Promise<boolean> => {
   return exited
 }
 
-export const killRefDiff = async ({ data }: Job): Promise<void> => {
+export const killRefDiff = async ({ data }: JobWithId): Promise<void> => {
   const containerName = calcContainerName('RefDiff', data.repoUrl)
   const rmResult = removeContainer(containerName, true)
   if (rmResult instanceof Error) throw rmResult

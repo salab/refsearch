@@ -2,8 +2,8 @@ import {repoDirName, repositoriesDir} from "./info";
 import fs from "fs";
 import simpleGit from "simple-git";
 import {formatTime} from "../../../common/utils";
-import {JobWithId} from "../type";
 import {jobCol, repoCol} from "../mongo";
+import {JobWithId} from "../jobs";
 
 export const cloneRepository = async (job: JobWithId): Promise<void> => {
   const { repoUrl } = job.data

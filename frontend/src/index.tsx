@@ -13,6 +13,8 @@ import {Refactoring} from "./pages/refactoring";
 import {Commit} from "./pages/commit";
 import {Repositories} from "./pages/repositories";
 import {Repository} from "./pages/repository";
+import {Jobs} from "./pages/jobs";
+import {Job} from "./pages/job";
 
 const Layout: FunctionComponent = () => (
   <div>
@@ -50,6 +52,14 @@ const router = createBrowserRouter([
       {
         path: '/repositories/:id',
         element: <Repository />
+      },
+      {
+        path: '/jobs',
+        element: <Jobs />
+      },
+      {
+        path: '/jobs/:id',
+        element: <Job />
       },
     ]
   }

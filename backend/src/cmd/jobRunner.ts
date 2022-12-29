@@ -1,9 +1,10 @@
-import {Job, JobRunner, jobRunners, JobStatus, JobWithId} from "../type";
 import {jobCol} from "../mongo";
 import {makeMissingDirs} from "../ingester/info";
 import {formatTime} from "../../../common/utils";
 import {readAllFromCursor, sleep} from "../utils";
 import {ObjectId} from "mongodb";
+import {Job, JobStatus} from "../../../common/jobs";
+import {JobRunner, jobRunners, JobWithId} from "../jobs";
 
 const runnerId = process.env.RUNNER_ID
 if (!runnerId) {

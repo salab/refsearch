@@ -12,10 +12,15 @@ export const Header: FunctionComponent = () => {
   return (
     <div className="bg-slate-700 w-screen h-12 px-4 flex flex-row">
       <div className="text-gray-50 font-bold text-2xl my-auto">RefSearch</div>
-      <div className="ml-6 flex flex-row content-center text-gray-200 h-full">
-        {nav("/", "Refactorings")}
-        {nav("/commits", "Commits")}
-        {nav("/repositories", "Repositories")}
+      <div className="ml-6 flex flex-row text-gray-200 h-full w-full">
+        <div className="flex flex-row content-center">
+          {nav("/", "Refactorings")}
+          {nav("/commits", "Commits")}
+          {nav("/repositories", "Repositories")}
+        </div>
+        <div className="ml-auto flex flex-row content-center">
+          {nav("/jobs", "Jobs")}
+        </div>
       </div>
     </div>
   )

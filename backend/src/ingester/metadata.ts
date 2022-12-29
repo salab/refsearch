@@ -4,7 +4,7 @@ import {CommitMeta, RefactoringMeta, RefactoringType, RepositoryMeta} from "../.
 import {commitsCol, refCol, repoCol} from "../mongo";
 import {commitUrl, readAllFromCursor} from "../utils";
 import {formatTime} from "../../../common/utils";
-import {Job} from "../type";
+import {JobWithId} from "../jobs";
 
 type RefTypeMeta = Pick<RefactoringMeta, 'sha1' | 'type' | 'meta'>
 const getRefactoringTypeMetas = async (repoUrl: string): Promise<RefTypeMeta[]> => {
@@ -119,7 +119,7 @@ const mergeCommitMetadata = async (repoUrl: string): Promise<void> => {
   console.log(`[metadata > merger] Merged commit metadata for refactoring documents in ${formatTime(start)}.`)
 }
 
-export const storeMetadata = async ({ data }: Job): Promise<void> => {
+export const storeMetadata = async ({ data }: JobWithId): Promise<void> => {
   if (!data.startCommit) {
     throw new Error('start commit not found')
   }
