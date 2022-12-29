@@ -31,7 +31,7 @@ const saveCompleted = async (job: JobWithId): Promise<void> => {
   await jobCol.updateOne({ _id: job._id }, { $set: { status: JobStatus.Completed, completedAt: new Date() } })
 }
 const saveErrored = async (job: JobWithId, error: string): Promise<void> => {
-  await jobCol.updateOne({ _id: job._id }, { $set: { status: JobStatus.Errored, error } })
+  await jobCol.updateOne({ _id: job._id }, { $set: { status: JobStatus.Errored, completedAt: new Date(), error } })
 }
 const cancelPipeline = async (job: JobWithId): Promise<void> => {
   await jobCol.updateMany(
