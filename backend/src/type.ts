@@ -14,7 +14,7 @@ export enum JobType {
   RunRefDiff = 'runRefDiff',
   IngestRMiner = 'ingestRMiner',
   IngestRefDiff = 'ingestRefDiff',
-  StoreMetadata = 'storeMedata',
+  StoreMetadata = 'storeMetadata',
 }
 
 export const pipelines: JobType[][] = [
@@ -40,7 +40,7 @@ export const jobRunners: Record<JobType, JobRunner> = {
   runRefDiff: { start: runRefDiff, isFinished: runRefDiffFinished },
   ingestRMiner: { start: ingestRMinerFile, isFinished: finished },
   ingestRefDiff: { start: ingestRefDiffFile, isFinished: finished },
-  storeMedata: { start: storeMetadata, isFinished: finished },
+  storeMetadata: { start: storeMetadata, isFinished: finished },
 }
 
 export interface Job {
