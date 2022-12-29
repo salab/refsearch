@@ -2,6 +2,7 @@ import {Request, Response} from "express";
 import {Collection, Document, Filter, ObjectId} from "mongodb";
 import {strToMongoQuery} from "./query-string";
 import {ParseException} from "../../../common/parser/exception";
+import {readAllFromCursor} from "../utils";
 
 interface SearchRequest extends Request {
   query: {
@@ -38,12 +39,9 @@ export const searchRequestHandler = <T extends Document>(collection: Collection<
     const hasMore = count > countLimit
 
     const cursor = collection.find(compiledQuery, { sort: { [sort]: order as 'asc' | 'desc' } })
-    const result: Document[] = []
     cursor.skip(offset)
     cursor.limit(limit)
-    await cursor.forEach((r) => {
-      result.push(r)
-    })
+    const result = await readAllFromCursor(cursor)
 
     return res.status(200).json({
       total: {

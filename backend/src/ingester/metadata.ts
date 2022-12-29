@@ -2,19 +2,17 @@ import {repoDirName} from "./info";
 import simpleGit from "simple-git";
 import {CommitMeta, RefactoringMeta, RefactoringType, RepositoryMeta} from "../../../common/common";
 import {commitsCol, refCol, repoCol} from "../mongo";
-import {commitUrl} from "../utils";
+import {commitUrl, readAllFromCursor} from "../utils";
 import {formatTime} from "../../../common/utils";
-import {makeSureCloned} from "./cloner";
+import {Job} from "../type";
 
 type RefTypeMeta = Pick<RefactoringMeta, 'sha1' | 'type' | 'meta'>
 const getRefactoringTypeMetas = async (repoUrl: string): Promise<RefTypeMeta[]> => {
   const start = performance.now()
 
-  const cursor = refCol.find({ repository: repoUrl }, { projection: { sha1: 1, type: 1, meta: 1 } })
-  const res: RefTypeMeta[] = []
-  await cursor.forEach((r) => {
-    res.push(r)
-  })
+  const res = await readAllFromCursor(
+    refCol.find({ repository: repoUrl }, { projection: { sha1: 1, type: 1, meta: 1 } })
+  )
 
   console.log(`[metadata > type metas] Retrieved in ${formatTime(start)}.`)
   return res
@@ -22,7 +20,7 @@ const getRefactoringTypeMetas = async (repoUrl: string): Promise<RefTypeMeta[]> 
 
 const total = (m: Record<string, number>): number => Object.values(m).reduce((a, r) => a + r, 0)
 
-const storeRepoMetadata = async (repoUrl: string, typeMetas: RefTypeMeta[]): Promise<void> => {
+const storeRepoMetadata = async (repoUrl: string, startCommit: string, typeMetas: RefTypeMeta[]): Promise<void> => {
   const start = performance.now()
 
   const countPerType = typeMetas.reduce((acc, r) => {
@@ -44,6 +42,7 @@ const storeRepoMetadata = async (repoUrl: string, typeMetas: RefTypeMeta[]): Pro
       perType: countPerType,
       perTool: countPerTool,
     },
+    indexedUntil: startCommit,
   }
 
   const res = await repoCol.replaceOne({ _id: repoUrl }, repoMeta, { upsert: true })
@@ -53,12 +52,12 @@ const storeRepoMetadata = async (repoUrl: string, typeMetas: RefTypeMeta[]): Pro
   console.log(`[metadata > repo meta] Updated in ${formatTime(start)}.`)
 }
 
-const storeCommitMetadata = async (repoUrl: string, typeMetas: RefTypeMeta[]): Promise<void> => {
+const storeCommitMetadata = async (repoUrl: string, startCommit: string, typeMetas: RefTypeMeta[]): Promise<void> => {
   const start = performance.now()
 
   const repoPath = repoDirName(repoUrl)
   const git = simpleGit(repoPath)
-  const gitLog = await git.log()
+  const gitLog = await git.log({ from: startCommit })
 
   const countPerType = typeMetas.reduce((acc, r) => {
     acc[r.sha1] ??= {} as Record<RefactoringType, number>
@@ -120,10 +119,12 @@ const mergeCommitMetadata = async (repoUrl: string): Promise<void> => {
   console.log(`[metadata > merger] Merged commit metadata for refactoring documents in ${formatTime(start)}.`)
 }
 
-export const storeMetadata = async (repoUrl: string): Promise<void> => {
-  await makeSureCloned(repoUrl)
-  const typeMetas = await getRefactoringTypeMetas(repoUrl)
-  await storeRepoMetadata(repoUrl, typeMetas)
-  await storeCommitMetadata(repoUrl, typeMetas)
-  await mergeCommitMetadata(repoUrl)
+export const storeMetadata = async ({ data }: Job): Promise<void> => {
+  if (!data.startCommit) {
+    throw new Error('start commit not found')
+  }
+  const typeMetas = await getRefactoringTypeMetas(data.repoUrl)
+  await storeRepoMetadata(data.repoUrl, data.startCommit, typeMetas)
+  await storeCommitMetadata(data.repoUrl, data.startCommit, typeMetas)
+  await mergeCommitMetadata(data.repoUrl)
 }

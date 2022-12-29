@@ -29,14 +29,53 @@ services:
       MONGODB_HOST: rs-mongo
       MONGODB_PORT: 27017
 
-  runner:
-    container_name: rs-runner
+  runner1:
+    container_name: rs-runner-1
     restart: always
     build:
       context: .
       dockerfile: ./backend.Dockerfile
       target: job-runner
     environment:
+      RUNNER_ID: local-1
+      MONGODB_USER: root
+      MONGODB_PASSWORD: password
+      MONGODB_HOST: rs-mongo
+      MONGODB_PORT: 27017
+      DATA_DIR: /work/data
+      HOST_DATA_DIR: ${PWD}/data
+    volumes:
+      - ./data:/work/data
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  runner2:
+    container_name: rs-runner-2
+    restart: always
+    build:
+      context: .
+      dockerfile: ./backend.Dockerfile
+      target: job-runner
+    environment:
+      RUNNER_ID: local-2
+      MONGODB_USER: root
+      MONGODB_PASSWORD: password
+      MONGODB_HOST: rs-mongo
+      MONGODB_PORT: 27017
+      DATA_DIR: /work/data
+      HOST_DATA_DIR: ${PWD}/data
+    volumes:
+      - ./data:/work/data
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  runner3:
+    container_name: rs-runner-3
+    restart: always
+    build:
+      context: .
+      dockerfile: ./backend.Dockerfile
+      target: job-runner
+    environment:
+      RUNNER_ID: local-3
       MONGODB_USER: root
       MONGODB_PASSWORD: password
       MONGODB_HOST: rs-mongo

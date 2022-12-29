@@ -1,4 +1,5 @@
 import {createHash} from "crypto";
+import {FindCursor} from "mongodb";
 
 export const sshUrlToHttpsUrl = (url: string): string => {
   const replacements: [RegExp, (match: string[]) => string][] = [
@@ -56,4 +57,14 @@ export const humanishName = (repoUrl: string): string => {
 export const md5Hash = (s: string): string => {
   const h = createHash('md5')
   return h.update(s).digest('hex')
+}
+
+export const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
+
+export const readAllFromCursor = async <T>(cursor: FindCursor<T>): Promise<T[]> => {
+  const res: T[] = []
+  await cursor.forEach((doc) => {
+    res.push(doc)
+  })
+  return res
 }

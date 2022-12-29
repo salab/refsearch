@@ -65,4 +65,5 @@ export interface CommitMeta {
 export interface RepositoryMeta {
   _id: string // url
   refactorings: RefactoringsCount
+  indexedUntil: string
 }

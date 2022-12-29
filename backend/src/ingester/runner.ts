@@ -7,7 +7,7 @@ import {
 } from "./info";
 import {spawnSync} from "child_process";
 import {md5Hash} from "../utils";
-import {makeSureCloned} from "./cloner";
+import {Job} from "../type";
 
 const maxLogLength = 10000
 const hostDataDir = process.env.HOST_DATA_DIR
@@ -59,14 +59,16 @@ const checkContainerExited = (containerName: string): boolean | Error => {
   return true
 }
 
-const removeContainer = (containerName: string): Error | undefined => {
-  const res = spawnOrError('docker', ['rm', containerName])
+const removeContainer = (containerName: string, force?: boolean): Error | undefined => {
+  const args = force ? ['rm', '-f', containerName] : ['rm', containerName]
+  const res = spawnOrError('docker', args)
   if (res instanceof Error) return res
 }
 
-export const runRMiner = async (repoUrl: string): Promise<void> => {
-  await makeSureCloned(repoUrl)
-  const containerName = calcContainerName('RMiner', repoUrl)
+export const runRMiner = async ({ data }: Job): Promise<void> => {
+  if (!data.startCommit || !data.endCommit) throw new Error('start/end commit not found')
+  const { repoUrl, startCommit, endCommit } = data
+  const containerName = calcContainerName('RMiner', data.repoUrl)
 
   const res = spawnOrError('docker', [
     'run',
@@ -75,14 +77,15 @@ export const runRMiner = async (repoUrl: string): Promise<void> => {
     '-v', `${hostDataDir}:/work`,
     '--workdir', '/work',
     `refactoringminer:${rminerVersion}`,
-    '-a', repoDirName(repoUrl, '/work'),
+    // 'start commit' required by RMiner is before in chronological order, whereas 'data.startCommit' is after
+    '-bc', repoDirName(repoUrl, '/work'), endCommit, startCommit,
     '-json', rminerFileName(repoUrl, '/work'),
   ])
   if (res instanceof Error) throw res
 }
 
-export const runRMinerFinished = async (repoUrl: string): Promise<boolean> => {
-  const containerName = calcContainerName('RMiner', repoUrl)
+export const isRMinerFinished = async ({ data }: Job): Promise<boolean> => {
+  const containerName = calcContainerName('RMiner', data.repoUrl)
   const exited = checkContainerExited(containerName)
   if (exited instanceof Error) throw exited
   if (!exited) {
@@ -93,8 +96,15 @@ export const runRMinerFinished = async (repoUrl: string): Promise<boolean> => {
   return exited
 }
 
-export const runRefDiff = async (repoUrl: string): Promise<void> => {
-  await makeSureCloned(repoUrl)
+export const killRMiner = async ({ data }: Job): Promise<void> => {
+  const containerName = calcContainerName('RMiner', data.repoUrl)
+  const rmResult = removeContainer(containerName, true)
+  if (rmResult instanceof Error) throw rmResult
+}
+
+export const runRefDiff = async ({ data }: Job): Promise<void> => {
+  if (!data.startCommit || !data.endCommit) throw new Error('start/end commit not found')
+  const { repoUrl, startCommit, endCommit } = data
   const containerName = calcContainerName('RefDiff', repoUrl)
 
   const res = spawnOrError('docker', [
@@ -105,13 +115,15 @@ export const runRefDiff = async (repoUrl: string): Promise<void> => {
     '--workdir', '/work',
     `refdiff:${refDiffVersion}`,
     '--repository', `${repoDirName(repoUrl, '/work')}/.git`,
+    '--start', startCommit,
+    '--end', endCommit,
     '--out', refDiffFileName(repoUrl, '/work'),
   ])
   if (res instanceof Error) throw res
 }
 
-export const runRefDiffFinished = async (repoUrl: string): Promise<boolean> => {
-  const containerName = calcContainerName('RefDiff', repoUrl)
+export const isRefDiffFinished = async ({ data }: Job): Promise<boolean> => {
+  const containerName = calcContainerName('RefDiff', data.repoUrl)
   const exited = checkContainerExited(containerName)
   if (exited instanceof Error) throw exited
   if (!exited) {
@@ -120,4 +132,10 @@ export const runRefDiffFinished = async (repoUrl: string): Promise<boolean> => {
   const rmResult = removeContainer(containerName)
   if (rmResult instanceof Error) throw rmResult
   return exited
+}
+
+export const killRefDiff = async ({ data }: Job): Promise<void> => {
+  const containerName = calcContainerName('RefDiff', data.repoUrl)
+  const rmResult = removeContainer(containerName, true)
+  if (rmResult instanceof Error) throw rmResult
 }
