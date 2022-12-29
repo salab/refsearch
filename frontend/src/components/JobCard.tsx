@@ -4,9 +4,10 @@ import {Link} from "react-router-dom";
 import {formatDurationHuman, fromGitHub, gitHubRepoName} from "../../../common/utils";
 import GitHub from "@mui/icons-material/GitHub";
 import Storage from "@mui/icons-material/Storage";
+import AccessTime from "@mui/icons-material/AccessTime";
 import {titleCase} from "../libs/utils";
-import {AccessTime} from "@mui/icons-material";
 import {statusIcon, statusTime} from "../libs/jobs";
+import {JobRetryButton} from "./JobRetryButton";
 
 interface Props {
   job: JobWithStrId
@@ -32,6 +33,7 @@ export const JobCard: FunctionComponent<Props> = ({ job }) => {
             </div>
           }
           <div className="ml-auto flex flex-row gap-2">
+            {job.status === JobStatus.Errored && <JobRetryButton id={job._id} />}
             <div>
               <AccessTime className="mr-1" />
               <span>{formatDurationHuman(statusTime(job))}</span>

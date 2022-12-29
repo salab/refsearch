@@ -46,12 +46,17 @@ export const Jobs: FunctionComponent = () => {
     `status = ${JobStatus.Waiting} | status = ${JobStatus.Ready}`, 'queuedAt', 'asc'
   )
   const completed = useJobsQuery(
-    `status = ${JobStatus.Completed} | status = ${JobStatus.Errored}`, 'completedAt', 'desc'
+    `status = ${JobStatus.Completed}`, 'completedAt', 'desc'
+  )
+  const errored = useJobsQuery(
+    `status = ${JobStatus.Errored}`, 'completedAt', 'desc'
   )
 
   const [submittedText, setSubmittedText] = useState('')
   const [submitError, setSubmitError] = useState('')
   const submitRepo = (s: string): void => {
+    if (s === '') return
+
     postJob(s).then((res) => {
       if (res.status !== 200) {
         setSubmitError(res.message)
@@ -85,6 +90,8 @@ export const Jobs: FunctionComponent = () => {
       {makeDisplayArea('Coming Up Jobs', comingUp)}
       <Divider />
       {makeDisplayArea('Completed Jobs', completed)}
+      <Divider />
+      {makeDisplayArea('Errored Jobs', errored)}
     </div>
   )
 }

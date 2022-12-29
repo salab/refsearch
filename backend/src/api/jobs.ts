@@ -3,6 +3,7 @@ import {jobCol} from "../mongo";
 import {randomUUID} from "crypto";
 import {Job, JobStatus, JobType} from "../../../common/jobs";
 import {jobRunners} from "../jobs";
+import {ObjectId} from "mongodb";
 
 interface ScheduleJobRequest extends Request {
   body: {
@@ -44,4 +45,30 @@ export const scheduleJob = async (req: ScheduleJobRequest, res: Response) => {
   }
 
   return res.status(200).json({ message: `Queued ${insertResult.insertedCount} jobs` })
+}
+
+export const retryJob = async (req: Request, res: Response) => {
+  let id: ObjectId
+  try {
+    id = new ObjectId(req.params.id)
+  } catch (e) {
+    return res.status(400).json({ message: 'Malformed id' })
+  }
+  const updateResult = await jobCol.updateOne({ _id: id },
+    {
+      $set: {
+          status: JobStatus.Waiting,
+          queuedAt: new Date(),
+        },
+      $unset: {
+        startedAt: '',
+        completedAt: '',
+        error: '',
+      }
+    }
+  )
+  if (!updateResult.acknowledged) {
+    return res.status(500).json({ message: 'Internal update error' })
+  }
+  return res.status(200).json({ message: `Modified ${updateResult.modifiedCount} document(s)` })
 }

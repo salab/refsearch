@@ -9,3 +9,9 @@ export const postJob = async (repoUrl: string): Promise<{ status: number, messag
   const json = await res.json()
   return { status: res.status, message: json.message }
 }
+
+export const retryJob = async (id: string): Promise<{ status: number, message: string }> => {
+  const res = await fetch(`/api/jobs/${id}/retry`, { method: 'POST' })
+  const json = await res.json()
+  return { status: res.status, message: json.message }
+}

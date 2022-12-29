@@ -14,6 +14,7 @@ import {JobStatus} from "../../../common/jobs";
 import {AccessTime} from "@mui/icons-material";
 import {usePager} from "../components/Pager";
 import {JobCard} from "../components/JobCard";
+import {JobRetryButton} from "../components/JobRetryButton";
 
 const perPage = 10
 
@@ -51,8 +52,14 @@ export const Job: FunctionComponent = () => {
         <div className="flex flex-row gap-2">
           {statusIcon(job.status)}
           <div className="font-semibold">Status</div>
-          <div>
-            {titleCase(job.status)} {[JobStatus.Errored, JobStatus.Completed].includes(job.status) ? 'in' : 'for'} {formatDurationHuman(statusTime(job))}
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-row gap-2 content-center">
+              <span>
+                {titleCase(job.status)} {[JobStatus.Errored, JobStatus.Completed].includes(job.status) ? 'in' : 'for'} {formatDurationHuman(statusTime(job))}
+              </span>
+              {job.status === JobStatus.Errored && <JobRetryButton id={job._id} />}
+            </div>
+            {job.error && <pre className="text-sm text-gray-400">{job.error}</pre>}
           </div>
         </div>
         <div className="flex flex-row gap-2">
