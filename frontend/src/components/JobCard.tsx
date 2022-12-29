@@ -1,33 +1,15 @@
 import {JobStatus, JobWithStrId} from "../../../common/jobs";
-import {FunctionComponent} from "react";
+import React, {FunctionComponent} from "react";
 import {Link} from "react-router-dom";
-import {fromGitHub, gitHubRepoName} from "../../../common/utils";
+import {formatDurationHuman, fromGitHub, gitHubRepoName} from "../../../common/utils";
 import GitHub from "@mui/icons-material/GitHub";
 import Storage from "@mui/icons-material/Storage";
 import {titleCase} from "../libs/utils";
-import HourglassEmpty from "@mui/icons-material/HourglassEmpty";
-import HourglassFull from "@mui/icons-material/HourglassFull";
-import PlayCircle from "@mui/icons-material/PlayCircle";
-import CheckCircle from "@mui/icons-material/CheckCircle";
-import Error from "@mui/icons-material/Error";
+import {AccessTime} from "@mui/icons-material";
+import {statusIcon, statusTime} from "../libs/jobs";
 
 interface Props {
   job: JobWithStrId
-}
-
-const statusIcon = (status: JobStatus): JSX.Element => {
-  switch (status) {
-    case JobStatus.Waiting:
-      return <HourglassEmpty className="text-gray-500" />
-    case JobStatus.Ready:
-      return <HourglassFull className="text-gray-500" />
-    case JobStatus.Running:
-      return <PlayCircle className="text-cyan-500" />
-    case JobStatus.Completed:
-      return <CheckCircle className="text-lime-500" />
-    case JobStatus.Errored:
-      return <Error className="text-red-500" />
-  }
 }
 
 export const JobCard: FunctionComponent<Props> = ({ job }) => {
@@ -49,9 +31,15 @@ export const JobCard: FunctionComponent<Props> = ({ job }) => {
               <span>{job.data.repoUrl}</span>
             </div>
           }
-          <div className="ml-auto">
-            <span className="-translate-y-1 mr-1">{statusIcon(job.status)}</span>
-            <span>{titleCase(job.status)}</span>
+          <div className="ml-auto flex flex-row gap-2">
+            <div>
+              <AccessTime className="mr-1" />
+              <span>{formatDurationHuman(statusTime(job))}</span>
+            </div>
+            <div>
+              <span className="-translate-y-1 mr-1">{statusIcon(job.status)}</span>
+              <span>{titleCase(job.status)}</span>
+            </div>
           </div>
         </div>
         {job.status === JobStatus.Errored && (

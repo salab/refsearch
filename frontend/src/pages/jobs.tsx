@@ -46,7 +46,7 @@ export const Jobs: FunctionComponent = () => {
     `status = ${JobStatus.Waiting} | status = ${JobStatus.Ready}`, 'queuedAt', 'asc'
   )
   const completed = useJobsQuery(
-    `status = ${JobStatus.Completed} | status = ${JobStatus.Errored}`, 'queuedAt', 'desc'
+    `status = ${JobStatus.Completed} | status = ${JobStatus.Errored}`, 'completedAt', 'desc'
   )
 
   const [submittedText, setSubmittedText] = useState('')

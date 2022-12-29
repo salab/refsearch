@@ -24,8 +24,11 @@ const getJob = async (id: ObjectId): Promise<JobWithId | undefined> => {
 const saveReady = async (job: JobWithId): Promise<void> => {
   await jobCol.updateOne({ _id: job._id }, { $set: { status: JobStatus.Ready } })
 }
+const saveStartedAt = async (job: JobWithId): Promise<void> => {
+  await jobCol.updateOne({ _id: job._id }, { $set: { startedAt: new Date() } })
+}
 const saveRunning = async (job: JobWithId): Promise<void> => {
-  await jobCol.updateOne({ _id: job._id }, { $set: { status: JobStatus.Running, startedAt: new Date() } })
+  await jobCol.updateOne({ _id: job._id }, { $set: { status: JobStatus.Running } })
 }
 const saveCompleted = async (job: JobWithId): Promise<void> => {
   await jobCol.updateOne({ _id: job._id }, { $set: { status: JobStatus.Completed, completedAt: new Date() } })
@@ -80,6 +83,7 @@ const startJob = async (runner: JobRunner, job: JobWithId): Promise<void> => {
   console.log(`[job runner] Starting job ${job.type} for ${job.data.repoUrl}... (pipeline ${job.pipeline})`)
   const start = performance.now()
 
+  await saveStartedAt(job)
   await runner.start(job)
   await saveRunning(job)
 

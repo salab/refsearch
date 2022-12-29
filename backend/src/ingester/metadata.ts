@@ -52,12 +52,12 @@ const storeRepoMetadata = async (repoUrl: string, startCommit: string, typeMetas
   console.log(`[metadata > repo meta] Updated in ${formatTime(start)}.`)
 }
 
-const storeCommitMetadata = async (repoUrl: string, startCommit: string, typeMetas: RefTypeMeta[]): Promise<void> => {
+const storeCommitMetadata = async (repoUrl: string, startCommit: string, endCommit: string, typeMetas: RefTypeMeta[]): Promise<void> => {
   const start = performance.now()
 
   const repoPath = repoDirName(repoUrl)
   const git = simpleGit(repoPath)
-  const gitLog = await git.log({ from: startCommit })
+  const gitLog = await git.log({ from: endCommit, to: startCommit })
 
   const countPerType = typeMetas.reduce((acc, r) => {
     acc[r.sha1] ??= {} as Record<RefactoringType, number>
@@ -120,11 +120,11 @@ const mergeCommitMetadata = async (repoUrl: string): Promise<void> => {
 }
 
 export const storeMetadata = async ({ data }: JobWithId): Promise<void> => {
-  if (!data.startCommit) {
-    throw new Error('start commit not found')
+  if (!data.startCommit || !data.endCommit) {
+    throw new Error('start/end commit not found')
   }
   const typeMetas = await getRefactoringTypeMetas(data.repoUrl)
   await storeRepoMetadata(data.repoUrl, data.startCommit, typeMetas)
-  await storeCommitMetadata(data.repoUrl, data.startCommit, typeMetas)
+  await storeCommitMetadata(data.repoUrl, data.startCommit, data.endCommit, typeMetas)
   await mergeCommitMetadata(data.repoUrl)
 }
