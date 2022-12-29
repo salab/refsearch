@@ -7,8 +7,9 @@ import {formatTime} from "../../../common/utils";
 type JobWithId = WithId<Job>
 
 const backoffStart = 1000 // ms
-const backoffMax = 60 * 1000
-const nextBackoff = (prev: number): number => Math.min(backoffMax, prev * 2)
+const activeBackoffMax = 10 * 1000
+const idleBackoffMax = 60 * 1000
+const nextBackoff = (prev: number, max: number): number => Math.min(max, prev * 1.5)
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
 
 const saveStarted = async (job: JobWithId): Promise<void> => {
@@ -44,7 +45,7 @@ const waitJob = async (runner: JobRunner, job: JobWithId): Promise<void> => {
   let backoff = backoffStart
   while (!(await runner.isFinished(job.repoUrl))) {
     await sleep(backoff)
-    backoff = nextBackoff(backoff)
+    backoff = nextBackoff(backoff, activeBackoffMax)
   }
   await saveFinished(job)
 
@@ -68,7 +69,7 @@ export const runJobLoop = async () => {
     const job = await findNextJob()
     if (!job) {
       await sleep(backoff)
-      backoff = nextBackoff(backoff)
+      backoff = nextBackoff(backoff, idleBackoffMax)
       continue
     }
     backoff = backoffStart
