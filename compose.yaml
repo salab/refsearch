@@ -86,6 +86,25 @@ services:
       - ./data:/work/data
       - /var/run/docker.sock:/var/run/docker.sock
 
+  runner4:
+    container_name: rs-runner-4
+    restart: always
+    build:
+      context: .
+      dockerfile: ./backend.Dockerfile
+      target: job-runner
+    environment:
+      RUNNER_ID: local-4
+      MONGODB_USER: root
+      MONGODB_PASSWORD: password
+      MONGODB_HOST: rs-mongo
+      MONGODB_PORT: 27017
+      DATA_DIR: /work/data
+      HOST_DATA_DIR: ${PWD}/data
+    volumes:
+      - ./data:/work/data
+      - /var/run/docker.sock:/var/run/docker.sock
+
   mongodb:
     container_name: rs-mongo
     restart: always
