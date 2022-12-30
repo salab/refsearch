@@ -2,7 +2,6 @@ import {jobCol} from "../mongo";
 import {makeMissingDirs} from "../ingester/info";
 import {formatTime} from "../../../common/utils";
 import {readAllFromCursor, sleep} from "../utils";
-import {ObjectId} from "mongodb";
 import {Job, JobStatus} from "../../../common/jobs";
 import {JobRunner, jobRunners, JobWithId} from "../jobs";
 
@@ -16,11 +15,6 @@ const activeBackoffMax = 10 * 1000
 const idleBackoffMax = 60 * 1000
 const nextBackoff = (prev: number, max: number): number => Math.min(max, prev * 1.5)
 
-const getJob = async (id: ObjectId): Promise<JobWithId | undefined> => {
-  const res = await jobCol.findOne({ _id: id })
-  if (res) return res
-  return undefined
-}
 const saveReady = async (job: JobWithId): Promise<void> => {
   await jobCol.updateOne({ _id: job._id }, { $set: { status: JobStatus.Ready } })
 }
@@ -35,12 +29,6 @@ const saveCompleted = async (job: JobWithId): Promise<void> => {
 }
 const saveErrored = async (job: JobWithId, error: string): Promise<void> => {
   await jobCol.updateOne({ _id: job._id }, { $set: { status: JobStatus.Errored, completedAt: new Date(), error } })
-}
-const cancelPipeline = async (job: JobWithId): Promise<void> => {
-  await jobCol.updateMany(
-    { pipeline: job.pipeline, status: { '$in': [JobStatus.Waiting, JobStatus.Ready, JobStatus.Running] } },
-    { $set: { status: JobStatus.Errored, error: 'Pipeline aborted' } }
-  )
 }
 
 const updateReadyStatus = async (): Promise<void> => {
@@ -94,20 +82,10 @@ const waitJob = async (runner: JobRunner, job: JobWithId): Promise<void> => {
   console.log(`[job runner] Waiting job ${job.type} for ${job.data.repoUrl}... (pipeline ${job.pipeline})`)
   const start = performance.now()
 
-  const checkPipelineErrored = async () => {
-    const cur = await getJob(job._id)
-    if (!cur || cur.status === JobStatus.Errored) {
-      await runner.kill(job)
-      throw new Error('Aborted due to pipeline error')
-    }
-  }
-
   let backoff = backoffStart
   while (!(await runner.isFinished(job))) {
-    await checkPipelineErrored()
     await sleep(backoff)
     backoff = nextBackoff(backoff, activeBackoffMax)
-    await checkPipelineErrored()
   }
   await saveCompleted(job)
 
@@ -152,7 +130,6 @@ export const runJobLoop = async () => {
       console.log(`[job runner] Encountered an error while running job ${job.type} for ${job.data.repoUrl}, skipping`)
       console.trace(e)
       await saveErrored(job, `Runtime error: ${e.message}`)
-      await cancelPipeline(job)
     }
   }
 }
