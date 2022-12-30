@@ -110,7 +110,7 @@ const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, que
                 updateFromRichField({ types })
               }}
             >
-              {Object.values(RefactoringTypes).map((refType) => (
+              {Object.values(RefactoringTypes).sort().map((refType) => (
                 <MenuItem key={refType} value={refType}>
                   <Checkbox checked={types.indexOf(refType) > -1} />
                   <ListItemText primary={refType} />
