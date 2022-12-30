@@ -36,33 +36,47 @@ const getContainerLogs = (containerName: string): string | Error => {
   return formatOutput(res)
 }
 
-const checkContainerExited = (containerName: string): boolean | Error => {
+const checkContainerExitCode = (containerName: string): [code: number, exited: boolean, err?: Error] => {
   const res = spawnOrError('docker', ['inspect', containerName])
-  if (res instanceof Error) return res
+  if (res instanceof Error) return [0, false, res]
 
   const containerStatus = JSON.parse(res.stdout.toString())
   const running = containerStatus?.[0]?.State?.Running
   if (typeof running !== 'boolean') {
-    return new Error(`docker inspect failed: unexpected running status: ${running}`)
+    return [0, false, new Error(`docker inspect failed: unexpected running status: ${running}`)]
   }
   if (running) {
-    return false // not completed
+    return [0, false]
   }
 
   const exitCode = containerStatus?.[0].State?.ExitCode
-  if (exitCode !== 0) {
-    const logs = getContainerLogs(containerName)
-    if (logs instanceof Error) return logs
-    return new Error(`container ${containerName} exited with code ${exitCode}:\n${logs}`)
+  if (typeof exitCode !== 'number') {
+    return [0, true, new Error(`failed to get exit number exit code for container ${containerName}`)]
   }
-
-  return true
+  return [exitCode, true]
 }
 
 const removeContainer = (containerName: string, force?: boolean): Error | undefined => {
   const args = force ? ['rm', '-f', containerName] : ['rm', containerName]
   const res = spawnOrError('docker', args)
   if (res instanceof Error) return res
+}
+
+const checkContainerFinishedAndCleanUp = async (containerName: string): Promise<boolean> => {
+  const [exitCode, exited, err] = checkContainerExitCode(containerName)
+  if (err) throw err
+  if (!exited) {
+    return false
+  }
+  // exited
+  const logs = getContainerLogs(containerName)
+  if (logs instanceof Error) throw logs
+  const rmResult = removeContainer(containerName)
+  if (rmResult instanceof Error) throw rmResult
+  if (exitCode !== 0) {
+    throw new Error(`container ${containerName} exited with code ${exitCode}:\n${logs}`)
+  }
+  return true
 }
 
 export const runRMiner = async ({ data }: JobWithId): Promise<void> => {
@@ -86,14 +100,7 @@ export const runRMiner = async ({ data }: JobWithId): Promise<void> => {
 
 export const isRMinerFinished = async ({ data }: JobWithId): Promise<boolean> => {
   const containerName = calcContainerName('RMiner', data.repoUrl)
-  const exited = checkContainerExited(containerName)
-  if (exited instanceof Error) throw exited
-  if (!exited) {
-    return exited
-  }
-  const rmResult = removeContainer(containerName)
-  if (rmResult instanceof Error) throw rmResult
-  return exited
+  return await checkContainerFinishedAndCleanUp(containerName)
 }
 
 export const killRMiner = async ({ data }: JobWithId): Promise<void> => {
@@ -124,14 +131,7 @@ export const runRefDiff = async ({ data }: JobWithId): Promise<void> => {
 
 export const isRefDiffFinished = async ({ data }: JobWithId): Promise<boolean> => {
   const containerName = calcContainerName('RefDiff', data.repoUrl)
-  const exited = checkContainerExited(containerName)
-  if (exited instanceof Error) throw exited
-  if (!exited) {
-    return exited
-  }
-  const rmResult = removeContainer(containerName)
-  if (rmResult instanceof Error) throw rmResult
-  return exited
+  return await checkContainerFinishedAndCleanUp(containerName)
 }
 
 export const killRefDiff = async ({ data }: JobWithId): Promise<void> => {
