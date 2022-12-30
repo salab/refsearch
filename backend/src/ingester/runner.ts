@@ -69,8 +69,12 @@ const checkContainerFinishedAndCleanUp = async (containerName: string): Promise<
     return false
   }
   // exited
-  const logs = getContainerLogs(containerName)
-  if (logs instanceof Error) throw logs
+  let logs = ''
+  if (exitCode !== 0) {
+    const l = getContainerLogs(containerName)
+    if (l instanceof Error) throw l
+    logs = l
+  }
   const rmResult = removeContainer(containerName)
   if (rmResult instanceof Error) throw rmResult
   if (exitCode !== 0) {
