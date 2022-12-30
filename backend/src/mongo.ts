@@ -2,6 +2,7 @@ import {Collection, CreateIndexesOptions, Document, IndexSpecification, MongoCli
 import {CommitMeta, RefactoringMeta, RepositoryMeta} from "../../common/common";
 import {Job} from "../../common/jobs";
 import {formatTime} from "../../common/utils";
+import {readAllFromCursor} from "./utils";
 
 const env = {
   user: process.env.MONGODB_USER || 'root',
@@ -21,12 +22,28 @@ export const refCol = db.collection<RefactoringMeta>('refactorings')
 
 export const jobCol = db.collection<Job>('jobs')
 
+export const createCollections = async () => {
+  const collections = [
+    'repositories',
+    'commits',
+    'refactorings',
+    'job',
+  ]
+  const existing = await readAllFromCursor(db.listCollections())
+  for (const name of collections) {
+    if (existing.find((col) => col.name === name)) continue
+
+    const start = performance.now()
+    await db.createCollection(name)
+    console.log(`[mongo.ts] Created collection ${name} in ${formatTime(start)}`)
+  }
+  console.log(`[mongo.ts] Finished syncing collections`)
+}
+
 interface Index { name: string; key: IndexSpecification }
 type IndexDef = [spec: IndexSpecification, opt: CreateIndexesOptions]
 const createIndexes = async <T extends Document>(col: Collection<T>, defs: IndexDef[]) => {
-  const indexesCursor = col.listIndexes()
-  const indexes: Index[] = []
-  await indexesCursor.forEach((idx) => void indexes.push(idx as Index))
+  const indexes = await readAllFromCursor(col.listIndexes()) as Index[]
 
   // Drop indexes
   for (const { name } of indexes) {

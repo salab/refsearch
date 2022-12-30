@@ -1,8 +1,9 @@
 import express from "express";
 import {registerRoutes} from "../api";
-import {createMissingIndexes} from "../mongo";
+import {createCollections, createMissingIndexes} from "../mongo";
 
 const main = async () => {
+  await createCollections()
   await createMissingIndexes()
 
   const app = express()
