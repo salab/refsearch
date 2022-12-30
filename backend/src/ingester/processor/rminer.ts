@@ -40,7 +40,7 @@ const extractMethodExtractedLines = (r: RefactoringWithoutCommit): number => {
 }
 
 const extractRenameRe: Partial<Record<RMRefactoringType, RegExp>> = {
-  'Rename Method': /^Rename Method (?:[^ ]+ )?(.+?)\(.*?\) : .+? renamed to (?:[^ ]+ )?(.+?)\(.*?\) : .+? in .+?$/,
+  'Rename Method': /^Rename Method (?:[^ ]+ )?(.+?)\(.*?\)(?: : .+?)? renamed to (?:[^ ]+ )?(.+?)\(.*?\)(?: : .+?)? in .+?$/,
   'Rename Class': /^Rename Class (?:.+?\.)*(.+?) renamed to (?:.+?\.)*(.+?)$/,
   'Rename Attribute': /^Rename Attribute (.+?) : .+? to (.+?) : .+? in .+?$/,
   'Rename Variable': /^Rename Variable (.+?) : .+? to (.+?) : .+? in .+?$/,
