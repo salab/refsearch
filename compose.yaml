@@ -108,7 +108,7 @@ services:
   mongodb:
     container_name: rs-mongo
     restart: always
-    image: mongo:5.0.14
+    image: mongo:6.0.3
     ports:
       - "27017:27017"
     environment:
