@@ -1,7 +1,13 @@
 import equal from "fast-deep-equal/es6/index";
 import {rminerVersion} from "../info";
-import {RefactoringTypes} from "../../../../common/common";
-import {RMCodeElementType, RMCommit, RMOutput, RMRightSideLocation} from "../../../../common/rminer";
+import {RefactoringMeta, RefactoringTypes} from "../../../../common/common";
+import {
+  RMCodeElementType,
+  RMCommit,
+  RMOutput,
+  RMRefactoringType,
+  RMRightSideLocation
+} from "../../../../common/rminer";
 import {sshUrlToHttpsUrl} from "../../utils";
 import {RefactoringWithoutCommit} from "./type";
 
@@ -31,6 +37,29 @@ const extractMethodExtractedLines = (r: RefactoringWithoutCommit): number => {
     .find((rhs) => rhs.description === 'extracted method declaration')
   if (!extractedCode) return -1
   return (extractedCode.endLine - extractedCode.startLine + 1)
+}
+
+const extractRenameRe: Partial<Record<RMRefactoringType, RegExp>> = {
+  'Rename Method': /^Rename Method (?:[^ ]+ )?(.+?)\(.+?\) : .+? renamed to (?:[^ ]+ )?(.+?)\(.+?\) : .+? in .+?$/,
+  'Rename Class': /^Rename Class (?:.+?\.)*(.+?) renamed to (?:.+?\.)*(.+?)$/,
+  'Rename Attribute': /^Rename Attribute (.+?) : .+? to (.+?) : .+? in .+?$/,
+  'Rename Variable': /^Rename Variable (.+?) : .+? to (.+?) : .+? in .+?$/,
+  'Rename Package': /^Rename Package (?:.+?\.)*(.+?) to (?:.+?\.)*(.+?)$/,
+  'Rename Parameter': /^Rename Parameter (.+?) : .+? to (.+?) : .+? in .+?$/,
+}
+const extractRenameInfo = (r: RefactoringWithoutCommit): RefactoringMeta['rename'] | undefined => {
+  const re = extractRenameRe[r.type as RMRefactoringType]
+  if (re) {
+    const match = re.exec(r.description)
+    if (!match) {
+      console.warn(`[reader > rminer] Regexp of type ${r.type} does not match the description ${r.description}`)
+      return
+    }
+    return {
+      from: match[1],
+      to: match[2],
+    }
+  }
 }
 
 export const processRMinerOutput = (output: RMOutput): RefactoringWithoutCommit[] => {
@@ -70,6 +99,14 @@ export const processRMinerOutput = (output: RMOutput): RefactoringWithoutCommit[
           sourceMethodsCount: extractSourceMethodsCount(methods, r),
           // Use-case 2: 数行のみのextract,  extractする前の行数
           extractedLines: extractMethodExtractedLines(r)
+        }
+      })
+    // Use-case 3: 具体的なrenameした単語
+    c.refactorings
+      .forEach((r) => {
+        const rename = extractRenameInfo(r)
+        if (rename) {
+          r.rename = rename
         }
       })
   })

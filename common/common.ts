@@ -1,8 +1,8 @@
-import {RMRefactoring, RMRefactoringType} from "./rminer";
+import {RMRefactoring, RMRefactoringTypes} from "./rminer";
 import {RefDiffRefactoring} from "./refdiff";
 
 export const RefactoringTypes = {
-  ...RMRefactoringType,
+  ...RMRefactoringTypes,
   ConvertType: 'Convert Type',
   ChangeSignature: 'Change Signature',
   PullUpSignature: 'Pull Up Signature',
@@ -24,13 +24,20 @@ interface ExtractMethodInfo {
   extractedLines: number
   sourceMethodsCount: number
 }
+interface RenameInfo {
+  from: string
+  to: string
+}
 
 export type RefactoringMeta = {
   type: RefactoringType
   sha1: string
   repository: string
   description: string
+
   extractMethod?: ExtractMethodInfo
+  rename?: RenameInfo
+
   raw: {
     refactoringMiner?: RMRefactoring
     refDiff?: RefDiffRefactoring

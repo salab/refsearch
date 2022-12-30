@@ -122,6 +122,14 @@ export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): Re
         }
       }
 
+      // Use-case 3: 具体的なrenameした単語
+      if (ref.type === 'RENAME') {
+        ret.rename = {
+          from: ref.before.name,
+          to: ref.after.name,
+        }
+      }
+
       return ret
     })
   })

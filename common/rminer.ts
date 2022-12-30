@@ -1,5 +1,5 @@
 // https://github.com/tsantalis/RefactoringMiner
-export const RMRefactoringType = {
+export const RMRefactoringTypes = {
   // supported by RefactoringMiner 1.0 and newer versions
   ExtractMethod: 'Extract Method',
   InlineMethod: 'Inline Method',
@@ -124,8 +124,10 @@ export interface RMRightSideLocation {
   codeElement: string;
 }
 
+export type RMRefactoringType = typeof RMRefactoringTypes[keyof typeof RMRefactoringTypes]
+
 export interface RMRefactoring {
-  type: typeof RMRefactoringType[keyof typeof RMRefactoringType];
+  type: RMRefactoringType;
   description: string;
   leftSideLocations: RMLeftSideLocation[];
   rightSideLocations: RMRightSideLocation[];

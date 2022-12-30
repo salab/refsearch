@@ -22,7 +22,8 @@ const examples: [query: string, tooltip: string][] = [
   ['type = "Extract Method" & extractMethod.sourceMethodsCount >= 2', 'Removed duplicated code'],
   // Use-case 2: 数行のみのextract,  extractする前の行数
   ['type = "Extract Method" & extractMethod.extractedLines >= 10', 'Extracted 10+ lines'],
-  // TODO: Use-case 3: 具体的なrenameした単語
+  // Use-case 3: 具体的なrenameした単語
+  ['type ~ "^Rename" & rename.from ~ "^get" & rename.to ~ "^retrieve"', 'Renamed from get to retrieve'],
 ]
 
 interface RichFields {

@@ -1,5 +1,5 @@
 // https://github.com/aserg-ufmg/RefDiff/blob/889b0bfbf2c18726d44f077371966606232cca0b/refdiff-core/src/main/java/refdiff/core/diff/RelationshipType.java
-export const RefDiffRefactoringType = {
+export const RefDiffRefactoringTypes = {
   // Represents nodes that preserved their identities between revisions, but have different types. E.g.: convert a class to an interface.
   ConvertType: 'CONVERT_TYPE',
   // Represents matched nodes whose signature changed. E.g.: add/remove parameter of a function.
@@ -48,8 +48,10 @@ export interface RefDiffNode {
   location: RefDiffLocation;
 }
 
+export type RefDiffRefactoringType = typeof RefDiffRefactoringTypes[keyof typeof RefDiffRefactoringTypes]
+
 export interface RefDiffRefactoring {
-  type: typeof RefDiffRefactoringType[keyof typeof RefDiffRefactoringType];
+  type: RefDiffRefactoringType;
   before: RefDiffNode;
   after: RefDiffNode;
 }
