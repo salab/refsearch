@@ -14,7 +14,7 @@ export const Header: FunctionComponent = () => {
       <div className="text-gray-50 font-bold text-2xl my-auto">RefSearch</div>
       <div className="ml-6 flex flex-row text-gray-200 h-full w-full">
         <div className="flex flex-row content-center">
-          {nav("/", "Refactorings")}
+          {nav("/refactorings", "Refactorings")}
           {nav("/commits", "Commits")}
           {nav("/repositories", "Repositories")}
         </div>

@@ -148,7 +148,7 @@ const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, que
 
 const perPage = 10
 
-export const Index: FunctionComponent = () => {
+export const Refactorings: FunctionComponent = () => {
   const { params, setSearchParams } = useParsedSearchParams()
   const [query, setQuery] = useState<string>(params.q)
   const [page, setPage] = useState(params.page)

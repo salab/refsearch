@@ -7,7 +7,7 @@ import {
 } from 'react-router-dom';
 import './index.css';
 import {Header} from "./components/Header";
-import {Index} from './pages';
+import {Refactorings} from './pages/refactorings';
 import {Commits} from "./pages/commits";
 import {Refactoring} from "./pages/refactoring";
 import {Commit} from "./pages/commit";
@@ -30,8 +30,8 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       {
-        path: '/',
-        element: <Index />
+        path: '/refactorings',
+        element: <Refactorings />
       },
       {
         path: '/refactorings/:id',
