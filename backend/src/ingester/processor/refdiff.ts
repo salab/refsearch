@@ -1,8 +1,15 @@
 import equal from "fast-deep-equal/es6";
-import {RefDiffCommit, RefDiffOutput, RefDiffRefactoring} from "../../../../common/refdiff";
-import {RefactoringType, RefactoringTypes} from "../../../../common/common";
+import {
+  ProcessedRefDiffRefactoring,
+  RefDiffCommit,
+  RefDiffLocation, RefDiffLocationWithLines,
+  RefDiffNode, RefDiffNodeWithLines,
+  RefDiffOutput,
+  RefDiffRefactoring
+} from "../../../../common/refdiff";
 import {refDiffVersion} from "../info";
 import {RefactoringWithoutCommit} from "./type";
+import {RefactoringType, RefactoringTypes} from "../../../../common/common";
 
 const formatTypeAndDescription = (ref: RefDiffRefactoring): [typ: RefactoringType, desc: string] => {
   switch (ref.type) {
@@ -60,11 +67,15 @@ const extractSourceMethodsCount = (r: RefDiffRefactoring, extractedMethods: RefD
   return extractedMethods.filter((m) => equal(m.after, r.after)).length
 }
 
-const extractMethodExtractedLines = (r: RefDiffRefactoring): number => {
-  const startLine = +r.after.location.bodyBegin.split(":")[0]
-  const endLine = +r.after.location.bodyEnd.split(":")[0]
+const locationLines = (loc: RefDiffLocation): number => {
+  const startLine = +loc.bodyBegin.split(":")[0]
+  const endLine = +loc.bodyEnd.split(":")[0]
   return (endLine - startLine + 1)
 }
+const processLocation = (loc: RefDiffLocation): RefDiffLocationWithLines => ({ ...loc, lines: locationLines(loc) })
+const processNode = (node: RefDiffNode): RefDiffNodeWithLines => ({ ...node, location: processLocation(node.location) })
+const process = (ref: RefDiffRefactoring): ProcessedRefDiffRefactoring =>
+  ({ ...ref, before: processNode(ref.before), after: processNode(ref.after) })
 
 export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): RefactoringWithoutCommit[] => {
   return output.map((c): RefDiffCommit => {
@@ -104,9 +115,7 @@ export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): Re
         description,
         sha1: c.sha1,
         repository: repoUrl,
-        raw: {
-          refDiff: ref
-        },
+        refDiff: process(ref),
         meta: {
           tool: `RefDiff ${refDiffVersion}`
         }
@@ -118,7 +127,8 @@ export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): Re
           // Use-case 1: 重複の処理が無い / あるextract
           sourceMethodsCount: extractSourceMethodsCount(ref, extractMethodRefactorings),
           // Use-case 2: 数行のみのextract,  extractする前の行数
-          extractedLines: extractMethodExtractedLines(ref)
+          sourceMethodLines: ret.refDiff!.before.location.lines,
+          extractedLines: ret.refDiff!.after.location.lines
         }
       }
 

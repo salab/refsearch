@@ -2,11 +2,14 @@ import equal from "fast-deep-equal/es6/index";
 import {rminerVersion} from "../info";
 import {RefactoringMeta, RefactoringTypes} from "../../../../common/common";
 import {
-  RMCodeElementType,
+  CodeElementInfo,
+  CodeElementsMap,
+  ProcessedRMRefactoring,
   RMCommit,
+  RMLeftSideLocation,
   RMOutput,
-  RMRefactoringType,
-  RMRightSideLocation
+  RMRefactoring,
+  RMRefactoringType
 } from "../../../../common/rminer";
 import {sshUrlToHttpsUrl} from "../../utils";
 import {RefactoringWithoutCommit} from "./type";
@@ -15,28 +18,33 @@ type Commit = Omit<RMCommit, 'refactorings'> & {
   refactorings: RefactoringWithoutCommit[]
 }
 
-const extractedMethod = (r: RefactoringWithoutCommit): RMRightSideLocation | undefined => {
-  return r.raw.refactoringMiner?.rightSideLocations.find((rsl) =>
-    rsl.codeElementType === RMCodeElementType.MethodDeclaration && rsl.description === 'extracted method declaration')
+const extractedMethod = (r: RefactoringWithoutCommit): CodeElementInfo | undefined => {
+  const elt = r.refactoringMiner?.rightSideLocations['extracted method declaration']
+  if (!elt || Array.isArray(elt)) return undefined
+  return elt
 }
 
-const extractedMethods = (c: Commit): RMRightSideLocation[] => {
+const extractedMethods = (c: Commit): CodeElementInfo[] => {
   return c.refactorings
     .filter((r) => r.type === RefactoringTypes.ExtractMethod)
     .map((r) => extractedMethod(r))
     .flatMap((rsl) => rsl ? [rsl] : [])
 }
 
-const extractSourceMethodsCount = (extractedMethods: RMRightSideLocation[], r: RefactoringWithoutCommit): number => {
+const extractSourceMethodsCount = (extractedMethods: CodeElementInfo[], r: RefactoringWithoutCommit): number => {
   const method = extractedMethod(r)
   return extractedMethods.filter((m) => equal(m, method)).length
 }
 
+const extractMethodSourceMethodLines = (r: RefactoringWithoutCommit): number => {
+  const elt = r.refactoringMiner?.leftSideLocations['source method declaration before extraction']
+  if (!elt || Array.isArray(elt)) return -1
+  return elt.lines
+}
 const extractMethodExtractedLines = (r: RefactoringWithoutCommit): number => {
-  const extractedCode = r.raw.refactoringMiner?.rightSideLocations
-    .find((rhs) => rhs.description === 'extracted method declaration')
-  if (!extractedCode) return -1
-  return (extractedCode.endLine - extractedCode.startLine + 1)
+  const elt = r.refactoringMiner?.rightSideLocations['extracted method declaration']
+  if (!elt || Array.isArray(elt)) return -1
+  return elt.lines
 }
 
 const extractRenameRe: Partial<Record<RMRefactoringType, RegExp>> = {
@@ -62,6 +70,33 @@ const extractRenameInfo = (r: RefactoringWithoutCommit): RefactoringMeta['rename
   }
 }
 
+const codeElementLines = (e: RMLeftSideLocation): number => e.endLine - e.startLine + 1
+const processCodeElements = (elements: RMLeftSideLocation[]): CodeElementsMap => {
+  const ret: CodeElementsMap = {}
+  elements.forEach((e) => {
+    const next: CodeElementInfo & { description?: string } = { ...e, lines: codeElementLines(e) }
+    delete next.description
+    const key = e.description
+
+    const prev = ret[key]
+    if (prev) {
+      if (Array.isArray(prev)) {
+        prev.push(next)
+      } else {
+        ret[key] = [prev, next]
+      }
+    } else {
+      ret[key] = next
+    }
+  })
+  return ret
+}
+const process = (r: RMRefactoring): ProcessedRMRefactoring => ({
+  ...r,
+  leftSideLocations: processCodeElements(r.leftSideLocations),
+  rightSideLocations: processCodeElements(r.rightSideLocations)
+})
+
 export const processRMinerOutput = (output: RMOutput): RefactoringWithoutCommit[] => {
   const commits = output.commits
     .map((c): Commit => {
@@ -78,9 +113,7 @@ export const processRMinerOutput = (output: RMOutput): RefactoringWithoutCommit[
             description: r.description,
             sha1: c.sha1,
             repository,
-            raw: {
-              refactoringMiner: r
-            },
+            refactoringMiner: process(r),
             meta: {
               tool: `RefactoringMiner ${rminerVersion}`
             }
@@ -98,6 +131,7 @@ export const processRMinerOutput = (output: RMOutput): RefactoringWithoutCommit[
           // Use-case 1: 重複の処理が無い / あるextract
           sourceMethodsCount: extractSourceMethodsCount(methods, r),
           // Use-case 2: 数行のみのextract,  extractする前の行数
+          sourceMethodLines: extractMethodSourceMethodLines(r),
           extractedLines: extractMethodExtractedLines(r)
         }
       })

@@ -21,7 +21,12 @@ const examples: [query: string, tooltip: string][] = [
   // Use-case 1: 重複の処理が無いextract
   ['type = "Extract Method" & extractMethod.sourceMethodsCount >= 2', 'Removed duplicated code'],
   // Use-case 2: 数行のみのextract,  extractする前の行数
+  ['type = "Extract Method" & extractMethod.sourceMethodLines >= 100', 'Extracted from method with 100+ lines'],
+  ['type = "Extract Method" & "refactoringMiner.leftSideLocations.source method declaration before extraction.lines" >= 100', 'Same as example 2 (for RefactoringMiner)'],
+  ['type = "Extract Method" & refDiff.before.location.lines >= 100', 'Same as example 2 (for RefDiff)'],
   ['type = "Extract Method" & extractMethod.extractedLines >= 10', 'Extracted 10+ lines'],
+  ['type = "Extract Method" & "refactoringMiner.rightSideLocations.extracted method declaration.lines" >= 10', 'Same as example 5 (for RefactoringMiner)'],
+  ['type = "Extract Method" & refDiff.after.location.lines >= 10', 'Same as example 5 (for RefDiff)'],
   // Use-case 3: 具体的なrenameした単語
   ['type ~ "^Rename" & rename.from ~ "^get" & rename.to ~ "^retrieve"', 'Renamed from get to retrieve'],
 ]

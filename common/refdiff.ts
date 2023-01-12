@@ -62,3 +62,16 @@ export interface RefDiffCommit {
 }
 
 export type RefDiffOutput = RefDiffCommit[]
+
+// ---
+
+export type RefDiffLocationWithLines = RefDiffLocation & {
+  lines: number
+}
+export type RefDiffNodeWithLines = Omit<RefDiffNode, 'location'> & {
+  location: RefDiffLocationWithLines
+}
+export type ProcessedRefDiffRefactoring = Omit<RefDiffRefactoring, 'before' | 'after'> & {
+  before: RefDiffNodeWithLines
+  after: RefDiffNodeWithLines
+}

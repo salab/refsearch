@@ -1,5 +1,5 @@
-import {RMRefactoring, RMRefactoringTypes} from "./rminer";
-import {RefDiffRefactoring} from "./refdiff";
+import {ProcessedRMRefactoring, RMRefactoringTypes} from "./rminer";
+import {ProcessedRefDiffRefactoring} from "./refdiff";
 
 export const RefactoringTypes = {
   ...RMRefactoringTypes,
@@ -20,11 +20,12 @@ export const RefactoringTypes = {
 } as const
 export type RefactoringType = typeof RefactoringTypes[keyof typeof RefactoringTypes]
 
-interface ExtractMethodInfo {
+export interface ExtractMethodInfo {
+  sourceMethodLines: number
   extractedLines: number
   sourceMethodsCount: number
 }
-interface RenameInfo {
+export interface RenameInfo {
   from: string
   to: string
 }
@@ -38,10 +39,9 @@ export type RefactoringMeta = {
   extractMethod?: ExtractMethodInfo
   rename?: RenameInfo
 
-  raw: {
-    refactoringMiner?: RMRefactoring
-    refDiff?: RefDiffRefactoring
-  },
+  refactoringMiner?: ProcessedRMRefactoring
+  refDiff?: ProcessedRefDiffRefactoring
+
   meta: {
     tool?: string
   },
