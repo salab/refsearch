@@ -27,7 +27,7 @@ export const createCollections = async () => {
     'repositories',
     'commits',
     'refactorings',
-    'job',
+    'jobs',
   ]
   const existing = await readAllFromCursor(db.listCollections())
   for (const name of collections) {
