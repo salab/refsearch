@@ -12,6 +12,7 @@ const examples: [query: string, tooltip: string][] = [
   ['message ~ /refactor/i', 'Self-affirmed refactoring'],
   ['refactorings.total >= 10', 'Commits with 10+ refactorings'],
   ['"refactorings.perType.Rename Method" >= 10', 'Commits with 10+ Rename Method refactorings'],
+  ['size.files.changed = 1 & refactorings.total >= 1', 'Commits with only 1 file changed and 1+ refactorings']
 ]
 
 interface RichFields {

@@ -50,6 +50,16 @@ export type RefactoringMeta = {
 
 export type RefactoringWithId = { _id: string } & RefactoringMeta
 
+export interface CommitSizeInfo {
+  files: {
+    changed: number
+  }
+  lines: {
+    inserted: number
+    deleted: number
+  }
+}
+
 export interface RefactoringsCount {
   total: number
   perType: Record<RefactoringType, number>
@@ -66,6 +76,7 @@ export interface CommitMeta {
   authorEmail: string
   url: string
   repository: string
+  size: CommitSizeInfo
   refactorings: RefactoringsCount
 }
 

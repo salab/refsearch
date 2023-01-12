@@ -1,6 +1,6 @@
 import {repoDirName} from "./info";
-import simpleGit from "simple-git";
-import {CommitMeta, RefactoringMeta, RefactoringType, RepositoryMeta} from "../../../common/common";
+import simpleGit, {DefaultLogFields, ListLogLine} from "simple-git";
+import {CommitMeta, CommitSizeInfo, RefactoringMeta, RefactoringType, RepositoryMeta} from "../../../common/common";
 import {commitsCol, refCol, repoCol} from "../mongo";
 import {commitUrl, readAllFromCursor} from "../utils";
 import {formatTime} from "../../../common/utils";
@@ -16,6 +16,18 @@ const getRefactoringTypeMetas = async (repoUrl: string): Promise<RefTypeMeta[]> 
 
   console.log(`[metadata > type metas] Retrieved in ${formatTime(start)}.`)
   return res
+}
+
+const getCommitSizeInfo = (e: DefaultLogFields & ListLogLine): CommitSizeInfo => {
+  return {
+    files: {
+      changed: e.diff?.changed ?? 0,
+    },
+    lines: {
+      inserted: e.diff?.insertions ?? 0,
+      deleted: e.diff?.deletions ?? 0
+    }
+  }
 }
 
 const total = (m: Record<string, number>): number => Object.values(m).reduce((a, r) => a + r, 0)
@@ -57,7 +69,7 @@ const storeCommitMetadata = async (repoUrl: string, startCommit: string, endComm
 
   const repoPath = repoDirName(repoUrl)
   const git = simpleGit(repoPath)
-  const gitLog = await git.log({ from: endCommit, to: startCommit })
+  const gitLog = await git.log(['--stat', `${endCommit}..${startCommit}`])
 
   const countPerType = typeMetas.reduce((acc, r) => {
     acc[r.sha1] ??= {} as Record<RefactoringType, number>
@@ -84,6 +96,7 @@ const storeCommitMetadata = async (repoUrl: string, startCommit: string, endComm
     authorEmail: e.author_email,
     url: commitUrl(repoUrl, e.hash),
     repository: repoUrl,
+    size: getCommitSizeInfo(e),
     refactorings: {
       total: total(countPerType[e.hash] ?? {}),
       perType: countPerType[e.hash] ?? {},
