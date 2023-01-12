@@ -9,7 +9,7 @@ import {usePager} from "../components/Pager";
 import {CommitCard} from "../components/CommitCard";
 
 const examples: [query: string, tooltip: string][] = [
-  ['message ~ [Rr]efactor', 'Self-affirmed refactoring'],
+  ['message ~ /refactor/i', 'Self-affirmed refactoring'],
   ['refactorings.total >= 10', 'Commits with 10+ refactorings'],
   ['"refactorings.perType.Rename Method" >= 10', 'Commits with 10+ Rename Method refactorings'],
 ]

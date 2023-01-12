@@ -23,17 +23,17 @@ export interface ASTNodeAnd {
 
 export type AST = ASTNodeCondition | ASTNodeOr | ASTNodeAnd
 
-/**
- * Query syntax in EBNF
- * query      = expr
- * op         = "<=" | ...
- * word       = <word>
- * expr       = logic_ors
- * logic_ors  = logic ("|" logic_ors)?  // = logic ("|" logic)*
- * logic      = primary ("&" logic)?    // = primary ("&" primary)*
- * primary    = word op word
- *             | "(" expr ")"
- */
+// Query syntax in EBNF
+export const syntax = `
+query      = expr
+word       = <word> | '"' <word> '"'
+op         = "=" | "!=" | "<" | "<=" | ">" | ">=" | "~" 
+expr       = logic_ors
+logic_ors  = logic ("|" logic_ors)? = logic ("|" logic)*
+logic      = primary ("&" logic)?   = primary ("&" primary)*
+primary    = word " " op " " word
+            | "(" expr ")"
+`.trim()
 class Parser {
   private tokens: Token[]
 

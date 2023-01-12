@@ -1,5 +1,5 @@
 import {FunctionComponent} from "react";
-import {NavLink} from "react-router-dom";
+import {Link, NavLink} from "react-router-dom";
 
 export const Header: FunctionComponent = () => {
   const activeClass = "bg-slate-500"
@@ -11,7 +11,11 @@ export const Header: FunctionComponent = () => {
 
   return (
     <div className="bg-slate-700 w-screen h-12 px-4 flex flex-row">
-      <div className="text-gray-50 font-bold text-2xl my-auto">RefSearch</div>
+      <div className="text-gray-50 font-bold text-2xl my-auto">
+        <Link to='/'>
+          RefSearch
+        </Link>
+      </div>
       <div className="ml-6 flex flex-row text-gray-200 h-full w-full">
         <div className="flex flex-row content-center">
           {nav("/refactorings", "Refactorings")}

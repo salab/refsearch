@@ -28,7 +28,7 @@ const examples: [query: string, tooltip: string][] = [
   ['type = "Extract Method" & "refactoringMiner.rightSideLocations.extracted method declaration.lines" >= 10', 'Same as example 5 (for RefactoringMiner)'],
   ['type = "Extract Method" & refDiff.after.location.lines >= 10', 'Same as example 5 (for RefDiff)'],
   // Use-case 3: 具体的なrenameした単語
-  ['type ~ "^Rename" & rename.from ~ "^get" & rename.to ~ "^retrieve"', 'Renamed from get to retrieve'],
+  ['type ~ "^Rename" & rename.from ~ /^get/i & rename.to ~ /^retrieve/i', 'Renamed from get to retrieve'],
 ]
 
 interface RichFields {
