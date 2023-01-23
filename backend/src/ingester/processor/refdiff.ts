@@ -10,6 +10,9 @@ import {
 import {refDiffVersion} from "../info";
 import {RefactoringWithoutCommit} from "./type";
 import {RefactoringType, RefactoringTypes} from "../../../../common/common";
+import {commitUrl} from "../../utils";
+
+type Refactoring = RefactoringWithoutCommit & ProcessedRefDiffRefactoring
 
 const formatTypeAndDescription = (ref: RefDiffRefactoring): [typ: RefactoringType, desc: string] => {
   switch (ref.type) {
@@ -74,8 +77,10 @@ const locationLines = (loc: RefDiffLocation): number => {
 }
 const processLocation = (loc: RefDiffLocation): RefDiffLocationWithLines => ({ ...loc, lines: locationLines(loc) })
 const processNode = (node: RefDiffNode): RefDiffNodeWithLines => ({ ...node, location: processLocation(node.location) })
-const process = (ref: RefDiffRefactoring): ProcessedRefDiffRefactoring =>
-  ({ ...ref, before: processNode(ref.before), after: processNode(ref.after) })
+const process = (ref: RefDiffRefactoring): ProcessedRefDiffRefactoring => ({
+  before: processNode(ref.before),
+  after: processNode(ref.after)
+})
 
 export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): RefactoringWithoutCommit[] => {
   return output.map((c): RefDiffCommit => {
@@ -110,15 +115,19 @@ export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): Re
     return c.refactorings.map((ref): RefactoringWithoutCommit => {
       const [typ, description] = formatTypeAndDescription(ref)
 
-      const ret: RefactoringWithoutCommit = {
+      const ret: Refactoring = {
         type: typ,
         description,
+
         sha1: c.sha1,
         repository: repoUrl,
-        refDiff: process(ref),
+        url: commitUrl(repoUrl, c.sha1),
+
         meta: {
           tool: `RefDiff ${refDiffVersion}`
-        }
+        },
+
+        ...process(ref),
       }
 
       // Pre-compute needed information
@@ -127,8 +136,8 @@ export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): Re
           // Use-case 1: 重複の処理が無い / あるextract
           sourceMethodsCount: extractSourceMethodsCount(ref, extractMethodRefactorings),
           // Use-case 2: 数行のみのextract,  extractする前の行数
-          sourceMethodLines: ret.refDiff!.before.location.lines,
-          extractedLines: ret.refDiff!.after.location.lines
+          sourceMethodLines: ret.before.location.lines,
+          extractedLines: ret.after.location.lines
         }
       }
 

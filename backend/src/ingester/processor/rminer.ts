@@ -11,15 +11,16 @@ import {
   RMRefactoring,
   RMRefactoringType
 } from "../../../../common/rminer";
-import {sshUrlToHttpsUrl} from "../../utils";
+import {commitUrl, sshUrlToHttpsUrl} from "../../utils";
 import {RefactoringWithoutCommit} from "./type";
 
+type Refactoring = RefactoringWithoutCommit & ProcessedRMRefactoring
 type Commit = Omit<RMCommit, 'refactorings'> & {
-  refactorings: RefactoringWithoutCommit[]
+  refactorings: Refactoring[]
 }
 
-const extractedMethod = (r: RefactoringWithoutCommit): CodeElementInfo | undefined => {
-  const elt = r.refactoringMiner?.rightSideLocations['extracted method declaration']
+const extractedMethod = (r: Refactoring): CodeElementInfo | undefined => {
+  const elt = r.after['extracted method declaration']
   if (!elt || Array.isArray(elt)) return undefined
   return elt
 }
@@ -31,18 +32,18 @@ const extractedMethods = (c: Commit): CodeElementInfo[] => {
     .flatMap((rsl) => rsl ? [rsl] : [])
 }
 
-const extractSourceMethodsCount = (extractedMethods: CodeElementInfo[], r: RefactoringWithoutCommit): number => {
+const extractSourceMethodsCount = (extractedMethods: CodeElementInfo[], r: Refactoring): number => {
   const method = extractedMethod(r)
   return extractedMethods.filter((m) => equal(m, method)).length
 }
 
-const extractMethodSourceMethodLines = (r: RefactoringWithoutCommit): number => {
-  const elt = r.refactoringMiner?.leftSideLocations['source method declaration before extraction']
+const extractMethodSourceMethodLines = (r: Refactoring): number => {
+  const elt = r.before['source method declaration before extraction']
   if (!elt || Array.isArray(elt)) return -1
   return elt.lines
 }
-const extractMethodExtractedLines = (r: RefactoringWithoutCommit): number => {
-  const elt = r.refactoringMiner?.rightSideLocations['extracted method declaration']
+const extractMethodExtractedLines = (r: Refactoring): number => {
+  const elt = r.after['extracted method declaration']
   if (!elt || Array.isArray(elt)) return -1
   return elt.lines
 }
@@ -92,9 +93,8 @@ const processCodeElements = (elements: RMLeftSideLocation[]): CodeElementsMap =>
   return ret
 }
 const process = (r: RMRefactoring): ProcessedRMRefactoring => ({
-  ...r,
-  leftSideLocations: processCodeElements(r.leftSideLocations),
-  rightSideLocations: processCodeElements(r.rightSideLocations)
+  before: processCodeElements(r.leftSideLocations),
+  after: processCodeElements(r.rightSideLocations)
 })
 
 export const processRMinerOutput = (output: RMOutput): RefactoringWithoutCommit[] => {
@@ -108,15 +108,19 @@ export const processRMinerOutput = (output: RMOutput): RefactoringWithoutCommit[
         url,
         repository,
         refactorings: c.refactorings
-          .map((r): RefactoringWithoutCommit => ({
+          .map((r): Refactoring => ({
             type: r.type,
             description: r.description,
+
             sha1: c.sha1,
             repository,
-            refactoringMiner: process(r),
+            url: commitUrl(repository, c.sha1),
+
             meta: {
               tool: `RefactoringMiner ${rminerVersion}`
-            }
+            },
+
+            ...process(r)
           }))
       }
     })

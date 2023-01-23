@@ -30,23 +30,23 @@ export interface RenameInfo {
   to: string
 }
 
+type OptionalRefactoringMeta = ProcessedRMRefactoring | ProcessedRefDiffRefactoring
 export type RefactoringMeta = {
   type: RefactoringType
+  description: string
+
   sha1: string
   repository: string
-  description: string
+  url: string
 
   extractMethod?: ExtractMethodInfo
   rename?: RenameInfo
 
-  refactoringMiner?: ProcessedRMRefactoring
-  refDiff?: ProcessedRefDiffRefactoring
-
   meta: {
     tool?: string
-  },
-  commit: Omit<CommitMeta, '_id' | 'hash' | 'repository'>, // Merged from commits collection on insert
-}
+  }
+  commit: Omit<CommitMeta, '_id' | 'hash' | 'repository'> // Merged from commits collection on insert
+} & Partial<OptionalRefactoringMeta>
 
 export type RefactoringWithId = { _id: string } & RefactoringMeta
 

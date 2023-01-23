@@ -71,7 +71,7 @@ export type RefDiffLocationWithLines = RefDiffLocation & {
 export type RefDiffNodeWithLines = Omit<RefDiffNode, 'location'> & {
   location: RefDiffLocationWithLines
 }
-export type ProcessedRefDiffRefactoring = Omit<RefDiffRefactoring, 'before' | 'after'> & {
+export interface ProcessedRefDiffRefactoring {
   before: RefDiffNodeWithLines
   after: RefDiffNodeWithLines
 }

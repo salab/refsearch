@@ -150,7 +150,7 @@ export type CodeElementInfo = Omit<RMLeftSideLocation, 'description'> & {
   lines: number
 }
 export type CodeElementsMap = Partial<Record<string, CodeElementInfo | CodeElementInfo[]>>
-export type ProcessedRMRefactoring = Omit<RMRefactoring, 'leftSideLocations' | 'rightSideLocations'> & {
-  leftSideLocations: CodeElementsMap
-  rightSideLocations: CodeElementsMap
+export interface ProcessedRMRefactoring {
+  before: CodeElementsMap
+  after: CodeElementsMap
 }
