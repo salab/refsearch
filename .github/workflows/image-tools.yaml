@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - tools
+      - 'tools/**'
 
 jobs:
   rminer:
