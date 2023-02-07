@@ -23,7 +23,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
 /**
- * Customized class of refdiff.core.RefDiff to catch RuntimeExceptions
+ * Customized class of refdiff.core.RefDiff to catch RuntimeExceptions.
+ * Includes modified copy of RefDiff source code.
+ * RefDiff is licensed under MIT license.
  */
 public class RefDiffCustom {
     private final CstComparator comparator;
