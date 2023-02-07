@@ -29,6 +29,8 @@ jobs:
           context: ./tools
           push: true
           file: ./tools/refactoringminer/Dockerfile
+          build-args: |
+            VERSION=2.3.2
           platforms: linux/amd64
           tags: ghcr.io/salab/refsearch-rminer:master
           cache-from: type=gha
@@ -55,6 +57,8 @@ jobs:
           context: ./tools
           push: true
           file: ./tools/refdiff/Dockerfile
+          build-args: |
+            VERSION=2.0.0
           platforms: linux/amd64
           tags: ghcr.io/salab/refsearch-refdiff:master
           cache-from: type=gha
