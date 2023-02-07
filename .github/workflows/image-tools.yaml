@@ -26,9 +26,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: ./tools
+          context: ./tools/refactoringminer
           push: true
-          file: ./tools/refactoringminer/Dockerfile
           build-args: |
             VERSION=2.3.2
           platforms: linux/amd64
@@ -54,9 +53,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: ./tools
+          context: ./tools/refdiff
           push: true
-          file: ./tools/refdiff/Dockerfile
           build-args: |
             VERSION=2.0.0
           platforms: linux/amd64
