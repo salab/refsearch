@@ -1,4 +1,4 @@
-FROM amazoncorretto:17-alpine AS builder
+FROM amazoncorretto:19-alpine AS builder
 
 WORKDIR /work
 
@@ -9,7 +9,7 @@ RUN cd ./RefactoringMiner && git checkout $VERSION
 RUN cd ./RefactoringMiner && ./gradlew distZip
 RUN cd ./RefactoringMiner/build/distributions && unzip RefactoringMiner-$VERSION.zip
 
-FROM amazoncorretto:17-alpine AS runner
+FROM amazoncorretto:19-alpine AS runner
 
 WORKDIR /work
 
