@@ -4,25 +4,17 @@ import {formatTime} from "../../../common/utils";
 import {readAllFromCursor, sleep} from "../utils";
 import {Job, JobStatus} from "../../../common/jobs";
 import {JobRunner, jobRunners, JobWithId} from "../jobs";
-
-const runnerId = process.env.RUNNER_ID
-if (!runnerId) {
-  throw new Error('Environment variable RUNNER_ID not set. Please set it to a unique value for each job runner.')
-}
+import {config, validateRunnerConfig} from "../config";
 
 const backoffStart = 1000 // ms
-const activeBackoffMax = 10 * 1000
 const idleBackoffMax = 60 * 1000
 const nextBackoff = (prev: number, max: number): number => Math.min(max, prev * 1.5)
 
 const saveReady = async (job: JobWithId): Promise<void> => {
   await jobCol.updateOne({ _id: job._id }, { $set: { status: JobStatus.Ready } })
 }
-const saveStartedAt = async (job: JobWithId): Promise<void> => {
-  await jobCol.updateOne({ _id: job._id }, { $set: { startedAt: new Date() } })
-}
 const saveRunning = async (job: JobWithId): Promise<void> => {
-  await jobCol.updateOne({ _id: job._id }, { $set: { status: JobStatus.Running } })
+  await jobCol.updateOne({ _id: job._id }, { $set: { status: JobStatus.Running, startedAt: new Date() } })
 }
 const saveCompleted = async (job: JobWithId): Promise<void> => {
   await jobCol.updateOne({ _id: job._id }, { $set: { status: JobStatus.Completed, completedAt: new Date() } })
@@ -51,7 +43,7 @@ const findNextJob = async (): Promise<JobWithId | undefined> => {
 
   // Find already running jobs (in case this job runner has restarted)
   const reserved = await readAllFromCursor(
-    jobCol.find({ status: { $in: [JobStatus.Ready, JobStatus.Running] }, runnerId }, { sort: order })
+    jobCol.find({ status: { $in: [JobStatus.Ready, JobStatus.Running] }, runnerId: config.runnerId }, { sort: order })
   )
   const running = reserved.find((j) => j.status === JobStatus.Running)
   if (running) return running
@@ -59,7 +51,7 @@ const findNextJob = async (): Promise<JobWithId | undefined> => {
   if (ready) return ready
 
   // Atomically find and reserve next job
-  const next = await jobCol.findOneAndUpdate({ status: JobStatus.Ready, runnerId: { $exists: false } }, { '$set': { runnerId } })
+  const next = await jobCol.findOneAndUpdate({ status: JobStatus.Ready, runnerId: { $exists: false } }, { '$set': { runnerId: config.runnerId } })
   if (next.ok && next.value) {
     return next.value
   }
@@ -68,25 +60,14 @@ const findNextJob = async (): Promise<JobWithId | undefined> => {
 }
 
 const startJob = async (runner: JobRunner, job: JobWithId): Promise<void> => {
-  console.log(`[job runner] Starting job ${job.type} for ${job.data.repoUrl}... (pipeline ${job.pipeline})`)
+  console.log(`[job runner] Started job ${job.type} for ${job.data.repoUrl}... (pipeline ${job.pipeline})`)
   const start = performance.now()
 
-  await saveStartedAt(job)
-  await runner.start(job)
-  await saveRunning(job)
-
-  console.log(`[job runner] Started job ${job.type} for ${job.data.repoUrl} in ${formatTime(start)}.`)
-}
-
-const waitJob = async (runner: JobRunner, job: JobWithId): Promise<void> => {
-  console.log(`[job runner] Waiting job ${job.type} for ${job.data.repoUrl}... (pipeline ${job.pipeline})`)
-  const start = performance.now()
-
-  let backoff = backoffStart
-  while (!(await runner.isFinished(job))) {
-    await sleep(backoff)
-    backoff = nextBackoff(backoff, activeBackoffMax)
+  if (job.status !== JobStatus.Running) {
+    // If job runner has restarted, save startedAt value
+    await saveRunning(job)
   }
+  await runner.run(job)
   await saveCompleted(job)
 
   console.log(`[job runner] Finished job ${job.type} for ${job.data.repoUrl} in ${formatTime(start)}.`)
@@ -119,12 +100,13 @@ export const runJobLoop = async () => {
     }
 
     try {
-      if (job.status === JobStatus.Ready) {
-        await startJob(runner, job)
-      } else if (job.status === JobStatus.Running) {
-        await waitJob(runner, job)
-      } else {
-        console.log(`[job runner] Unexpected job status ${job.status}, skipping`)
+      switch (job.status) {
+        case JobStatus.Ready:
+        case JobStatus.Running:
+          await startJob(runner, job)
+          break
+        default:
+          console.log(`[job runner] Unexpected job status ${job.status}, skipping`)
       }
     } catch (e: any) {
       console.log(`[job runner] Encountered an error while running job ${job.type} for ${job.data.repoUrl}, skipping`)
@@ -134,5 +116,6 @@ export const runJobLoop = async () => {
   }
 }
 
+validateRunnerConfig()
 makeMissingDirs()
 runJobLoop()

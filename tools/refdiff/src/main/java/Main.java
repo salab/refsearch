@@ -53,7 +53,7 @@ public class Main {
                 .help("Number of commits to navigate backwards")
                 .type(Integer.class)
                 .metavar("N")
-                .setDefault(1_000_000);
+                .setDefault(1);
 
         try {
             return parser.parseArgs(args);
@@ -80,13 +80,20 @@ public class Main {
         var refDiff = new RefDiffCustom(plugin);
 
         var commits = new ArrayList<Commit>();
-        var numErrors = refDiff.computeDiffForCommitHistory(repoFile, start, end, depth, (commit, refs) -> {
-            commits.add(new Commit(commit.getName(), refs));
-            System.out.printf("%d. %s [%d refactorings found] %s\n", commits.size(), commit.getName(), refs.size(), commit.getShortMessage());
+        int numErrors;
+        if (end == null && depth == 1) {
+            var commit = refDiff.computeDiffForCommit(repoFile, start);
+            commits.add(commit);
+            numErrors = 0; // above should throw error
+        } else {
+            numErrors = refDiff.computeDiffForCommitHistory(repoFile, start, end, depth, (commit) -> {
+                commits.add(commit);
+                System.out.printf("%d. %s [%d refactorings found]\n", commits.size(), commit.sha1(), commit.refactorings().size());
 
-            // aggressive gc
-            if (commits.size() % 100 == 0) System.gc();
-        });
+                // aggressive gc
+                if (commits.size() % 100 == 0) System.gc();
+            });
+        }
 
         var numRefactorings = commits.stream().mapToInt((c) -> c.refactorings().size()).sum();
         System.out.printf("Completed scanning %d commits, found %d refactorings (encountered %d errors).\n", commits.size(), numRefactorings, numErrors);

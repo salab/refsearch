@@ -1,3 +1,4 @@
+import objects.Commit;
 import objects.Location;
 import objects.Refactoring;
 import org.eclipse.jgit.annotations.Nullable;
@@ -21,6 +22,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * Customized class of refdiff.core.RefDiff to catch RuntimeExceptions.
@@ -41,7 +43,7 @@ public class RefDiffCustom {
         this.fileFilter = parser.getAllowedFilesFilter();
     }
 
-    private Location readLocation(SourceFileSet fileSet, CstNode node) {
+    private static Location readLocation(SourceFileSet fileSet, CstNode node) {
         try {
             var loc = node.getLocation();
             var content = fileSet.readContent(new SourceFile(Path.of(loc.getFile())));
@@ -55,6 +57,17 @@ public class RefDiffCustom {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static List<Refactoring> getRefactorings(CstDiff diff, PairBeforeAfter<SourceFileSet> beforeAndAfter) {
+        return diff.getRefactoringRelationships()
+                .stream()
+                .map((rel) -> new Refactoring(
+                        rel,
+                        readLocation(beforeAndAfter.getBefore(), rel.getNodeBefore()),
+                        readLocation(beforeAndAfter.getAfter(), rel.getNodeAfter())
+                ))
+                .toList();
     }
 
     public static void forEachNonMergeCommit(Repository repo, String startAt, @Nullable String endAt, int maxDepth, BiConsumer<RevCommit, RevCommit> function) {
@@ -84,6 +97,22 @@ public class RefDiffCustom {
     }
 
     /**
+     * Compute a CST diff between a commit and its parent commit (previous revision).
+     * This method will throw an exception if the given commit has more than one parent (e.g., merge commits).
+     *
+     * @param gitRepository The folder of the git repository (you should pass the .git folder if the repository is not on bare mode).
+     * @param commitSha1 SHA1 (or git object reference) that identifies the commit.
+     * @return The computed CST diff.
+     */
+    public Commit computeDiffForCommit(File gitRepository, String commitSha1) {
+        try (Repository repo = GitHelper.openRepository(gitRepository)) {
+            PairBeforeAfter<SourceFileSet> beforeAndAfter = GitHelper.getSourcesBeforeAndAfterCommit(repo, commitSha1, fileFilter);
+            var diff = comparator.compare(beforeAndAfter);
+            return new Commit(commitSha1, getRefactorings(diff, beforeAndAfter));
+        }
+    }
+
+    /**
      * Compute the CST diff for each commit in the git repository, starting from the specified commit. Merge comits are skipped.
      *
      * @param gitRepository The folder of the git repository (you should pass the .git folder if the repository is not on bare mode).
@@ -93,7 +122,7 @@ public class RefDiffCustom {
      * @param diffConsumer  Consumer function that will be called for each computed CST diff.
      * @return Number of errors encountered.
      */
-    public int computeDiffForCommitHistory(File gitRepository, String startAt, @Nullable String endAt, int maxDepth, BiConsumer<RevCommit, List<Refactoring>> diffConsumer) {
+    public int computeDiffForCommitHistory(File gitRepository, String startAt, @Nullable String endAt, int maxDepth, Consumer<Commit> diffConsumer) {
         var numErrors = new AtomicInteger();
         try (Repository repo = GitHelper.openRepository(gitRepository)) {
             forEachNonMergeCommit(repo, startAt, endAt, maxDepth, (revBefore, revAfter) -> {
@@ -108,17 +137,7 @@ public class RefDiffCustom {
                     numErrors.incrementAndGet();
                     return;
                 }
-
-                var refs = diff.getRefactoringRelationships()
-                        .stream()
-                        .map((rel) -> new Refactoring(
-                                rel,
-                                readLocation(beforeAndAfter.getBefore(), rel.getNodeBefore()),
-                                readLocation(beforeAndAfter.getAfter(), rel.getNodeAfter())
-                        ))
-                        .toList();
-
-                diffConsumer.accept(revAfter, refs);
+                diffConsumer.accept( new Commit(revAfter.getName(), getRefactorings(diff, beforeAndAfter)));
             });
         }
         return numErrors.get();

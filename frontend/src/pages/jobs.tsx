@@ -66,7 +66,10 @@ export const Jobs: FunctionComponent = () => {
     setSubmittedText(`Submitted ${s}! Reload page to see new jobs.`)
   }
   const { field: submitField, internal, setValue } = useSearchField(
-    { init: '', variant: 'outlined', label: 'URL', placeholder: 'https://github.com/gradle/gradle', shrink: true }
+    {
+      init: '', variant: 'outlined', label: 'URL', placeholder: 'https://github.com/gradle/gradle', shrink: true,
+      onEnter: (s) => submitRepo(s)
+    }
   )
 
   return (

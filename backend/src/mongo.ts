@@ -3,34 +3,40 @@ import {CommitMeta, RefactoringMeta, RepositoryMeta} from "../../common/common";
 import {Job} from "../../common/jobs";
 import {formatTime} from "../../common/utils";
 import {readAllFromCursor} from "./utils";
+import {ToolRawData} from "./types";
+import {config} from "./config";
 
-const env = {
-  user: process.env.MONGODB_USER || 'root',
-  password: process.env.MONGODB_PASSWORD || 'password',
-  host: process.env.MONGODB_HOST || 'localhost',
-  port: process.env.MONGODB_PORT || '27017'
-}
-
+const env = config.db
 const uri = `mongodb://${env.user}:${env.password}@${env.host}:${env.port}?retryWrites=true&w=majority`
 const client = new MongoClient(uri)
 
 const db = client.db('refsearch')
 
-export const repoCol = db.collection<RepositoryMeta>('repositories')
-export const commitsCol = db.collection<CommitMeta>('commits')
-export const refCol = db.collection<RefactoringMeta>('refactorings')
+type CollectionName =
+  'repositories' |
+  'commits' |
+  'refactorings' |
+  'jobs' |
+  'tool_raw_data'
 
-export const jobCol = db.collection<Job>('jobs')
+export const repoCol = db.collection<RepositoryMeta>('repositories' satisfies CollectionName)
+export const commitsCol = db.collection<CommitMeta>('commits' satisfies CollectionName)
+export const refCol = db.collection<RefactoringMeta>('refactorings' satisfies CollectionName)
+export const jobCol = db.collection<Job>('jobs' satisfies CollectionName)
+export const toolRawDataCol = db.collection<ToolRawData>('tool_raw_data' satisfies CollectionName)
+
+const collections: Collection<any>[] = [
+  repoCol,
+  commitsCol,
+  refCol,
+  jobCol,
+  toolRawDataCol,
+]
 
 export const createCollections = async () => {
-  const collections = [
-    'repositories',
-    'commits',
-    'refactorings',
-    'jobs',
-  ]
+  const collectionNames = collections.map((c) => c.collectionName)
   const existing = await readAllFromCursor(db.listCollections())
-  for (const name of collections) {
+  for (const name of collectionNames) {
     if (existing.find((col) => col.name === name)) continue
 
     const start = performance.now()
@@ -70,6 +76,9 @@ export const createMissingIndexes = async () => {
     [[['type', 1]], { name: 'idx_type' }],
     [[['sha1', 1]], { name: 'idx_sha1' }],
     [[['commit.date', 1]], { name: 'idx_commit_date' }],
+  ])
+  await createIndexes(toolRawDataCol, [
+    [[['commit', 1], ['tool', 1]], { name: 'idx_commit_tool', unique: true }]
   ])
   console.log(`[mongo.ts] Finished syncing indexes`)
 }

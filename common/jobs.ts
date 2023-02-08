@@ -8,17 +8,13 @@ export enum JobStatus {
 
 export enum JobType {
   CloneRepo = 'cloneRepo',
-  RunRMiner = 'runRMiner',
-  RunRefDiff = 'runRefDiff',
-  IngestRMiner = 'ingestRMiner',
-  IngestRefDiff = 'ingestRefDiff',
-  StoreMetadata = 'storeMetadata',
+  StoreCommits = 'storeCommits',
+  ProcessCommits = 'processCommits',
+  StoreRepo = 'storeRepo',
 }
 
 export interface JobData {
   repoUrl: string
-  startCommit?: string // From (after in chronological order)
-  endCommit?: string   // To
 }
 
 export interface Job {

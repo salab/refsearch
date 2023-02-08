@@ -1,5 +1,4 @@
 import equal from "fast-deep-equal/es6/index";
-import {rminerVersion} from "../info";
 import {RefactoringMeta, RefactoringTypes} from "../../../../common/common";
 import {
   CodeElementInfo,
@@ -13,6 +12,7 @@ import {
 } from "../../../../common/rminer";
 import {commitUrl, sshUrlToHttpsUrl} from "../../utils";
 import {RefactoringWithoutCommit} from "./type";
+import {rminerToolName} from "../runner/rminer";
 
 type Refactoring = RefactoringWithoutCommit & ProcessedRMRefactoring
 type Commit = Omit<RMCommit, 'refactorings'> & {
@@ -117,7 +117,7 @@ export const processRMinerOutput = (output: RMOutput): RefactoringWithoutCommit[
             url: commitUrl(repository, c.sha1),
 
             meta: {
-              tool: `RefactoringMiner ${rminerVersion}`
+              tool: rminerToolName
             },
 
             ...process(r)

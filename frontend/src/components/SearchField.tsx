@@ -9,7 +9,8 @@ interface Props {
   shrink?: boolean
   size?: TextFieldProps['size']
   error?: string
-  update?: (s: string) => void
+  onUpdate?: (s: string) => void
+  onEnter?: (s: string) => void
 }
 
 export const useSearchField = ({
@@ -20,7 +21,8 @@ export const useSearchField = ({
   shrink = false,
   size = 'medium',
   error = '',
-  update,
+  onUpdate,
+  onEnter,
 }: Props): {
   field: JSX.Element
   internal: string
@@ -55,15 +57,16 @@ export const useSearchField = ({
             const next = internal || placeholder
             if (value !== next) {
               setValue(next)
-              update?.(next)
+              onUpdate?.(next)
             }
+            onEnter?.(next)
           }
         }}
         onBlur={() => {
           const next = internal || placeholder
           if (value !== next) {
             setValue(next)
-            update?.(next)
+            onUpdate?.(next)
           }
         }}
       />

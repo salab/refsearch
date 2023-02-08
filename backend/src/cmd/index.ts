@@ -1,6 +1,7 @@
 import express from "express";
 import {registerRoutes} from "../api";
 import {createCollections, createMissingIndexes} from "../mongo";
+import {config} from "../config";
 
 const main = async () => {
   await createCollections()
@@ -10,8 +11,7 @@ const main = async () => {
   app.use(express.json())
   registerRoutes(app)
 
-  const port: number = Number.parseInt(process.env.PORT ?? '') || 3000
-  app.listen(port, () => console.log(`API server started on port ${port}`))
+  app.listen(config.port, () => console.log(`API server started on port ${config.port}`))
 }
 
 main()

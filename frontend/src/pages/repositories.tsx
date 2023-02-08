@@ -26,7 +26,7 @@ interface Props {
 
 const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, queryError}) => {
   const { setValue: setURL, internal: url, field: urlField } = useSearchField({
-    init: '', size: 'small', variant: 'outlined', update: (s) => updateFromRichField({ url: s })
+    init: '', size: 'small', variant: 'outlined', onUpdate: (s) => updateFromRichField({ url: s })
   })
 
   const richFieldQuery = richFieldsToRaw({ url })
@@ -37,7 +37,7 @@ const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, que
     label: 'Query',
     shrink: true,
     placeholder: richFieldQuery,
-    update: (s) => {
+    onUpdate: (s) => {
       setQuery(s)
       clearRichFields()
     },

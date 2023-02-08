@@ -41,13 +41,13 @@ interface Props {
 
 const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, queryError}) => {
   const { setValue: setHash, internal: hash, field: hashField } = useSearchField({
-    init: '', size: 'small', variant: 'outlined', update: (s) => updateFromRichField({ hash: s })
+    init: '', size: 'small', variant: 'outlined', onUpdate: (s) => updateFromRichField({ hash: s })
   })
   const { setValue: setRepository, internal: repository, field: repoField } = useSearchField({
-    init: '', size: 'small', variant: 'outlined', update: (s) => updateFromRichField({ repository: s })
+    init: '', size: 'small', variant: 'outlined', onUpdate: (s) => updateFromRichField({ repository: s })
   })
   const { setValue: setMessage, internal: message, field: messageField } = useSearchField({
-    init: '', size: 'small', variant: 'outlined', update: (s) => updateFromRichField({ message: s })
+    init: '', size: 'small', variant: 'outlined', onUpdate: (s) => updateFromRichField({ message: s })
   })
 
   const richFieldQuery = richFieldsToRaw({ hash, repository, message })
@@ -58,7 +58,7 @@ const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, que
     label: 'Query',
     shrink: true,
     placeholder: richFieldQuery,
-    update: (s) => {
+    onUpdate: (s) => {
       setQuery(s)
       clearRichFields()
     },

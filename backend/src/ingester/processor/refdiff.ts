@@ -7,10 +7,10 @@ import {
   RefDiffOutput,
   RefDiffRefactoring
 } from "../../../../common/refdiff";
-import {refDiffVersion} from "../info";
 import {RefactoringWithoutCommit} from "./type";
 import {RefactoringType, RefactoringTypes} from "../../../../common/common";
 import {commitUrl} from "../../utils";
+import {refDiffToolName} from "../runner/refdiff";
 
 type Refactoring = RefactoringWithoutCommit & ProcessedRefDiffRefactoring
 
@@ -124,7 +124,7 @@ export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): Re
         url: commitUrl(repoUrl, c.sha1),
 
         meta: {
-          tool: `RefDiff ${refDiffVersion}`
+          tool: refDiffToolName
         },
 
         ...process(ref),

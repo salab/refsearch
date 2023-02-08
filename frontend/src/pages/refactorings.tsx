@@ -62,10 +62,10 @@ interface Props {
 const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, queryError}) => {
   const [types, setTypes] = useState<string[]>([])
   const { setValue: setCommit, internal: commit, field: commitField } = useSearchField({
-    init: '', size: 'small', variant: 'outlined', update: (s) => updateFromRichField({ commit: s })
+    init: '', size: 'small', variant: 'outlined', onUpdate: (s) => updateFromRichField({ commit: s })
   })
   const { setValue: setRepository, internal: repository, field: repoField } = useSearchField({
-    init: '', size: 'small', variant: 'outlined', update: (s) => updateFromRichField({ repository: s })
+    init: '', size: 'small', variant: 'outlined', onUpdate: (s) => updateFromRichField({ repository: s })
   })
 
   const richFieldQuery = richFieldsToRaw({ types, commit, repository })
@@ -76,7 +76,7 @@ const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, que
     label: 'Query',
     shrink: true,
     placeholder: richFieldQuery,
-    update: (s) => {
+    onUpdate: (s) => {
       setQuery(s)
       clearRichFields()
     },

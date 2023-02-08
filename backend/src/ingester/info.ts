@@ -1,19 +1,12 @@
 import {humanishName} from "../utils";
 import fs from "fs";
 import path from "path";
+import {config} from "../config";
 
-export const dataDir = process.env.DATA_DIR || path.resolve(__dirname, '../../../data')
+export const repositoriesDir = (baseDir: string = config.dataDir) => path.resolve(baseDir, './repos')
+export const repoDirName = (repoUrl: string, baseDir: string = config.dataDir): string => `${repositoriesDir(baseDir)}/${humanishName(repoUrl)}`
 
-export const repositoriesDir = (baseDir: string = dataDir) => path.resolve(baseDir, './repos')
-export const repoDirName = (repoUrl: string, baseDir: string = dataDir): string => `${repositoriesDir(baseDir)}/${humanishName(repoUrl)}`
-
-export const rminerVersion = '2.3.2'
-export const rminerDir = (baseDir: string = dataDir) => path.resolve(baseDir, './rminer')
-export const rminerFileName = (repoUrl: string, baseDir: string = dataDir): string => `${rminerDir(baseDir)}/${humanishName(repoUrl)}.json`
-
-export const refDiffVersion = '2.0.0'
-export const refDiffDir = (baseDir: string = dataDir) => path.resolve(baseDir, './refdiff')
-export const refDiffFileName = (repoUrl: string, baseDir: string = dataDir): string => `${refDiffDir(baseDir)}/${humanishName(repoUrl)}.json`
+export const tmpDir = (baseDir: string = config.dataDir) => path.resolve(baseDir, './tmp')
 
 const makeDirIfNotExists = (dir: string) => {
   if (!fs.existsSync(dir)) {
@@ -21,4 +14,4 @@ const makeDirIfNotExists = (dir: string) => {
   }
 }
 
-export const makeMissingDirs = () => [repositoriesDir(), rminerDir(), refDiffDir()].forEach(makeDirIfNotExists)
+export const makeMissingDirs = () => [repositoriesDir(), tmpDir()].forEach(makeDirIfNotExists)

@@ -62,12 +62,13 @@ export interface CommitSizeInfo {
 
 export interface RefactoringsCount {
   total: number
-  perType: Record<RefactoringType, number>
-  perTool: Record<string, number>
+  perType: Partial<Record<RefactoringType, number>>
+  perTool: Partial<Record<string, number>>
 }
 
 export interface CommitMeta {
   _id: string // hash
+
   date: Date
   message: string
   refs: string
@@ -76,12 +77,15 @@ export interface CommitMeta {
   authorEmail: string
   url: string
   repository: string
+
   size: CommitSizeInfo
   refactorings: RefactoringsCount
+  tools: string[]
 }
 
 export interface RepositoryMeta {
   _id: string // url
+
+  commits: number
   refactorings: RefactoringsCount
-  indexedUntil: string
 }
