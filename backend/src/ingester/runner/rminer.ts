@@ -10,7 +10,7 @@ import {md5Hash, readAllFromCursor} from "../../utils";
 
 export const rminerToolName = 'RefactoringMiner'
 const shortToolName = 'rminer'
-const timeoutMillis = 3 * 60 * 1000
+const timeoutMillis = 5 * 60 * 1000
 
 const run = async (repoUrl: string, commits: string[], discriminator: string): Promise<void> => {
   await spawnOrError('docker', [
@@ -39,13 +39,19 @@ const getOrRun = async (repoUrl: string, commits: string[]): Promise<RMOutput> =
   const file = JSON.parse(fs.readFileSync(filename).toString()) as RMOutput
   fs.rmSync(filename)
 
-  const insertRes = await toolRawDataCol.insertMany(
-    file.commits
-      .filter((c) => !existing.has(c.sha1))
-      .map((c) => ({ commit: c.sha1, tool: rminerToolName, data: c })),
-    { ordered: false }
-  )
-  if (!insertRes.acknowledged) throw new Error('Failed to insert rminer raw data')
+  if (file.commits.length > 0) {
+    const insertRes = await toolRawDataCol.bulkWrite(
+      file.commits.map((c) => ({
+        replaceOne: {
+          filter: {commit: c.sha1, tool: rminerToolName},
+          replacement: {commit: c.sha1, tool: rminerToolName, data: c},
+          upsert: true,
+        }
+      })),
+      {ordered: false}
+    )
+    if (!insertRes.ok) throw new Error('Failed to insert rminer raw data')
+  }
 
   return file
 }

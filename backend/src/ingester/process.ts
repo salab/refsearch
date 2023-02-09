@@ -70,7 +70,7 @@ export const processCommits = async ({ data }: JobWithId) => {
     const batchCommits = batches[i]
     const start = performance.now()
 
-    await processCommitsBatch(data.repoUrl, batchCommits, false) // TODO: retry error option
+    await processCommitsBatch(data.repoUrl, batchCommits, true) // TODO: retry error option
 
     const done = Math.min(commits.length, (i+1)*batchSize)
     console.log(`[${done} / ${commits.length}] Processed ${batchCommits.length} commit(s) in ${formatTime(start)}`)

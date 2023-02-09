@@ -10,7 +10,7 @@ import {md5Hash, readAllFromCursor} from "../../utils";
 
 export const refDiffToolName = 'RefDiff'
 const shortToolName = 'refdiff'
-const timeoutMillis = 60 * 1000
+const timeoutMillis = 3 * 60 * 1000
 
 const run = async (repoUrl: string, commits: string[], discriminator: string): Promise<void> => {
   await spawnOrError('docker', [
@@ -39,13 +39,19 @@ const getOrRun = async (repoUrl: string, commits: string[]): Promise<RefDiffOutp
   const file = JSON.parse(fs.readFileSync(filename).toString()) as RefDiffOutput
   fs.rmSync(filename)
 
-  const insertRes = await toolRawDataCol.insertMany(
-    file
-      .filter((c) => !existing.has(c.sha1))
-      .map((c) => ({ commit: c.sha1, tool: refDiffToolName, data: c })),
-    { ordered: false }
-  )
-  if (!insertRes.acknowledged) throw new Error('Failed to insert refdiff raw data')
+  if (file.length > 0) {
+    const insertRes = await toolRawDataCol.bulkWrite(
+      file.map((c) => ({
+        replaceOne: {
+          filter: {commit: c.sha1, tool: refDiffToolName},
+          replacement: {commit: c.sha1, tool: refDiffToolName, data: c},
+          upsert: true,
+        }
+      })),
+      {ordered: false}
+    )
+    if (!insertRes.ok) throw new Error('Failed to insert refdiff raw data')
+  }
 
   return file
 }
