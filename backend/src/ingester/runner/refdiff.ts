@@ -21,7 +21,7 @@ const run = async (repoUrl: string, commits: string[], discriminator: string): P
     '--workdir', '/work',
     config.tool.refDiff.imageName,
     '--repository', `${repoDirName(repoUrl, '/work')}/.git`,
-    '--start', commits[commits.length-1], '--end', commits[0],
+    '--start', commits[commits.length-1], '--end', commits[0], '--depth', `${commits.length}`,
     '--out', tmpFileName('/work', shortToolName, repoUrl, discriminator),
   ], timeoutMillis)
 }
