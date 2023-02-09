@@ -1,7 +1,7 @@
 import {repoDirName} from "./info";
 import simpleGit, {DefaultLogFields, ListLogLine} from "simple-git";
 import {
-  CommitMeta,
+  CommitMeta, CommitProcessState,
   CommitSizeInfo,
   RefactoringMeta,
   RefactoringsCount,
@@ -69,7 +69,7 @@ export const storeCommitsMetadata = async ({ data }: JobWithId): Promise<void> =
   const repoPath = repoDirName(data.repoUrl)
 
   const git = simpleGit(repoPath)
-  const gitLog = await git.log(['--stat', '--no-merges'])
+  const gitLog = await git.log(['--stat', '--min-parents=1', '--max-parents=1'])
 
   const existingCommits = await readAllFromCursor(
     await commitsCol.find({ repository: data.repoUrl }, { projection: { _id: 1 } })
@@ -96,18 +96,21 @@ export const storeCommitsMetadata = async ({ data }: JobWithId): Promise<void> =
         perType: {},
         perTool: {},
       },
-      tools: [],
+      tools: {},
     }))
 
-  const res = await commitsCol.insertMany(commits, { ordered: false })
-  if (!res.acknowledged) {
-    throw new Error(`Failed to bulk update commits meta for ${data.repoUrl}`)
+  if (commits.length > 0) {
+    const res = await commitsCol.insertMany(commits, {ordered: false})
+    if (!res.acknowledged) {
+      throw new Error(`Failed to bulk update commits meta for ${data.repoUrl}`)
+    }
+    console.log(`[metadata.ts] Found ${gitLog.all.length} commits, inserted ${res.insertedCount} new commit(s).`)
+  } else {
+    console.log(`[metadata.ts] Found ${gitLog.all.length} commits, no new commits inserted.`)
   }
-
-  console.log(`[metadata.ts] Found ${gitLog.all.length} commits, inserted ${res.insertedCount} new commit(s).`)
 }
 
-export const updateCommitMetadata = async (commit: string, tools: string[]): Promise<void> => {
+export const updateCommitMetadata = async (commit: string, tools: Record<string, CommitProcessState>): Promise<void> => {
   const refactorings = await refactoringCount({ sha1: commit })
   await commitsCol.updateOne({ _id: commit }, { $set: { refactorings: refactorings, tools: tools } })
 }

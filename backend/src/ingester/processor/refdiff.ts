@@ -7,12 +7,11 @@ import {
   RefDiffOutput,
   RefDiffRefactoring
 } from "../../../../common/refdiff";
-import {RefactoringWithoutCommit} from "./type";
-import {RefactoringType, RefactoringTypes} from "../../../../common/common";
+import {commitPlaceholder, RefactoringMeta, RefactoringType, RefactoringTypes} from "../../../../common/common";
 import {commitUrl} from "../../utils";
 import {refDiffToolName} from "../runner/refdiff";
 
-type Refactoring = RefactoringWithoutCommit & ProcessedRefDiffRefactoring
+type R = RefactoringMeta & ProcessedRefDiffRefactoring
 
 const formatTypeAndDescription = (ref: RefDiffRefactoring): [typ: RefactoringType, desc: string] => {
   switch (ref.type) {
@@ -82,7 +81,7 @@ const process = (ref: RefDiffRefactoring): ProcessedRefDiffRefactoring => ({
   after: processNode(ref.after)
 })
 
-export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): RefactoringWithoutCommit[] => {
+export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): R[] => {
   return output.map((c): RefDiffCommit => {
     c.refactorings = c.refactorings.flatMap((ref): RefDiffRefactoring[] => {
       switch (ref.type) {
@@ -109,13 +108,13 @@ export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): Re
       }
     })
     return c
-  }).flatMap((c): RefactoringWithoutCommit[] => {
+  }).flatMap((c): R[] => {
     const extractMethodRefactorings = extractedMethods(c)
 
-    return c.refactorings.map((ref): RefactoringWithoutCommit => {
+    return c.refactorings.map((ref): R => {
       const [typ, description] = formatTypeAndDescription(ref)
 
-      const ret: Refactoring = {
+      const ret: R = {
         type: typ,
         description,
 
@@ -126,6 +125,7 @@ export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): Re
         meta: {
           tool: refDiffToolName
         },
+        commit: commitPlaceholder(),
 
         ...process(ref),
       }

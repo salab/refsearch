@@ -8,11 +8,9 @@ export const config = {
   },
   tool: {
     rminer: {
-      version: process.env.RMINER_VERSION || '2.3.2',
       imageName: process.env.RMINER_IMAGE || 'ghcr.io/salab/refsearch-rminer:master',
     },
     refDiff: {
-      version: process.env.REFDIFF_VERSION || '2.0.0',
       imageName: process.env.REFDIFF_VERSION || 'ghcr.io/salab/refsearch-refdiff:master',
     }
   },

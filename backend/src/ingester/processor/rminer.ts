@@ -1,5 +1,5 @@
 import equal from "fast-deep-equal/es6/index";
-import {RefactoringMeta, RefactoringTypes} from "../../../../common/common";
+import {commitPlaceholder, RefactoringMeta, RefactoringTypes} from "../../../../common/common";
 import {
   CodeElementInfo,
   CodeElementsMap,
@@ -11,38 +11,37 @@ import {
   RMRefactoringType
 } from "../../../../common/rminer";
 import {commitUrl, sshUrlToHttpsUrl} from "../../utils";
-import {RefactoringWithoutCommit} from "./type";
 import {rminerToolName} from "../runner/rminer";
 
-type Refactoring = RefactoringWithoutCommit & ProcessedRMRefactoring
-type Commit = Omit<RMCommit, 'refactorings'> & {
-  refactorings: Refactoring[]
+type R = RefactoringMeta & ProcessedRMRefactoring
+type C = Omit<RMCommit, 'refactorings'> & {
+  refactorings: R[]
 }
 
-const extractedMethod = (r: Refactoring): CodeElementInfo | undefined => {
+const extractedMethod = (r: R): CodeElementInfo | undefined => {
   const elt = r.after['extracted method declaration']
   if (!elt || Array.isArray(elt)) return undefined
   return elt
 }
 
-const extractedMethods = (c: Commit): CodeElementInfo[] => {
+const extractedMethods = (c: C): CodeElementInfo[] => {
   return c.refactorings
     .filter((r) => r.type === RefactoringTypes.ExtractMethod)
     .map((r) => extractedMethod(r))
     .flatMap((rsl) => rsl ? [rsl] : [])
 }
 
-const extractSourceMethodsCount = (extractedMethods: CodeElementInfo[], r: Refactoring): number => {
+const extractSourceMethodsCount = (extractedMethods: CodeElementInfo[], r: R): number => {
   const method = extractedMethod(r)
   return extractedMethods.filter((m) => equal(m, method)).length
 }
 
-const extractMethodSourceMethodLines = (r: Refactoring): number => {
+const extractMethodSourceMethodLines = (r: R): number => {
   const elt = r.before['source method declaration before extraction']
   if (!elt || Array.isArray(elt)) return -1
   return elt.lines
 }
-const extractMethodExtractedLines = (r: Refactoring): number => {
+const extractMethodExtractedLines = (r: R): number => {
   const elt = r.after['extracted method declaration']
   if (!elt || Array.isArray(elt)) return -1
   return elt.lines
@@ -56,7 +55,7 @@ const extractRenameRe: Partial<Record<RMRefactoringType, RegExp>> = {
   'Rename Package': /^Rename Package (?:.+?\.)*(.+?) to (?:.+?\.)*(.+?)$/,
   'Rename Parameter': /^Rename Parameter (.+?) : .+? to (.+?) : .+? in .+?$/,
 }
-const extractRenameInfo = (r: RefactoringWithoutCommit): RefactoringMeta['rename'] | undefined => {
+const extractRenameInfo = (r: R): RefactoringMeta['rename'] | undefined => {
   const re = extractRenameRe[r.type as RMRefactoringType]
   if (re) {
     const match = re.exec(r.description)
@@ -77,7 +76,7 @@ const processCodeElements = (elements: RMLeftSideLocation[]): CodeElementsMap =>
   elements.forEach((e) => {
     const next: CodeElementInfo & { description?: string } = { ...e, lines: codeElementLines(e) }
     delete next.description
-    const key = e.description
+    const key = e.description.replaceAll(' ', '_')
 
     const prev = ret[key]
     if (prev) {
@@ -97,9 +96,9 @@ const process = (r: RMRefactoring): ProcessedRMRefactoring => ({
   after: processCodeElements(r.rightSideLocations)
 })
 
-export const processRMinerOutput = (output: RMOutput): RefactoringWithoutCommit[] => {
+export const processRMinerOutput = (output: RMOutput): R[] => {
   const commits = output.commits
-    .map((c): Commit => {
+    .map((c): C => {
       // Normalize to https url for convenience
       const url = sshUrlToHttpsUrl(c.url)
       const repository = sshUrlToHttpsUrl(c.repository)
@@ -108,7 +107,7 @@ export const processRMinerOutput = (output: RMOutput): RefactoringWithoutCommit[
         url,
         repository,
         refactorings: c.refactorings
-          .map((r): Refactoring => ({
+          .map((r): R => ({
             type: r.type,
             description: r.description,
 
@@ -119,6 +118,7 @@ export const processRMinerOutput = (output: RMOutput): RefactoringWithoutCommit[
             meta: {
               tool: rminerToolName
             },
+            commit: commitPlaceholder(),
 
             ...process(r)
           }))

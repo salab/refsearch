@@ -69,7 +69,7 @@ const createIndexes = async <T extends Document>(col: Collection<T>, defs: Index
 }
 export const createMissingIndexes = async () => {
   await createIndexes(commitsCol, [
-    [[['repository', 1]], { name: 'idx_repository' }],
+    [[['repository', 1], ['date', 1]], { name: 'idx_repository_date' }],
     [[['date', 1]], { name: 'idx_date' }],
   ])
   await createIndexes(refCol, [

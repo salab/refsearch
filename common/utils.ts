@@ -24,3 +24,12 @@ export const fromGitHub = (url: string) => url.startsWith('https://github.com/')
 export const gitHubRepoName = (url: string) => url.substring('https://github.com/'.length)
 
 export const shortSha = (sha1: string) => sha1.substring(0, 7)
+
+export const batch = <T>(arr: T[], size: number): T[][] => {
+  const nBatches = Math.ceil(arr.length / size)
+  const batches: T[][] = []
+  for (let i = 0; i < nBatches; i++) {
+    batches.push(arr.slice(i * size, Math.min(arr.length, (i+1) * size)))
+  }
+  return batches
+}

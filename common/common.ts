@@ -30,6 +30,18 @@ export interface RenameInfo {
   to: string
 }
 
+export const commitPlaceholder = (): RefactoringMeta['commit'] => ({
+  date: new Date(),
+  message: '',
+  refs: '',
+  body: '',
+  authorName: '',
+  authorEmail: '',
+  url: '',
+  size: { files: { changed: 0 }, lines: { inserted: 0, deleted: 0 } },
+  refactorings: { total: 0, perTool: {}, perType: {} },
+  tools: {}
+})
 type OptionalRefactoringMeta = ProcessedRMRefactoring | ProcessedRefDiffRefactoring
 export type RefactoringMeta = {
   type: RefactoringType
@@ -66,6 +78,11 @@ export interface RefactoringsCount {
   perTool: Partial<Record<string, number>>
 }
 
+export enum CommitProcessState {
+  OK = 'ok',
+  NG = 'ng',
+}
+
 export interface CommitMeta {
   _id: string // hash
 
@@ -80,7 +97,7 @@ export interface CommitMeta {
 
   size: CommitSizeInfo
   refactorings: RefactoringsCount
-  tools: string[]
+  tools: Record<string, CommitProcessState>
 }
 
 export interface RepositoryMeta {

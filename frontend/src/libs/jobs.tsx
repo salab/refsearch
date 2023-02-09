@@ -4,6 +4,7 @@ import HourglassFull from "@mui/icons-material/HourglassFull";
 import PlayCircle from "@mui/icons-material/PlayCircle";
 import CheckCircle from "@mui/icons-material/CheckCircle";
 import Error from "@mui/icons-material/Error";
+import {formatDurationHuman} from "../../../common/utils";
 
 export const statusIcon = (status: JobStatus): JSX.Element => {
   switch (status) {
@@ -20,10 +21,18 @@ export const statusIcon = (status: JobStatus): JSX.Element => {
   }
 }
 
-export const statusTime = (job: Job): number => {
-  return job.completedAt && job.startedAt
-    ? new Date(job.completedAt).getTime() - new Date(job.startedAt).getTime()
-    : job.startedAt
-    ? new Date().getTime() - new Date(job.startedAt).getTime()
-    : new Date().getTime() - new Date(job.queuedAt).getTime()
+export const statusHuman = (job: Job): string => {
+  const now = new Date().getTime()
+  switch (job.status) {
+    case JobStatus.Waiting:
+      return 'Waiting for ' + formatDurationHuman(now - new Date(job.queuedAt).getTime())
+    case JobStatus.Ready:
+      return 'Ready for ' + formatDurationHuman(now - new Date(job.queuedAt).getTime()) // not accurate
+    case JobStatus.Running:
+      return 'Running for' + formatDurationHuman(now - new Date(job.startedAt!).getTime())
+    case JobStatus.Completed:
+      return 'Completed in ' + formatDurationHuman(new Date(job.completedAt!).getTime() - new Date(job.startedAt!).getTime())
+    case JobStatus.Errored:
+      return 'Errored in ' + formatDurationHuman(new Date(job.completedAt!).getTime() - new Date(job.startedAt!).getTime())
+  }
 }

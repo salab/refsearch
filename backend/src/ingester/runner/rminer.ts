@@ -1,44 +1,59 @@
 import {repoDirName} from "../info";
-import {calcContainerName, spawnOrError, tmpFileName} from "./common";
+import {containerName, spawnOrError, tmpFileName} from "./common";
 import {refCol, toolRawDataCol} from "../../mongo";
-import {shortSha} from "../../../../common/utils";
 import fs from "fs";
-import {RMOutput} from "../../../../common/rminer";
+import {RMCommit, RMOutput} from "../../../../common/rminer";
 import {processRMinerOutput} from "../processor/rminer";
 import {config} from "../../config";
+import {CommitProcessState} from "../../../../common/common";
+import {md5Hash, readAllFromCursor} from "../../utils";
 
-export const rminerToolName = `RefactoringMiner ${config.tool.rminer.version}`
+export const rminerToolName = 'RefactoringMiner'
 const shortToolName = 'rminer'
+const timeoutMillis = 3 * 60 * 1000
 
-const run = async (repoUrl: string, commit: string): Promise<void> => {
-  const containerName = calcContainerName(shortToolName, shortSha(commit))
+const run = async (repoUrl: string, commits: string[], discriminator: string): Promise<void> => {
   await spawnOrError('docker', [
     'run',
     '--rm',
-    '--name', containerName,
+    '--name', containerName(shortToolName, discriminator),
     '-v', `${config.hostDataDir}:/work`,
     '--workdir', '/work',
     config.tool.rminer.imageName,
-    // 'start commit' required by RMiner is before in chronological order, whereas 'data.startCommit' is after
-    '-c', repoDirName(repoUrl, '/work'), commit,
-    '-json', tmpFileName('/work', shortToolName, repoUrl, commit),
-  ])
+    // 'start commit' required by RMiner is before in chronological order
+    '-bc', repoDirName(repoUrl, '/work'), `${commits[0]}^`, commits[commits.length-1],
+    '-json', tmpFileName('/work', shortToolName, repoUrl, discriminator),
+  ], timeoutMillis)
 }
 
-const getOrRun = async (repoUrl: string, commit: string): Promise<Record<any, any>> => {
-  const rawData = await toolRawDataCol.findOne({ commit: commit, tool: rminerToolName })
-  if (rawData) return rawData.data
+const getOrRun = async (repoUrl: string, commits: string[]): Promise<RMOutput> => {
+  const rawData = await readAllFromCursor(toolRawDataCol.find({ commit: { $in: commits }, tool: rminerToolName }))
+  const existing = new Set(rawData.map((d) => d.commit))
+  const toRun = commits.filter((c) => !existing.has(c))
+  if (toRun.length === 0) return { commits: rawData.map((d) => d.data as RMCommit) }
 
-  await run(repoUrl, commit)
-  const filename = tmpFileName(config.dataDir, shortToolName, repoUrl, commit)
-  const file = JSON.parse(fs.readFileSync(filename).toString())
+  const discriminator = md5Hash(commits.join('')).substring(0, 7)
+  await run(repoUrl, commits, discriminator)
+
+  const filename = tmpFileName(config.dataDir, shortToolName, repoUrl, discriminator)
+  const file = JSON.parse(fs.readFileSync(filename).toString()) as RMOutput
   fs.rmSync(filename)
-  await toolRawDataCol.insertOne({ commit: commit, tool: rminerToolName, data: file })
+
+  const insertRes = await toolRawDataCol.insertMany(
+    file.commits
+      .filter((c) => !existing.has(c.sha1))
+      .map((c) => ({ commit: c.sha1, tool: rminerToolName, data: c })),
+    { ordered: false }
+  )
+  if (!insertRes.acknowledged) throw new Error('Failed to insert rminer raw data')
+
   return file
 }
 
-export const processRMiner = async (repoUrl: string, commit: string) => {
-  const data = await getOrRun(repoUrl, commit) as RMOutput
+export const processRMiner = async (repoUrl: string, commits: string[]): Promise<Record<string, CommitProcessState>> => {
+  const data = await getOrRun(repoUrl, commits)
   const processed = processRMinerOutput(data)
-  if (processed.length > 0) await refCol.insertMany(processed as any)
+  if (processed.length > 0) await refCol.insertMany(processed)
+  const ok = new Set(data.commits.map((c) => c.sha1))
+  return Object.fromEntries(commits.map((c) => [c, ok.has(c) ? CommitProcessState.OK : CommitProcessState.NG]))
 }
