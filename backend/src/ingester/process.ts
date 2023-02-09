@@ -4,7 +4,7 @@ import {readAllFromCursor} from "../utils";
 import {processRMiner, rminerToolName} from "./runner/rminer";
 import {processRefDiff, refDiffToolName} from "./runner/refdiff";
 import {mergeCommitMetadata, updateCommitMetadata} from "./metadata";
-import {batch, formatTime} from "../../../common/utils";
+import {batch, formatTime, sequentialBatch} from "../../../common/utils";
 import {CommitProcessState} from "../../../common/common";
 
 type CommitId = string
@@ -21,17 +21,26 @@ const processCommitsBatch = async (repoUrl: string, commits: C[], retryError: bo
   const toolResults: Record<ToolName, Record<CommitId, CommitProcessState>> = {}
 
   for (const [tool, process] of Object.entries(processors)) {
-    const toProcess = commits
-      .filter((c) => !(tool in c.tools) || retryError && c.tools[tool] === CommitProcessState.NG)
-      .map((c) => c.id)
-    if (toProcess.length === 0) continue
+    toolResults[tool] = {}
 
-    try {
-      toolResults[tool] = await process(repoUrl, toProcess)
-    } catch (e) {
-      console.log(`Error processing commit batch for ${tool} in ${repoUrl}`)
-      console.trace(e)
-      toolResults[tool] = Object.fromEntries(toProcess.map((c) => [c, CommitProcessState.NG]))
+    const batches = sequentialBatch(
+      commits,
+      (c) => !(tool in c.tools) || retryError && c.tools[tool] === CommitProcessState.NG
+    ).map((b) => b.map((c) => c.id))
+
+    for (const batch of batches) {
+      try {
+        const res = await process(repoUrl, batch)
+        for (const [id, state] of Object.entries(res)) {
+          toolResults[tool][id] = state
+        }
+      } catch (e) {
+        console.log(`Error processing ${batch.length} commit(s) batch for ${tool} in ${repoUrl}`)
+        console.trace(e)
+        for (const id of batch) {
+          toolResults[tool][id] = CommitProcessState.NG
+        }
+      }
     }
   }
 

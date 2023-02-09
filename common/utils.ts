@@ -33,3 +33,21 @@ export const batch = <T>(arr: T[], size: number): T[][] => {
   }
   return batches
 }
+
+export const sequentialBatch = <T>(arr: T[], include: (t: T) => boolean): T[][] => {
+  const findFrom = (c: boolean, from: number): number => {
+    const idx = arr.slice(from).findIndex((elt) => include(elt) === c)
+    return idx >= 0 ? idx + from : arr.length
+  }
+
+  const batches: T[][] = []
+  let i = 0
+  while (i < arr.length) {
+    const end = findFrom(false, i)
+    if (i < end) {
+      batches.push(arr.slice(i, end))
+    }
+    i = findFrom(true, end)
+  }
+  return batches
+}

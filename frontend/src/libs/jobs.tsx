@@ -29,7 +29,7 @@ export const statusHuman = (job: Job): string => {
     case JobStatus.Ready:
       return 'Ready for ' + formatDurationHuman(now - new Date(job.queuedAt).getTime()) // not accurate
     case JobStatus.Running:
-      return 'Running for' + formatDurationHuman(now - new Date(job.startedAt!).getTime())
+      return 'Running for ' + formatDurationHuman(now - new Date(job.startedAt!).getTime())
     case JobStatus.Completed:
       return 'Completed in ' + formatDurationHuman(new Date(job.completedAt!).getTime() - new Date(job.startedAt!).getTime())
     case JobStatus.Errored:
