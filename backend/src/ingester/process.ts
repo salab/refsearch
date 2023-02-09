@@ -30,12 +30,14 @@ const processCommitsBatch = async (repoUrl: string, commits: C[], retryError: bo
 
     for (const batch of batches) {
       try {
+        const start = performance.now()
         const res = await process(repoUrl, batch)
+        console.log(`Processed ${batch.length} commit(s) batch for ${tool} in ${formatTime(start)}`)
         for (const [id, state] of Object.entries(res)) {
           toolResults[tool][id] = state
         }
       } catch (e) {
-        console.log(`Error processing ${batch.length} commit(s) batch for ${tool} in ${repoUrl}`)
+        console.log(`Error processing ${batch.length} commit(s) batch for ${tool}`)
         console.trace(e)
         for (const id of batch) {
           toolResults[tool][id] = CommitProcessState.NG
@@ -56,7 +58,7 @@ const processCommitsBatch = async (repoUrl: string, commits: C[], retryError: bo
   }
 }
 
-const batchSize = 100
+const batchSize = 1000
 
 export const processCommits = async ({ data }: JobWithId) => {
   const commits = await readAllFromCursor(
@@ -71,6 +73,6 @@ export const processCommits = async ({ data }: JobWithId) => {
     await processCommitsBatch(data.repoUrl, batchCommits, false) // TODO: retry error option
 
     const done = Math.min(commits.length, (i+1)*batchSize)
-    console.log(`[${done} / ${commits.length}] Processed ${batchCommits.length} commits in ${formatTime(start)}`)
+    console.log(`[${done} / ${commits.length}] Processed ${batchCommits.length} commit(s) in ${formatTime(start)}`)
   }
 }
