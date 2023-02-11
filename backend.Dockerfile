@@ -33,7 +33,7 @@ FROM node:18-alpine AS job-runner
 
 WORKDIR /work
 
-RUN apk add --no-cache tini git docker
+RUN apk add --no-cache tini git
 
 COPY --from=runner-base /work/node_modules node_modules/
 COPY --from=builder /work/backend/out .

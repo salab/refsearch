@@ -1,6 +1,6 @@
 import {Express} from "express";
 import {retrieveDocumentHandler, searchRequestHandler} from "./common";
-import {commitsCol, jobCol, refCol, repoCol} from "../mongo";
+import {commitsCol, jobCol, refCol, repoCol} from "../../mongo";
 import {retryJob, scheduleJob} from "./jobs";
 
 export const registerRoutes = (app: Express): void => {

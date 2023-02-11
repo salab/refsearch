@@ -1,5 +1,5 @@
 import {jobCol} from "../mongo";
-import {makeMissingDirs} from "../ingester/info";
+import {makeMissingDirs} from "../jobs/info";
 import {formatTime} from "../../../common/utils";
 import {readAllFromCursor, sleep} from "../utils";
 import {Job, JobStatus} from "../../../common/jobs";

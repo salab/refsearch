@@ -149,6 +149,5 @@ export const processRMinerOutput = (output: RMOutput): R[] => {
       })
   })
 
-
   return commits.flatMap((c) => c.refactorings)
 }

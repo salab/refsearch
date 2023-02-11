@@ -29,82 +29,6 @@ services:
       MONGODB_HOST: rs-mongo
       MONGODB_PORT: 27017
 
-  runner1:
-    container_name: rs-runner-1
-    restart: always
-    build:
-      context: .
-      dockerfile: ./backend.Dockerfile
-      target: job-runner
-    environment:
-      RUNNER_ID: local-1
-      MONGODB_USER: root
-      MONGODB_PASSWORD: password
-      MONGODB_HOST: rs-mongo
-      MONGODB_PORT: 27017
-      DATA_DIR: /work/data
-      HOST_DATA_DIR: ${PWD}/data
-    volumes:
-      - ./data:/work/data
-      - /var/run/docker.sock:/var/run/docker.sock
-
-  runner2:
-    container_name: rs-runner-2
-    restart: always
-    build:
-      context: .
-      dockerfile: ./backend.Dockerfile
-      target: job-runner
-    environment:
-      RUNNER_ID: local-2
-      MONGODB_USER: root
-      MONGODB_PASSWORD: password
-      MONGODB_HOST: rs-mongo
-      MONGODB_PORT: 27017
-      DATA_DIR: /work/data
-      HOST_DATA_DIR: ${PWD}/data
-    volumes:
-      - ./data:/work/data
-      - /var/run/docker.sock:/var/run/docker.sock
-
-  runner3:
-    container_name: rs-runner-3
-    restart: always
-    build:
-      context: .
-      dockerfile: ./backend.Dockerfile
-      target: job-runner
-    environment:
-      RUNNER_ID: local-3
-      MONGODB_USER: root
-      MONGODB_PASSWORD: password
-      MONGODB_HOST: rs-mongo
-      MONGODB_PORT: 27017
-      DATA_DIR: /work/data
-      HOST_DATA_DIR: ${PWD}/data
-    volumes:
-      - ./data:/work/data
-      - /var/run/docker.sock:/var/run/docker.sock
-
-  runner4:
-    container_name: rs-runner-4
-    restart: always
-    build:
-      context: .
-      dockerfile: ./backend.Dockerfile
-      target: job-runner
-    environment:
-      RUNNER_ID: local-4
-      MONGODB_USER: root
-      MONGODB_PASSWORD: password
-      MONGODB_HOST: rs-mongo
-      MONGODB_PORT: 27017
-      DATA_DIR: /work/data
-      HOST_DATA_DIR: ${PWD}/data
-    volumes:
-      - ./data:/work/data
-      - /var/run/docker.sock:/var/run/docker.sock
-
   mongodb:
     container_name: rs-mongo
     restart: always
@@ -120,6 +44,120 @@ services:
       resources:
         limits:
           memory: 2G
+
+  rminer:
+    container_name: rs-rminer
+    restart: always
+    build:
+      context: ./tools/refactoringminer
+    command: ["serve", "--port", "3000"]
+    expose:
+      - "3000"
+    volumes:
+      - ./data:/data
+
+  refdiff:
+    container_name: rs-refdiff
+    restart: always
+    build:
+      context: ./tools/refdiff
+    command: ["serve", "--port", "3000"]
+    expose:
+      - "3000"
+    volumes:
+      - ./data:/data
+
+  runner1:
+    container_name: rs-runner-1
+    restart: always
+    build:
+      context: .
+      dockerfile: ./backend.Dockerfile
+      target: job-runner
+    environment:
+      RUNNER_ID: local-1
+      MONGODB_USER: root
+      MONGODB_PASSWORD: password
+      MONGODB_HOST: rs-mongo
+      MONGODB_PORT: 27017
+      DATA_DIR: /data
+      RMINER_HOST: rminer
+      RMINER_PORT: 3000
+      RMINER_BASE_PATH: /data/repos
+      REFDIFF_HOST: refdiff
+      REFDIFF_PORT: 3000
+      REFDIFF_BASE_PATH: /data/repos
+    volumes:
+      - ./data:/data
+
+  runner2:
+    container_name: rs-runner-2
+    restart: always
+    build:
+      context: .
+      dockerfile: ./backend.Dockerfile
+      target: job-runner
+    environment:
+      RUNNER_ID: local-2
+      MONGODB_USER: root
+      MONGODB_PASSWORD: password
+      MONGODB_HOST: rs-mongo
+      MONGODB_PORT: 27017
+      DATA_DIR: /data
+      RMINER_HOST: rminer
+      RMINER_PORT: 3000
+      RMINER_BASE_PATH: /data/repos
+      REFDIFF_HOST: refdiff
+      REFDIFF_PORT: 3000
+      REFDIFF_BASE_PATH: /data/repos
+    volumes:
+      - ./data:/data
+
+  runner3:
+    container_name: rs-runner-3
+    restart: always
+    build:
+      context: .
+      dockerfile: ./backend.Dockerfile
+      target: job-runner
+    environment:
+      RUNNER_ID: local-3
+      MONGODB_USER: root
+      MONGODB_PASSWORD: password
+      MONGODB_HOST: rs-mongo
+      MONGODB_PORT: 27017
+      DATA_DIR: /data
+      RMINER_HOST: rminer
+      RMINER_PORT: 3000
+      RMINER_BASE_PATH: /data/repos
+      REFDIFF_HOST: refdiff
+      REFDIFF_PORT: 3000
+      REFDIFF_BASE_PATH: /data/repos
+    volumes:
+      - ./data:/data
+
+  runner4:
+    container_name: rs-runner-4
+    restart: always
+    build:
+      context: .
+      dockerfile: ./backend.Dockerfile
+      target: job-runner
+    environment:
+      RUNNER_ID: local-4
+      MONGODB_USER: root
+      MONGODB_PASSWORD: password
+      MONGODB_HOST: rs-mongo
+      MONGODB_PORT: 27017
+      DATA_DIR: /data
+      RMINER_HOST: rminer
+      RMINER_PORT: 3000
+      RMINER_BASE_PATH: /data/repos
+      REFDIFF_HOST: refdiff
+      REFDIFF_PORT: 3000
+      REFDIFF_BASE_PATH: /data/repos
+    volumes:
+      - ./data:/data
 
 volumes:
   caddy_data:

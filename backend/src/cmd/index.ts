@@ -1,5 +1,5 @@
 import express from "express";
-import {registerRoutes} from "../api";
+import {registerRoutes} from "../api/serve";
 import {createCollections, createMissingIndexes} from "../mongo";
 import {config} from "../config";
 

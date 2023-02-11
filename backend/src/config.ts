@@ -8,22 +8,24 @@ export const config = {
   },
   tool: {
     rminer: {
-      imageName: process.env.RMINER_IMAGE || 'ghcr.io/salab/refsearch-rminer:master',
+      host: process.env.RMINER_HOST || 'rminer',
+      port: process.env.RMINER_PORT || '3000',
+      baseRepoPath: process.env.RMINER_BASE_PATH || '/data/repos',
     },
     refDiff: {
-      imageName: process.env.REFDIFF_VERSION || 'ghcr.io/salab/refsearch-refdiff:master',
+      host: process.env.REFDIFF_HOST || 'refdiff',
+      port: process.env.REFDIFF_PORT || '3000',
+      baseRepoPath: process.env.REFDIFF_BASE_PATH || '/data/repos',
     }
   },
   runnerId: process.env.RUNNER_ID || '',
   dataDir: process.env.DATA_DIR || '',
-  hostDataDir: process.env.HOST_DATA_DIR || '',
 } as const
 
 export const validateRunnerConfig = () => {
   const rules: [v: string, name: string, msg: string][] = [
     [config.runnerId, 'RUNNER_ID', 'Please set it to a unique value for each job runner.'],
     [config.dataDir, 'DATA_DIR', 'Please set it to the path to data directory inside container.'],
-    [config.hostDataDir, 'HOST_DATA_DIR', 'Please set it to the path to data directory outside container.'],
   ]
   for (const [v, name, msg] of rules) {
     if (!v) throw new Error(`Environment variable ${name} not set. ${msg}`)
