@@ -1,4 +1,4 @@
-FROM node:18-alpine AS builder
+FROM node:19-alpine AS builder
 
 WORKDIR /work/backend
 
@@ -9,14 +9,14 @@ COPY backend .
 COPY common /work/common/
 RUN yarn compile
 
-FROM node:18-alpine AS runner-base
+FROM node:19-alpine AS runner-base
 
 WORKDIR /work
 
 COPY backend/package.json backend/yarn.lock ./
 RUN yarn --production
 
-FROM node:18-alpine AS api-runner
+FROM node:19-alpine AS api-runner
 
 WORKDIR /work
 
@@ -31,7 +31,7 @@ COPY backend/package.json /work/backend
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["node", "backend/src/cmd/index.js"]
 
-FROM node:18-alpine AS job-runner
+FROM node:19-alpine AS job-runner
 
 WORKDIR /work
 
