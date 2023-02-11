@@ -28,8 +28,6 @@ jobs:
         with:
           context: ./tools/refactoringminer
           push: true
-          build-args: |
-            VERSION=2.3.2
           platforms: linux/amd64
           tags: ghcr.io/salab/refsearch-rminer:master
           cache-from: type=gha
@@ -55,8 +53,6 @@ jobs:
         with:
           context: ./tools/refdiff
           push: true
-          build-args: |
-            VERSION=2.0.0
           platforms: linux/amd64
           tags: ghcr.io/salab/refsearch-refdiff:master
           cache-from: type=gha

@@ -8,10 +8,10 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 import objects.ErrorMessage;
 import objects.Message;
-import objects.Refactoring;
+import objects.RefactoringJSON;
 import org.eclipse.jgit.annotations.Nullable;
+import org.refactoringminer.api.Refactoring;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
@@ -20,11 +20,11 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Server {
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -62,14 +62,6 @@ public class Server {
         return q;
     }
 
-    private static String randomID(int len) {
-        var rand = new Random();
-        return rand.ints('a', 'z' + 1)
-                .limit(len)
-                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-                .toString();
-    }
-
     static class DetectHandler implements HttpHandler {
         private static final Pattern commitPattern = Pattern.compile("^[0-9a-f]{40}$");
 
@@ -88,23 +80,9 @@ public class Server {
         }
 
         @Nullable
-        private List<Refactoring> run(String dir, String commit, String language, Duration timeout) throws Exception {
-            File tmpDir = new File("/tmp/" + randomID(8));
-
-            var runner = new RefDiffRunner(dir, tmpDir, commit, language);
-            var limiter = new TimeLimiter(runner, timeout);
-
-            try {
-                limiter.run();
-            } finally {
-                var rm = new ProcessBuilder("rm", "-rf", tmpDir.getAbsolutePath()).start();
-                int rmExit = rm.waitFor();
-                if (rmExit != 0) {
-                    System.out.println("Failed to delete tmp dir " + tmpDir.getAbsolutePath());
-                }
-            }
-
-            return runner.getRefactorings();
+        private List<Refactoring> run(String dir, String commit, Duration timeout) throws Exception {
+            var runner = new RMinerRunner(dir, commit, timeout);
+            return runner.run();
         }
 
         private void process(HttpExchange ex) throws Exception {
@@ -139,15 +117,16 @@ public class Server {
                 respondJSON(ex, 400, new Message("timeout needs to be a positive integer"));
                 return;
             }
-            var language = q.getOrDefault("language", "java");
 
-            var refs = this.run(dir, commit, language, Duration.ofSeconds(timeout));
+            var refs = this.run(dir, commit, Duration.ofSeconds(timeout));
             if (refs == null) {
                 respondJSON(ex, 500, new Message("timed out"));
                 return;
             }
 
-            respondJSON(ex, 200, refs);
+            respondJSON(ex, 200,
+                    refs.stream().map(RefactoringJSON::new).collect(Collectors.toList())
+            );
         }
 
         @Override

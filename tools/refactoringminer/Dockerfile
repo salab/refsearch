@@ -1,22 +1,21 @@
-FROM amazoncorretto:17-alpine AS builder
+FROM gradle:7.5.1-jdk17 AS builder
 
 WORKDIR /work
 
-ARG VERSION=2.3.2
-RUN apk add git --no-cache
-RUN git clone --depth 1 --branch $VERSION https://github.com/tsantalis/RefactoringMiner
-RUN cd ./RefactoringMiner && git checkout $VERSION
-RUN cd ./RefactoringMiner && ./gradlew distZip
-RUN cd ./RefactoringMiner/build/distributions && unzip RefactoringMiner-$VERSION.zip
+# cache dependencies
+COPY build.gradle.kts settings.gradle.kts gradle ./
+RUN gradle build --no-daemon || return 0
 
-FROM amazoncorretto:17-alpine AS runner
+COPY . .
+RUN gradle jar --no-daemon
+
+FROM amazoncorretto:17 AS runner
 
 WORKDIR /work
 
-ARG VERSION=$VERSION
-ENV JVM_OPTS="-Xmx8g -Xms4g"
+RUN yum install -y git
 
-RUN mkdir /rm-home
-COPY --from=builder /work/RefactoringMiner/build/distributions/RefactoringMiner-$VERSION/ /rm-home
+RUN mkdir -p /jars
+COPY --from=builder /work/build/libs/rminer.jar /jars/
 
-ENTRYPOINT ["/rm-home/bin/RefactoringMiner"]
+ENTRYPOINT ["java", "-Xmx8g", "-Xms4g", "-jar", "/jars/rminer.jar"]

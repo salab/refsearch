@@ -11,8 +11,6 @@ RUN gradle jar --no-daemon
 
 FROM amazoncorretto:17 AS runner
 
-ARG VERSION=2.0.0
-
 WORKDIR /work
 
 RUN yum install -y git
