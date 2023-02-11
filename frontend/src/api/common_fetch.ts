@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {unreachable} from "../../../common/utils";
+import {unreachable} from "../../../common/utils.js";
 
 type GetDocumentResponseList<T> = {
   status: 200,

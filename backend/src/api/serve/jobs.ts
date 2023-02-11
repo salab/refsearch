@@ -1,9 +1,9 @@
 import {Request, Response} from "express";
 import {randomUUID} from "crypto";
 import {ObjectId} from "mongodb";
-import {Job, JobStatus, JobType} from "../../../../common/jobs";
-import {jobCol} from "../../mongo";
-import {jobRunners} from "../../jobs";
+import {Job, JobStatus, JobType} from "../../../../common/jobs.js";
+import {jobCol} from "../../mongo.js";
+import {jobRunners} from "../../jobs.js";
 
 interface ScheduleJobRequest extends Request {
   body: {

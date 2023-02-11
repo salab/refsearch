@@ -1,16 +1,16 @@
 import React, {FunctionComponent} from "react";
 import {useParams} from "react-router";
-import {Highlight} from "../components/Highlight";
+import {Highlight} from "../components/Highlight.js";
 import {Divider, Tooltip} from "@mui/material";
-import {ExternalLink} from "../components/ExternalLink";
+import {ExternalLink} from "../components/ExternalLink.js";
 import GitHub from "@mui/icons-material/GitHub";
 import Storage from "@mui/icons-material/Storage";
 import Commit from "@mui/icons-material/Commit";
 import Description from "@mui/icons-material/Description";
 import Build from "@mui/icons-material/Build";
-import {useGetRefactoring} from "../api/documents";
-import {fromGitHub, gitHubRepoName, shortSha} from "../../../common/utils";
-import {CopyButton} from "../components/CopyButton";
+import {useGetRefactoring} from "../api/documents.js";
+import {fromGitHub, gitHubRepoName, shortSha} from "../../../common/utils.js";
+import {CopyButton} from "../components/CopyButton.js";
 import {Search} from "@mui/icons-material";
 import {Link} from "react-router-dom";
 

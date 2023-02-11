@@ -1,4 +1,4 @@
-import {repoDirName} from "./info";
+import {repoDirName} from "./info.js";
 import simpleGit, {DefaultLogFields, ListLogLine} from "simple-git";
 import {
   CommitMeta, CommitProcessState,
@@ -7,10 +7,10 @@ import {
   RefactoringsCount,
   RefactoringType,
   RepositoryMeta
-} from "../../../common/common";
-import {commitsCol, refCol, repoCol} from "../mongo";
-import {commitUrl, readAllFromCursor} from "../utils";
-import {JobWithId} from "../jobs";
+} from "../../../common/common.js";
+import {commitsCol, refCol, repoCol} from "../mongo.js";
+import {commitUrl, readAllFromCursor} from "../utils.js";
+import {JobWithId} from "../jobs.js";
 import {Filter} from "mongodb";
 
 type RefTypeMeta = Pick<RefactoringMeta, 'sha1' | 'type' | 'meta'>

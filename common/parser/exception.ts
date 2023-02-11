@@ -1,4 +1,4 @@
-import {Token} from "./tokenizer";
+import {Token} from "./tokenizer.js";
 
 export class ParseException {
   public static readonly symbol = Symbol()

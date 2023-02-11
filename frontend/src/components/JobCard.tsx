@@ -1,11 +1,11 @@
-import {JobStatus, JobWithStrId} from "../../../common/jobs";
+import {JobStatus, JobWithStrId} from "../../../common/jobs.js";
 import React, {FunctionComponent} from "react";
 import {Link} from "react-router-dom";
-import {fromGitHub, gitHubRepoName} from "../../../common/utils";
+import {fromGitHub, gitHubRepoName} from "../../../common/utils.js";
 import GitHub from "@mui/icons-material/GitHub";
 import Storage from "@mui/icons-material/Storage";
-import {statusHuman, statusIcon} from "../libs/jobs";
-import {JobRetryButton} from "./JobRetryButton";
+import {statusHuman, statusIcon} from "../libs/jobs.js";
+import {JobRetryButton} from "./JobRetryButton.js";
 
 interface Props {
   job: JobWithStrId

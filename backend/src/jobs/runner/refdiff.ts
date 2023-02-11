@@ -1,7 +1,7 @@
-import {refCol, toolRawDataCol} from "../../mongo";
-import {RefDiffRefactoring} from "../../../../common/refdiff";
-import {processRefDiffOutput} from "../processor/refdiff";
-import {detectRefDiffRefactorings} from "../../api/tools/refdiff";
+import {refCol, toolRawDataCol} from "../../mongo.js";
+import {RefDiffRefactoring} from "../../../../common/refdiff.js";
+import {processRefDiffOutput} from "../processor/refdiff.js";
+import {detectRefDiffRefactorings} from "../../api/tools/refdiff.js";
 
 export const refDiffToolName = 'RefDiff'
 const timeoutSeconds = 60

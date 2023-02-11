@@ -1,7 +1,7 @@
 import {FunctionComponent} from "react";
-import {CommitMeta} from "../../../common/common";
+import {CommitMeta} from "../../../common/common.js";
 import {Link} from "react-router-dom";
-import {fromGitHub, gitHubRepoName, shortSha} from "../../../common/utils";
+import {fromGitHub, gitHubRepoName, shortSha} from "../../../common/utils.js";
 import GitHub from "@mui/icons-material/GitHub";
 import Storage from "@mui/icons-material/Storage";
 import Numbers from "@mui/icons-material/Numbers";

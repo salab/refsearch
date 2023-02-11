@@ -3,8 +3,8 @@ import {Link} from "react-router-dom";
 import GitHub from "@mui/icons-material/GitHub";
 import Storage from "@mui/icons-material/Storage";
 import Build from "@mui/icons-material/Build";
-import {RefactoringWithId} from "../../../common/common";
-import {fromGitHub, gitHubRepoName, shortSha} from "../../../common/utils";
+import {RefactoringWithId} from "../../../common/common.js";
+import {fromGitHub, gitHubRepoName, shortSha} from "../../../common/utils.js";
 
 interface Props {
   refactoring: RefactoringWithId

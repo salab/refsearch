@@ -1,12 +1,12 @@
 import React, {FunctionComponent, useState} from "react";
-import {useGetJobs} from "../api/documents";
-import {usePager} from "../components/Pager";
+import {useGetJobs} from "../api/documents.js";
+import {usePager} from "../components/Pager.js";
 import {CircularProgress, Divider, IconButton} from "@mui/material";
-import {JobStatus} from "../../../common/jobs";
-import {JobCard} from "../components/JobCard";
-import {useSearchField} from "../components/SearchField";
+import {JobStatus} from "../../../common/jobs.js";
+import {JobCard} from "../components/JobCard.js";
+import {useSearchField} from "../components/SearchField.js";
 import Send from "@mui/icons-material/Send";
-import {postJob} from "../api/post";
+import {postJob} from "../api/post.js";
 
 const perPage = 10
 

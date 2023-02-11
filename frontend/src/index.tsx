@@ -6,15 +6,15 @@ import {
   RouterProvider,
 } from 'react-router-dom';
 import './index.css';
-import {Header} from "./components/Header";
-import {Refactorings} from './pages/refactorings';
-import {Commits} from "./pages/commits";
-import {Refactoring} from "./pages/refactoring";
-import {Commit} from "./pages/commit";
-import {Repositories} from "./pages/repositories";
-import {Repository} from "./pages/repository";
-import {Jobs} from "./pages/jobs";
-import {Job} from "./pages/job";
+import {Header} from "./components/Header.js";
+import {Refactorings} from './pages/refactorings.js';
+import {Commits} from "./pages/commits.js";
+import {Refactoring} from "./pages/refactoring.js";
+import {Commit} from "./pages/commit.js";
+import {Repositories} from "./pages/repositories.js";
+import {Repository} from "./pages/repository.js";
+import {Jobs} from "./pages/jobs.js";
+import {Job} from "./pages/job.js";
 import {Index} from "./pages";
 
 const Layout: FunctionComponent = () => (

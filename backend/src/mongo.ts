@@ -1,10 +1,10 @@
 import {Collection, CreateIndexesOptions, Document, IndexSpecification, MongoClient} from "mongodb";
-import {CommitMeta, RefactoringMeta, RepositoryMeta} from "../../common/common";
-import {Job} from "../../common/jobs";
-import {formatTime} from "../../common/utils";
-import {readAllFromCursor} from "./utils";
-import {ToolRawData} from "./types";
-import {config} from "./config";
+import {CommitMeta, RefactoringMeta, RepositoryMeta} from "../../common/common.js";
+import {Job} from "../../common/jobs.js";
+import {formatTime} from "../../common/utils.js";
+import {readAllFromCursor} from "./utils.js";
+import {ToolRawData} from "./types.js";
+import {config} from "./config.js";
 
 const env = config.db
 const uri = `mongodb://${env.user}:${env.password}@${env.host}:${env.port}?retryWrites=true&w=majority`

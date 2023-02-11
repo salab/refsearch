@@ -18,6 +18,10 @@
 .gitignore
 .pnp.js
 *Dockerfile
+compose.yaml
+LICENSE
+Makefile
+README.md
 
 npm-debug.log*
 yarn-debug.log*

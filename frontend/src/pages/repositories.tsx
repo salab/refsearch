@@ -1,11 +1,11 @@
 import React, {FunctionComponent, useState} from "react";
-import {useGetRepositories} from "../api/documents";
-import {usePager} from "../components/Pager";
+import {useGetRepositories} from "../api/documents.js";
+import {usePager} from "../components/Pager.js";
 import {CircularProgress, Divider, FormControl} from "@mui/material";
-import {useParsedSearchParams, useSearchParamsEffect} from "../libs/params";
-import {useSearchField} from "../components/SearchField";
-import {useOrderButton} from "../components/OrderButton";
-import {RepositoryCard} from "../components/RepositoryCard";
+import {useParsedSearchParams, useSearchParamsEffect} from "../libs/params.js";
+import {useSearchField} from "../components/SearchField.js";
+import {useOrderButton} from "../components/OrderButton.js";
+import {RepositoryCard} from "../components/RepositoryCard.js";
 
 interface RichFields {
   url: string

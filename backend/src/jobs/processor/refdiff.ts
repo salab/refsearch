@@ -1,4 +1,4 @@
-import equal from "fast-deep-equal/es6";
+import equal from "fast-deep-equal";
 import {
   ProcessedRefDiffRefactoring,
   RefDiffCommit,
@@ -6,10 +6,10 @@ import {
   RefDiffNode, RefDiffNodeWithLines,
   RefDiffOutput,
   RefDiffRefactoring
-} from "../../../../common/refdiff";
-import {commitPlaceholder, RefactoringMeta, RefactoringType, RefactoringTypes} from "../../../../common/common";
-import {commitUrl} from "../../utils";
-import {refDiffToolName} from "../runner/refdiff";
+} from "../../../../common/refdiff.js";
+import {commitPlaceholder, RefactoringMeta, RefactoringType, RefactoringTypes} from "../../../../common/common.js";
+import {commitUrl} from "../../utils.js";
+import {refDiffToolName} from "../runner/refdiff.js";
 
 type R = RefactoringMeta & ProcessedRefDiffRefactoring
 

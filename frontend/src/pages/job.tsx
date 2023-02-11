@@ -1,19 +1,19 @@
 import React, {FunctionComponent, useState} from "react";
 import {useParams} from "react-router";
-import {useGetJob, useGetJobs} from "../api/documents";
-import {formatDurationHuman, fromGitHub, gitHubRepoName} from "../../../common/utils";
+import {useGetJob, useGetJobs} from "../api/documents.js";
+import {formatDurationHuman, fromGitHub, gitHubRepoName} from "../../../common/utils.js";
 import {CircularProgress, Divider} from "@mui/material";
 import GitHub from "@mui/icons-material/GitHub";
 import Storage from "@mui/icons-material/Storage";
-import {ExternalLink} from "../components/ExternalLink";
-import {CopyButton} from "../components/CopyButton";
-import {Highlight} from "../components/Highlight";
-import {statusHuman, statusIcon} from "../libs/jobs";
-import {JobStatus} from "../../../common/jobs";
+import {ExternalLink} from "../components/ExternalLink.js";
+import {CopyButton} from "../components/CopyButton.js";
+import {Highlight} from "../components/Highlight.js";
+import {statusHuman, statusIcon} from "../libs/jobs.js";
+import {JobStatus} from "../../../common/jobs.js";
 import {AccessTime} from "@mui/icons-material";
-import {usePager} from "../components/Pager";
-import {JobCard} from "../components/JobCard";
-import {JobRetryButton} from "../components/JobRetryButton";
+import {usePager} from "../components/Pager.js";
+import {JobCard} from "../components/JobCard.js";
+import {JobRetryButton} from "../components/JobRetryButton.js";
 
 const perPage = 10
 

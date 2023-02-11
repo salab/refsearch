@@ -22,7 +22,7 @@ public record RefactoringJSON(
     public RefactoringJSON(Refactoring r) {
         this(
                 r.getName(),
-                r.toString(),
+                r.toString().replace('\t', ' '),
                 map(r.leftSide()),
                 map(r.rightSide())
         );

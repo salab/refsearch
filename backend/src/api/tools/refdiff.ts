@@ -1,15 +1,15 @@
 import fetch from "node-fetch";
-import {config} from "../../config";
+import {config} from "../../config.js";
 import {URLSearchParams} from "url";
-import {humanishName} from "../../utils";
-import {RefDiffRefactoring} from "../../../../common/refdiff";
-import {HTTPStatusError} from "../error";
+import {humanishName} from "../../utils.js";
+import {RefDiffRefactoring} from "../../../../common/refdiff.js";
+import {HTTPStatusError} from "../error.js";
 
 const baseUrl = `http://${config.tool.refDiff.host}:${config.tool.refDiff.port}/detect`
 
 export const detectRefDiffRefactorings = async (repoUrl: string, commit: string, timeoutSeconds: number): Promise<RefDiffRefactoring[]> => {
   const json = await fetch(baseUrl + '?' + new URLSearchParams({
-    dir: config.tool.refDiff.baseRepoPath + '/' + humanishName(repoUrl),
+    dir: config.tool.refDiff.baseRepoPath + '/' + humanishName(repoUrl) + '/.git',
     commit: commit,
     timeout: '' + timeoutSeconds,
   }).toString())

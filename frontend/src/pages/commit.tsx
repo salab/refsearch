@@ -1,17 +1,17 @@
 import React, {FunctionComponent, useState} from "react";
 import {useParams} from "react-router";
-import {useGetCommit, useGetRefactorings} from "../api/documents";
-import {fromGitHub, gitHubRepoName, shortSha} from "../../../common/utils";
+import {useGetCommit, useGetRefactorings} from "../api/documents.js";
+import {fromGitHub, gitHubRepoName, shortSha} from "../../../common/utils.js";
 import {CircularProgress, Divider} from "@mui/material";
 import GitHub from "@mui/icons-material/GitHub";
 import Storage from "@mui/icons-material/Storage";
-import {ExternalLink} from "../components/ExternalLink";
+import {ExternalLink} from "../components/ExternalLink.js";
 import Description from "@mui/icons-material/Description";
 import CommitIcon from "@mui/icons-material/Commit";
-import {Highlight} from "../components/Highlight";
-import {usePager} from "../components/Pager";
-import {RefactoringCard} from "../components/RefactoringCard";
-import {CopyButton} from "../components/CopyButton";
+import {Highlight} from "../components/Highlight.js";
+import {usePager} from "../components/Pager.js";
+import {RefactoringCard} from "../components/RefactoringCard.js";
+import {CopyButton} from "../components/CopyButton.js";
 
 const perPage = 10
 

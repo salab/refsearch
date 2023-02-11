@@ -1,5 +1,5 @@
-import {ProcessedRMRefactoring, RMRefactoringTypes} from "./rminer";
-import {ProcessedRefDiffRefactoring} from "./refdiff";
+import {ProcessedRMRefactoring, RMRefactoringTypes} from "./rminer.js";
+import {ProcessedRefDiffRefactoring} from "./refdiff.js";
 
 export const RefactoringTypes = {
   ...RMRefactoringTypes,

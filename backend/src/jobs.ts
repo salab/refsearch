@@ -1,8 +1,8 @@
 import {WithId} from "mongodb";
-import {cloneRepository} from "./jobs/cloner";
-import {Job, JobType} from "../../common/jobs";
-import {storeCommitsMetadata, updateRepositoryMetadata} from "./jobs/metadata";
-import {processCommits} from "./jobs/process";
+import {cloneRepository} from "./jobs/cloner.js";
+import {Job, JobType} from "../../common/jobs.js";
+import {storeCommitsMetadata, updateRepositoryMetadata} from "./jobs/metadata.js";
+import {processCommits} from "./jobs/process.js";
 
 export interface JobRunner {
   run: (job: JobWithId) => Promise<void>

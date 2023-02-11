@@ -1,10 +1,10 @@
-import {jobCol} from "../mongo";
-import {makeMissingDirs} from "../jobs/info";
-import {formatTime} from "../../../common/utils";
-import {readAllFromCursor, sleep} from "../utils";
-import {Job, JobStatus} from "../../../common/jobs";
-import {JobRunner, jobRunners, JobWithId} from "../jobs";
-import {config, validateRunnerConfig} from "../config";
+import {jobCol} from "../mongo.js";
+import {makeMissingDirs} from "../jobs/info.js";
+import {formatTime} from "../../../common/utils.js";
+import {readAllFromCursor, sleep} from "../utils.js";
+import {Job, JobStatus} from "../../../common/jobs.js";
+import {JobRunner, jobRunners, JobWithId} from "../jobs.js";
+import {config, validateRunnerConfig} from "../config.js";
 
 const backoffStart = 1000 // ms
 const idleBackoffMax = 60 * 1000

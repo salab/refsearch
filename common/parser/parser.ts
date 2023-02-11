@@ -1,5 +1,5 @@
-import {Token, TokenType} from "./tokenizer";
-import {ParseException} from "./exception";
+import {Token, TokenType} from "./tokenizer.js";
+import {ParseException} from "./exception.js";
 
 const astOperators = ['equal', 'ne', 'lt', 'lte', 'gt', 'gte', 'regex'] as const satisfies readonly TokenType[]
 export type ASTOperator = typeof astOperators extends (infer T)[] ? T : never

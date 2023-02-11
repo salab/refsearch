@@ -1,12 +1,12 @@
 import React, {FunctionComponent, useState} from 'react';
 import {CircularProgress, Divider, FormControl} from "@mui/material";
-import {useParsedSearchParams, useSearchParamsEffect} from "../libs/params";
-import {useOrderButton} from "../components/OrderButton";
-import {useSearchField} from "../components/SearchField";
-import {RoundButton} from "../components/RoundButton";
-import {useGetCommits} from "../api/documents";
-import {usePager} from "../components/Pager";
-import {CommitCard} from "../components/CommitCard";
+import {useParsedSearchParams, useSearchParamsEffect} from "../libs/params.js";
+import {useOrderButton} from "../components/OrderButton.js";
+import {useSearchField} from "../components/SearchField.js";
+import {RoundButton} from "../components/RoundButton.js";
+import {useGetCommits} from "../api/documents.js";
+import {usePager} from "../components/Pager.js";
+import {CommitCard} from "../components/CommitCard.js";
 
 const examples: [query: string, tooltip: string][] = [
   ['message ~ /refactor/i', 'Self-affirmed refactoring'],

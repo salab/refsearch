@@ -1,7 +1,7 @@
 import React, {FunctionComponent, MouseEventHandler, useState} from "react";
 import {Tooltip} from "@mui/material";
 import Replay from "@mui/icons-material/Replay";
-import {retryJob} from "../api/post";
+import {retryJob} from "../api/post.js";
 
 interface Props {
   id: string

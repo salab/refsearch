@@ -1,13 +1,13 @@
 import React, {FunctionComponent} from "react";
 import {useParams} from "react-router";
-import {useGetRepository} from "../api/documents";
-import {fromGitHub, gitHubRepoName} from "../../../common/utils";
+import {useGetRepository} from "../api/documents.js";
+import {fromGitHub, gitHubRepoName} from "../../../common/utils.js";
 import {Divider} from "@mui/material";
 import GitHub from "@mui/icons-material/GitHub";
 import Storage from "@mui/icons-material/Storage";
-import {ExternalLink} from "../components/ExternalLink";
-import {CopyButton} from "../components/CopyButton";
-import {Highlight} from "../components/Highlight";
+import {ExternalLink} from "../components/ExternalLink.js";
+import {CopyButton} from "../components/CopyButton.js";
+import {Highlight} from "../components/Highlight.js";
 import Numbers from "@mui/icons-material/Numbers";
 
 export const Repository: FunctionComponent = () => {

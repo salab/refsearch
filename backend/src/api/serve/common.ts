@@ -1,8 +1,8 @@
 import {Request, Response} from "express";
 import {Collection, Document, Filter, ObjectId} from "mongodb";
-import {strToMongoQuery} from "./query-string";
-import {readAllFromCursor} from "../../utils";
-import {ParseException} from "../../../../common/parser/exception";
+import {strToMongoQuery} from "./query-string.js";
+import {readAllFromCursor} from "../../utils.js";
+import {ParseException} from "../../../../common/parser/exception.js";
 
 interface SearchRequest extends Request {
   query: {

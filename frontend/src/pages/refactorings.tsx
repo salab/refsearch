@@ -8,14 +8,14 @@ import {
   MenuItem,
   Select
 } from "@mui/material";
-import {RefactoringCard} from "../components/RefactoringCard";
-import {useParsedSearchParams, useSearchParamsEffect} from "../libs/params";
-import {useOrderButton} from "../components/OrderButton";
-import {useSearchField} from "../components/SearchField";
-import {RefactoringTypes} from "../../../common/common";
-import {RoundButton} from "../components/RoundButton";
-import {useGetRefactorings} from "../api/documents";
-import {usePager} from "../components/Pager";
+import {RefactoringCard} from "../components/RefactoringCard.js";
+import {useParsedSearchParams, useSearchParamsEffect} from "../libs/params.js";
+import {useOrderButton} from "../components/OrderButton.js";
+import {useSearchField} from "../components/SearchField.js";
+import {RefactoringTypes} from "../../../common/common.js";
+import {RoundButton} from "../components/RoundButton.js";
+import {useGetRefactorings} from "../api/documents.js";
+import {usePager} from "../components/Pager.js";
 
 const examples: [query: string, tooltip: string][] = [
   // Use-case 1: 重複の処理が無いextract

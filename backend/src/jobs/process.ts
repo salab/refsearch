@@ -1,11 +1,11 @@
-import {JobWithId} from "../jobs";
-import {commitsCol} from "../mongo";
-import {readAllFromCursor} from "../utils";
-import {processRMiner, rminerToolName} from "./runner/rminer";
-import {processRefDiff, refDiffToolName} from "./runner/refdiff";
-import {mergeCommitMetadata, updateCommitMetadata} from "./metadata";
-import {formatTime, shortSha} from "../../../common/utils";
-import {CommitProcessState} from "../../../common/common";
+import {JobWithId} from "../jobs.js";
+import {commitsCol} from "../mongo.js";
+import {readAllFromCursor} from "../utils.js";
+import {processRMiner, rminerToolName} from "./runner/rminer.js";
+import {processRefDiff, refDiffToolName} from "./runner/refdiff.js";
+import {mergeCommitMetadata, updateCommitMetadata} from "./metadata.js";
+import {formatTime} from "../../../common/utils.js";
+import {CommitProcessState} from "../../../common/common.js";
 
 type CommitId = string
 type ToolName = string
@@ -45,7 +45,10 @@ export const processCommits = async ({ data }: JobWithId) => {
 
   for (let i = 0; i < commits.length; i++) {
     const commit = commits[i]
-    console.log(`[${i+1} / ${commits.length}] ${shortSha(commit.id)}`)
+    const skip = Object.keys(processors).every((tool) => commit.tools[tool] === CommitProcessState.OK)
+    if (skip) continue
+
+    console.log(`[${i+1} / ${commits.length}] ${commit.id}`)
     await processCommit(data.repoUrl, commit.id, commit.tools, true) // TODO: retry error option
   }
 }

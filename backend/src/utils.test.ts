@@ -1,4 +1,4 @@
-import {sequentialBatch} from "../../common/utils";
+import {sequentialBatch} from "../../common/utils.js";
 
 describe('sequentialBatch', () => {
   const nonZero = (i: number) => i >= 0

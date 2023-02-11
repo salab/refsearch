@@ -1,5 +1,5 @@
 import {FunctionComponent} from "react";
-import {syntax} from "../../../common/parser/parser";
+import {syntax} from "../../../common/parser/parser.js";
 import Search from "@mui/icons-material/Search";
 import {Link} from "react-router-dom";
 import {Tooltip} from "@mui/material";

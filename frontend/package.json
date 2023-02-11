@@ -2,32 +2,34 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "dependencies": {
-    "@craco/craco": "7.0.0",
     "@emotion/react": "11.10.5",
     "@emotion/styled": "11.10.5",
     "@mui/icons-material": "5.11.0",
     "@mui/material": "5.11.8",
-    "@types/node": "18.13.0",
-    "@types/react": "18.0.27",
-    "@types/react-dom": "18.0.10",
-    "autoprefixer": "10.4.13",
-    "craco-babel-loader": "1.0.4",
     "highlight.js": "11.7.0",
-    "postcss": "8.4.21",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-router": "6.8.1",
     "react-router-dom": "6.8.1",
-    "react-scripts": "5.0.1",
-    "tailwindcss": "3.2.6",
-    "typescript": "4.9.5"
+    "tailwindcss": "3.2.6"
+  },
+  "devDependencies": {
+    "@types/node": "18.13.0",
+    "@types/react": "18.0.27",
+    "@types/react-dom": "18.0.10",
+    "@vitejs/plugin-react": "3.1.0",
+    "autoprefixer": "10.4.13",
+    "postcss": "8.4.21",
+    "typescript": "4.9.5",
+    "vite": "4.1.1",
+    "vite-tsconfig-paths": "4.0.5"
   },
   "scripts": {
-    "start": "PORT=8081 craco start",
-    "build": "craco build",
-    "test": "craco test",
-    "eject": "react-scripts eject"
+    "start": "PORT=8081 vite",
+    "build": "tsc --noEmit && vite build",
+    "serve": "vite preview"
   },
   "eslintConfig": {
     "extends": [
@@ -46,6 +48,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "proxy": "http://localhost:3000"
+  }
 }

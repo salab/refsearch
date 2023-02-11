@@ -1,7 +1,7 @@
-import {formatDuration, unreachable} from "../../../common/utils";
+import {formatDuration, unreachable} from "../../../common/utils.js";
 import React from "react";
 import {Pagination} from "@mui/material";
-import {SearchState} from "../api/common_search";
+import {SearchState} from "../api/common_search.js";
 
 const maxPageCount = 1000
 

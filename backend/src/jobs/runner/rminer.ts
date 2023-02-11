@@ -1,8 +1,8 @@
-import {refCol, toolRawDataCol} from "../../mongo";
-import {RMRefactoring} from "../../../../common/rminer";
-import {processRMinerOutput} from "../processor/rminer";
-import {detectRMinerRefactorings} from "../../api/tools/rminer";
-import {commitUrl} from "../../utils";
+import {refCol, toolRawDataCol} from "../../mongo.js";
+import {RMRefactoring} from "../../../../common/rminer.js";
+import {processRMinerOutput} from "../processor/rminer.js";
+import {detectRMinerRefactorings} from "../../api/tools/rminer.js";
+import {commitUrl} from "../../utils.js";
 
 export const rminerToolName = 'RefactoringMiner'
 const timeoutSeconds = 60

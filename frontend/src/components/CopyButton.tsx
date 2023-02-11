@@ -1,7 +1,7 @@
 import {FunctionComponent, useState} from "react";
 import {Tooltip} from "@mui/material";
 import ContentCopy from "@mui/icons-material/ContentCopy";
-import {copyToClipboard} from "../libs/utils";
+import {copyToClipboard} from "../libs/utils.js";
 
 interface Props {
   tooltip?: string

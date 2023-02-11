@@ -15,4 +15,4 @@ FROM caddy:2 AS runner
 
 COPY frontend/Caddyfile /etc/caddy/Caddyfile
 
-COPY --from=builder /work/frontend/build/ /srv
+COPY --from=builder /work/frontend/dist/ /srv

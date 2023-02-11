@@ -1,7 +1,7 @@
 import express from "express";
-import {registerRoutes} from "../api/serve";
-import {createCollections, createMissingIndexes} from "../mongo";
-import {config} from "../config";
+import {registerRoutes} from "../api/serve/routes.js";
+import {createCollections, createMissingIndexes} from "../mongo.js";
+import {config} from "../config.js";
 
 const main = async () => {
   await createCollections()

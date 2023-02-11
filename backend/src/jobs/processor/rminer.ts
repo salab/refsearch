@@ -1,5 +1,5 @@
-import equal from "fast-deep-equal/es6/index";
-import {commitPlaceholder, RefactoringMeta, RefactoringTypes} from "../../../../common/common";
+import equal from "fast-deep-equal";
+import {commitPlaceholder, RefactoringMeta, RefactoringTypes} from "../../../../common/common.js";
 import {
   CodeElementInfo,
   CodeElementsMap,
@@ -9,9 +9,9 @@ import {
   RMOutput,
   RMRefactoring,
   RMRefactoringType
-} from "../../../../common/rminer";
-import {commitUrl, sshUrlToHttpsUrl} from "../../utils";
-import {rminerToolName} from "../runner/rminer";
+} from "../../../../common/rminer.js";
+import {commitUrl, sshUrlToHttpsUrl} from "../../utils.js";
+import {rminerToolName} from "../runner/rminer.js";
 
 type R = RefactoringMeta & ProcessedRMRefactoring
 type C = Omit<RMCommit, 'refactorings'> & {

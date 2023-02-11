@@ -1,10 +1,10 @@
-import {Job, JobStatus} from "../../../common/jobs";
+import {Job, JobStatus} from "../../../common/jobs.js";
 import HourglassEmpty from "@mui/icons-material/HourglassEmpty";
 import HourglassFull from "@mui/icons-material/HourglassFull";
 import PlayCircle from "@mui/icons-material/PlayCircle";
 import CheckCircle from "@mui/icons-material/CheckCircle";
 import Error from "@mui/icons-material/Error";
-import {formatDurationHuman} from "../../../common/utils";
+import {formatDurationHuman} from "../../../common/utils.js";
 
 export const statusIcon = (status: JobStatus): JSX.Element => {
   switch (status) {
