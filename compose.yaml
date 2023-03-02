@@ -28,6 +28,8 @@ services:
       MONGODB_PASSWORD: password
       MONGODB_HOST: rs-mongo
       MONGODB_PORT: 27017
+    volumes:
+      - ./data:/data
 
   mongodb:
     container_name: rs-mongo
