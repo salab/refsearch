@@ -81,7 +81,7 @@ export const Repositories: FunctionComponent = () => {
 
   useSearchParamsEffect(params, setSearchParams, { query, page, sort, order }, '_id', 'asc')
 
-  const state = useGetRepositories(query, perPage, page, sort, order)
+  const { state } = useGetRepositories(query, perPage, page, sort, order)
   const { pager, resultText } = usePager(page, setPage, state, perPage)
 
   const pagerBar = (

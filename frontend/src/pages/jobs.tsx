@@ -14,14 +14,15 @@ import { JobCard } from '../components/JobCard.js'
 import { useSearchField } from '../components/SearchField.js'
 import Send from '@mui/icons-material/Send'
 import { postJob } from '../api/post.js'
+import { useInterval } from '../libs/hooks'
 
 const perPage = 10
 
 const useJobsQuery = (query: string, sort: string, order: 'asc' | 'desc') => {
   const [page, setPage] = useState(0)
-  const state = useGetJobs(query, perPage, page, sort, order)
+  const { state, reload } = useGetJobs(query, perPage, page, sort, order)
   const { pager, resultText } = usePager(page, setPage, state, perPage)
-  return { state, pager, resultText }
+  return { state, pager, resultText, reload }
 }
 
 const makeDisplayArea = (title: string, res: ReturnType<typeof useJobsQuery>): JSX.Element => {
@@ -58,6 +59,20 @@ export const Jobs: FunctionComponent = () => {
   const errored = useJobsQuery(
     `status = ${JobStatus.Errored}`, 'completedAt', 'desc',
   )
+  const reload = () => {
+    running.reload()
+    comingUp.reload()
+    completed.reload()
+    errored.reload()
+  }
+
+  useInterval(() => {
+    const hasRunning = running.state.state === 'success' && running.state.res.length > 0
+    const hasComingUp = comingUp.state.state === 'success' && comingUp.state.res.length > 0
+    if (hasRunning || hasComingUp) {
+      reload()
+    }
+  }, 5 * 1000)
 
   const [submittedText, setSubmittedText] = useState('')
   const [submitError, setSubmitError] = useState('')
@@ -87,7 +102,8 @@ export const Jobs: FunctionComponent = () => {
         setOneTarget('')
         setRangeFrom('')
         setRangeTo('')
-        setSubmittedText(`Submitted ${url}! Reload page to see new jobs.`)
+        setSubmittedText(`Submitted ${url}!`)
+        reload()
       } else {
         setSubmitError(res.message)
       }

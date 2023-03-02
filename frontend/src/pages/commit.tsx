@@ -20,7 +20,7 @@ export const Commit: FunctionComponent = () => {
   const state = useGetCommit(id ?? '')
 
   const [page, setPage] = useState(0)
-  const refsState = useGetRefactorings(`sha1 = ${id}`, perPage, page, 'type', 'asc')
+  const { state: refsState } = useGetRefactorings(`sha1 = ${id}`, perPage, page, 'type', 'asc')
   const { pager, resultText } = usePager(page, setPage, refsState, perPage)
 
   switch (state.state) {

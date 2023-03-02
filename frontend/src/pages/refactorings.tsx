@@ -151,7 +151,7 @@ export const Refactorings: FunctionComponent = () => {
 
   useSearchParamsEffect(params, setSearchParams, { query, page, sort, order }, 'commit.date', 'desc')
 
-  const state = useGetRefactorings(query, perPage, page, sort, order)
+  const { state } = useGetRefactorings(query, perPage, page, sort, order)
   const { pager, resultText } = usePager(page, setPage, state, perPage)
 
   const pagerBar = (

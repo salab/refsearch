@@ -65,7 +65,12 @@ export type SearchState<T> = {
   res: T[]
 }
 
-export const useSearch = <T>(path: string, query: string, perPage: number, page: number, sort: string, order: 'asc' | 'desc'): SearchState<T> => {
+interface useSearchReturn<T> {
+  state: SearchState<T>
+  reload: () => void
+}
+
+export const useSearch = <T>(path: string, query: string, perPage: number, page: number, sort: string, order: 'asc' | 'desc'): useSearchReturn<T> => {
   const [state, setState] = useState<SearchState<T>>({
     state: 'loading',
     error: '',
@@ -75,6 +80,7 @@ export const useSearch = <T>(path: string, query: string, perPage: number, page:
     hasMore: true,
     res: undefined,
   })
+  const [reloadDummyState, setReloadDummyState] = useState(0)
 
   useEffect(() => {
     const limit = perPage
@@ -124,7 +130,7 @@ export const useSearch = <T>(path: string, query: string, perPage: number, page:
     return () => {
       cancelled = true
     }
-  }, [path, query, perPage, page, sort, order])
+  }, [path, query, perPage, page, sort, order, reloadDummyState])
 
-  return state
+  return { state, reload: () => setReloadDummyState(prev => prev + 1) }
 }

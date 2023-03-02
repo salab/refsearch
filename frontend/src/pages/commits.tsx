@@ -124,7 +124,7 @@ export const Commits: FunctionComponent = () => {
 
   useSearchParamsEffect(params, setSearchParams, { query, page, sort, order }, 'date', 'desc')
 
-  const state = useGetCommits(query, perPage, page, sort, order)
+  const { state } = useGetCommits(query, perPage, page, sort, order)
   const { pager, resultText } = usePager(page, setPage, state, perPage)
 
   const pagerBar = (

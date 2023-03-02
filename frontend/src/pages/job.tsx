@@ -22,7 +22,7 @@ export const Job: FunctionComponent = () => {
   const state = useGetJob(id ?? '')
 
   const [page, setPage] = useState(0)
-  const jobsState = useGetJobs(`pipeline = ${state.res?.pipeline ?? '0'}`, perPage, page, '_id', 'asc')
+  const { state: jobsState } = useGetJobs(`pipeline = ${state.res?.pipeline ?? '0'}`, perPage, page, '_id', 'asc')
   const { pager, resultText } = usePager(page, setPage, jobsState, perPage)
 
   switch (state.state) {
