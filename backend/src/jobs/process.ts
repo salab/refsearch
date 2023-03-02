@@ -6,6 +6,7 @@ import { processRefDiff, refDiffToolName } from './runner/refdiff.js'
 import { mergeCommitMetadata, updateCommitMetadata } from './metadata.js'
 import { formatTime } from '../../../common/utils.js'
 import { CommitProcessState } from '../../../common/common.js'
+import { JobData } from '../../../common/jobs'
 
 type CommitId = string
 type ToolName = string
@@ -38,9 +39,9 @@ const processCommit = async (repoUrl: string, commitId: CommitId, tools: Record<
   await mergeCommitMetadata(commitId)
 }
 
-export const processCommits = async ({ data }: JobWithId) => {
+export const processCommits = async (job: JobWithId, jobData: JobData) => {
   const commits = await readAllFromCursor(
-    commitsCol.find({ repository: data.repoUrl }, { projection: { _id: 1, tools: 1 }, sort: { date: 1 } }),
+    commitsCol.find({ repository: jobData.repoUrl }, { projection: { _id: 1, tools: 1 }, sort: { date: 1 } }),
   ).then((res) => res.map((doc) => ({ id: doc._id, tools: doc.tools })))
 
   for (let i = 0; i < commits.length; i++) {
@@ -49,6 +50,6 @@ export const processCommits = async ({ data }: JobWithId) => {
     if (skip) continue
 
     console.log(`[${i + 1} / ${commits.length}] ${commit.id}`)
-    await processCommit(data.repoUrl, commit.id, commit.tools, true) // TODO: retry error option
+    await processCommit(jobData.repoUrl, commit.id, commit.tools, true) // TODO: retry error option
   }
 }

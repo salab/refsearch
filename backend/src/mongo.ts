@@ -1,6 +1,13 @@
-import { Collection, CreateIndexesOptions, Document, IndexSpecification, MongoClient } from 'mongodb'
+import {
+  Collection,
+  CreateCollectionOptions,
+  CreateIndexesOptions,
+  Document,
+  IndexSpecification,
+  MongoClient,
+} from 'mongodb'
 import { CommitMeta, RefactoringMeta, RepositoryMeta } from '../../common/common.js'
-import { Job } from '../../common/jobs.js'
+import { Job, JobData, JobWithData } from '../../common/jobs.js'
 import { formatTime } from '../../common/utils.js'
 import { readAllFromCursor } from './utils.js'
 import { ToolRawData } from './types.js'
@@ -17,31 +24,42 @@ type CollectionName =
   'commits' |
   'refactorings' |
   'jobs' |
+  'job_data' |
+  'job_with_data' |
   'tool_raw_data'
 
 export const repoCol = db.collection<RepositoryMeta>('repositories' satisfies CollectionName)
 export const commitsCol = db.collection<CommitMeta>('commits' satisfies CollectionName)
 export const refCol = db.collection<RefactoringMeta>('refactorings' satisfies CollectionName)
 export const jobCol = db.collection<Job>('jobs' satisfies CollectionName)
+export const jobDataCol = db.collection<JobData>('job_data' satisfies CollectionName)
+export const jobWithData = db.collection<JobWithData>('job_with_data' satisfies CollectionName)
 export const toolRawDataCol = db.collection<ToolRawData>('tool_raw_data' satisfies CollectionName)
 
-const collections: Collection<any>[] = [
-  repoCol,
-  commitsCol,
-  refCol,
-  jobCol,
-  toolRawDataCol,
+const collections: [collection: Collection<any>, options: CreateCollectionOptions][] = [
+  [repoCol, {}],
+  [commitsCol, {}],
+  [refCol, {}],
+  [jobCol, {}],
+  [jobDataCol, {}],
+  [jobWithData, {
+    viewOn: 'jobs' satisfies CollectionName,
+    pipeline: [
+      { $lookup: { from: 'job_data' satisfies CollectionName, localField: 'pipeline', foreignField: '_id', as: 'data' } },
+      { $unwind: '$data' },
+    ],
+  }],
+  [toolRawDataCol, {}],
 ]
 
-export const createCollections = async () => {
-  const collectionNames = collections.map((c) => c.collectionName)
+const createCollections = async () => {
   const existing = await readAllFromCursor(db.listCollections())
-  for (const name of collectionNames) {
-    if (existing.find((col) => col.name === name)) continue
+  for (const [c, options] of collections) {
+    if (existing.find((col) => col.name === c.collectionName)) continue
 
     const start = performance.now()
-    await db.createCollection(name)
-    console.log(`[mongo.ts] Created collection ${name} in ${formatTime(start)}`)
+    await db.createCollection(c.collectionName, options)
+    console.log(`[mongo.ts] Created collection ${c.collectionName} in ${formatTime(start)}`)
   }
   console.log(`[mongo.ts] Finished syncing collections`)
 }
@@ -52,6 +70,7 @@ interface Index {
 }
 
 type IndexDef = [spec: IndexSpecification, opt: CreateIndexesOptions]
+
 const createIndexes = async <T extends Document>(col: Collection<T>, defs: IndexDef[]) => {
   const indexes = await readAllFromCursor(col.listIndexes()) as Index[]
 
@@ -71,7 +90,8 @@ const createIndexes = async <T extends Document>(col: Collection<T>, defs: Index
     console.log(`[mongo.ts] Added index ${opt.name} to ${col.collectionName} in ${formatTime(start)}`)
   }
 }
-export const createMissingIndexes = async () => {
+
+const createMissingIndexes = async () => {
   await createIndexes(commitsCol, [
     [[['repository', 1], ['date', 1]], { name: 'idx_repository_date' }],
     [[['date', 1]], { name: 'idx_date' }],
@@ -85,4 +105,9 @@ export const createMissingIndexes = async () => {
     [[['commit', 1], ['tool', 1]], { name: 'idx_commit_tool', unique: true }],
   ])
   console.log(`[mongo.ts] Finished syncing indexes`)
+}
+
+export const syncDB = async () => {
+  await createCollections()
+  await createMissingIndexes()
 }

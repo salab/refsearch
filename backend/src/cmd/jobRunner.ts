@@ -1,8 +1,8 @@
-import { jobCol } from '../mongo.js'
+import { jobCol, jobDataCol } from '../mongo.js'
 import { makeMissingDirs } from '../jobs/info.js'
 import { formatTime } from '../../../common/utils.js'
 import { readAllFromCursor, sleep } from '../utils.js'
-import { Job, JobStatus } from '../../../common/jobs.js'
+import { Job, JobData, JobStatus } from '../../../common/jobs.js'
 import { JobRunner, jobRunners, JobWithId } from '../jobs.js'
 import { config, validateRunnerConfig } from '../config.js'
 
@@ -38,6 +38,10 @@ const updateReadyStatus = async (): Promise<void> => {
   }
 }
 
+const findJobData = async (pipelineId: string): Promise<JobData | null> => {
+  return jobDataCol.findOne({ _id: pipelineId })
+}
+
 const findNextJob = async (): Promise<JobWithId | undefined> => {
   const order: [keyof Job, 'asc' | 'desc'][] = [['queuedAt', 'asc']]
 
@@ -62,18 +66,18 @@ const findNextJob = async (): Promise<JobWithId | undefined> => {
   return undefined
 }
 
-const startJob = async (runner: JobRunner, job: JobWithId): Promise<void> => {
-  console.log(`[job runner] Started job ${job.type} for ${job.data.repoUrl}... (pipeline ${job.pipeline})`)
+const startJob = async (runner: JobRunner, job: JobWithId, jobData: JobData): Promise<void> => {
+  console.log(`[job runner] Started job ${job.type} for ${jobData.repoUrl}... (pipeline ${job.pipeline})`)
   const start = performance.now()
 
   if (job.status !== JobStatus.Running) {
     // If job runner has restarted, save startedAt value
     await saveRunning(job)
   }
-  await runner.run(job)
+  await runner.run(job, jobData)
   await saveCompleted(job)
 
-  console.log(`[job runner] Finished job ${job.type} for ${job.data.repoUrl} in ${formatTime(start)}.`)
+  console.log(`[job runner] Finished job ${job.type} for ${jobData.repoUrl} in ${formatTime(start)}.`)
 }
 
 export const runJobLoop = async () => {
@@ -89,6 +93,13 @@ export const runJobLoop = async () => {
       continue
     }
     backoff = backoffStart
+
+    const jobData = await findJobData(job.pipeline)
+    if (jobData === null) {
+      console.log(`[job runner] Error: failed to find job data for pipeline id ${job.pipeline}, skipping`)
+      await saveErrored(job, 'unknown job data')
+      continue
+    }
 
     const runner = jobRunners[job.type]
     if (!runner) {
@@ -106,13 +117,13 @@ export const runJobLoop = async () => {
       switch (job.status) {
         case JobStatus.Ready:
         case JobStatus.Running:
-          await startJob(runner, job)
+          await startJob(runner, job, jobData)
           break
         default:
           console.log(`[job runner] Unexpected job status ${job.status}, skipping`)
       }
     } catch (e: any) {
-      console.log(`[job runner] Encountered an error while running job ${job.type} for ${job.data.repoUrl}, skipping`)
+      console.log(`[job runner] Encountered an error while running job ${job.type} for ${jobData.repoUrl}, skipping`)
       console.trace(e)
       await saveErrored(job, `Runtime error: ${e.message}`)
     }

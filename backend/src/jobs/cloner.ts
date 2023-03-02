@@ -2,9 +2,10 @@ import { repoDirName, repositoriesDir } from './info.js'
 import fs from 'fs'
 import simpleGit, { ResetMode } from 'simple-git'
 import { JobWithId } from '../jobs.js'
+import { JobData } from '../../../common/jobs.js'
 
-export const cloneRepository = async ({ data }: JobWithId): Promise<void> => {
-  const repoUrl = data.repoUrl
+export const cloneRepository = async (job: JobWithId, jobData: JobData): Promise<void> => {
+  const repoUrl = jobData.repoUrl
   const dirName = repoDirName(repoUrl)
 
   if (fs.existsSync(dirName)) {

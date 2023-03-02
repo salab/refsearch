@@ -1,11 +1,10 @@
 import express from 'express'
 import { registerRoutes } from '../api/serve/routes.js'
-import { createCollections, createMissingIndexes } from '../mongo.js'
+import { syncDB } from '../mongo.js'
 import { config } from '../config.js'
 
 const main = async () => {
-  await createCollections()
-  await createMissingIndexes()
+  await syncDB()
 
   const app = express()
   app.use(express.json())

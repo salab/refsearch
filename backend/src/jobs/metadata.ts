@@ -13,6 +13,7 @@ import { commitsCol, refCol, repoCol } from '../mongo.js'
 import { commitUrl, readAllFromCursor } from '../utils.js'
 import { JobWithId } from '../jobs.js'
 import { Filter } from 'mongodb'
+import { JobData } from '../../../common/jobs.js'
 
 type RefTypeMeta = Pick<RefactoringMeta, 'sha1' | 'type' | 'meta'>
 const refactoringCount = async (filter: Filter<RefactoringMeta>): Promise<RefactoringsCount> => {
@@ -50,30 +51,44 @@ const getCommitSizeInfo = (e: DefaultLogFields & ListLogLine): CommitSizeInfo =>
   }
 }
 
-export const updateRepositoryMetadata = async ({ data }: JobWithId): Promise<void> => {
-  const commits = await commitsCol.countDocuments({ repository: data.repoUrl })
-  const refactorings = await refactoringCount({ repository: data.repoUrl })
+export const updateRepositoryMetadata = async (job: JobWithId, jobData: JobData): Promise<void> => {
+  const commits = await commitsCol.countDocuments({ repository: jobData.repoUrl })
+  const refactorings = await refactoringCount({ repository: jobData.repoUrl })
 
   const repoMeta: RepositoryMeta = {
-    _id: data.repoUrl,
+    _id: jobData.repoUrl,
     commits: commits,
     refactorings: refactorings,
   }
 
-  const res = await repoCol.replaceOne({ _id: data.repoUrl }, repoMeta, { upsert: true })
+  const res = await repoCol.replaceOne({ _id: jobData.repoUrl }, repoMeta, { upsert: true })
   if (!res.acknowledged) {
-    throw new Error(`Failed to write repository meta for ${data.repoUrl}`)
+    throw new Error(`Failed to write repository meta for ${jobData.repoUrl}`)
   }
 }
 
-export const storeCommitsMetadata = async ({ data }: JobWithId): Promise<void> => {
-  const repoPath = repoDirName(data.repoUrl)
+export const storeCommitsMetadata = async (job: JobWithId, jobData: JobData): Promise<void> => {
+  const repoPath = repoDirName(jobData.repoUrl)
 
   const git = simpleGit(repoPath)
-  const gitLog = await git.log(['--stat', '--min-parents=1', '--max-parents=1'])
+  const gitLogOption = ['--stat', '--min-parents=1', '--max-parents=1']
+  switch (jobData.commits.type) {
+    case 'all': // no additional option
+      break
+    case 'range':
+      gitLogOption.push(jobData.commits.from)
+      if (jobData.commits.to) {
+        gitLogOption.push('^'+jobData.commits.to)
+      }
+      break
+    case 'one':
+      gitLogOption.push(jobData.commits.sha1, '^'+jobData.commits.sha1+'~')
+      break
+  }
+  const gitLog = await git.log(gitLogOption)
 
   const existingCommits = await readAllFromCursor(
-    await commitsCol.find({ repository: data.repoUrl }, { projection: { _id: 1 } }),
+    await commitsCol.find({ repository: jobData.repoUrl }, { projection: { _id: 1 } }),
   ).then((res) => res.map((doc) => doc._id))
   const existingCommitsSet = new Set(existingCommits)
 
@@ -88,8 +103,8 @@ export const storeCommitsMetadata = async ({ data }: JobWithId): Promise<void> =
       body: e.body,
       authorName: e.author_name,
       authorEmail: e.author_email,
-      url: commitUrl(data.repoUrl, e.hash),
-      repository: data.repoUrl,
+      url: commitUrl(jobData.repoUrl, e.hash),
+      repository: jobData.repoUrl,
 
       size: getCommitSizeInfo(e),
       refactorings: {
@@ -103,7 +118,7 @@ export const storeCommitsMetadata = async ({ data }: JobWithId): Promise<void> =
   if (commits.length > 0) {
     const res = await commitsCol.insertMany(commits, { ordered: false })
     if (!res.acknowledged) {
-      throw new Error(`Failed to bulk update commits meta for ${data.repoUrl}`)
+      throw new Error(`Failed to bulk update commits meta for ${jobData.repoUrl}`)
     }
     console.log(`[metadata.ts] Found ${gitLog.all.length} commits, inserted ${res.insertedCount} new commit(s).`)
   } else {

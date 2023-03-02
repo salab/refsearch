@@ -13,12 +13,30 @@ export enum JobType {
   StoreRepo = 'storeRepo',
 }
 
+export interface JobCommitOne {
+  type: 'one'
+  sha1: string
+}
+
+export interface JobCommitRange {
+  type: 'range'
+  from: string // after in chronological order
+  to?: string  // before in chronological order, exclusive
+}
+
+export interface JobCommitAll {
+  type: 'all'
+}
+
+export type JobCommit = JobCommitOne | JobCommitRange | JobCommitAll
+
 export interface JobData {
+  _id: string // pipeline id
   repoUrl: string
+  commits: JobCommit
 }
 
 export interface Job {
-  data: JobData
   pipeline: string
   skip: boolean
   runnerId?: string
@@ -31,4 +49,6 @@ export interface Job {
   error?: string
 }
 
-export type JobWithStrId = { _id: string } & Job
+export type JobWithData = Job & { data: JobData }
+
+export type JobWithStrId = { _id: string } & JobWithData

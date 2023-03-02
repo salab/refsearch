@@ -1,6 +1,6 @@
 import { Express } from 'express'
 import { retrieveDocumentHandler, searchRequestHandler } from './common.js'
-import { commitsCol, jobCol, refCol, repoCol } from '../../mongo.js'
+import { commitsCol, jobWithData, refCol, repoCol } from '../../mongo.js'
 import { retryJob, scheduleJob } from './jobs.js'
 
 export const registerRoutes = (app: Express): void => {
@@ -11,8 +11,8 @@ export const registerRoutes = (app: Express): void => {
   app.get('/api/repositories', searchRequestHandler(repoCol, '_id'))
   app.get('/api/repositories/:id', retrieveDocumentHandler(repoCol))
 
-  app.get('/api/jobs', searchRequestHandler(jobCol, '_id'))
+  app.get('/api/jobs', searchRequestHandler(jobWithData, '_id'))
   app.post('/api/jobs', scheduleJob)
-  app.get('/api/jobs/:id', retrieveDocumentHandler(jobCol))
+  app.get('/api/jobs/:id', retrieveDocumentHandler(jobWithData))
   app.post('/api/jobs/:id/retry', retryJob)
 }
