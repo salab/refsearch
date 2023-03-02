@@ -10,6 +10,7 @@ interface ScheduleJobRequest extends Request {
     repoUrl: string
     skip: JobType[]
     commits?: JobCommit
+    retryFailed?: boolean
   }
 }
 
@@ -62,6 +63,7 @@ export const scheduleJob = async (req: ScheduleJobRequest, res: Response) => {
     _id: pipelineId,
     repoUrl: req.body.repoUrl,
     commits,
+    retryFailed: req.body.retryFailed ?? false,
   }
 
   const insertResult = await jobCol.insertMany(newJobs)

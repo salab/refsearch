@@ -1,9 +1,9 @@
 import { JobCommit } from '../../../common/jobs'
 
-export const postJob = async (repoUrl: string, commits: JobCommit): Promise<{ status: number, message: string }> => {
+export const postJob = async (repoUrl: string, commits: JobCommit, retryFailed: boolean): Promise<{ status: number, message: string }> => {
   const res = await fetch('/api/jobs', {
     method: 'POST',
-    body: JSON.stringify({ repoUrl, commits }),
+    body: JSON.stringify({ repoUrl, commits, retryFailed }),
     headers: {
       'Content-Type': 'application/json',
     },

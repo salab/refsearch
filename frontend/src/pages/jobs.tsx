@@ -1,7 +1,14 @@
 import React, { FunctionComponent, useState } from 'react'
 import { useGetJobs } from '../api/documents.js'
 import { usePager } from '../components/Pager.js'
-import { CircularProgress, Divider, FormControlLabel, FormLabel, IconButton, Radio, RadioGroup } from '@mui/material'
+import {
+  Checkbox,
+  CircularProgress,
+  Divider,
+  FormControlLabel,
+  IconButton,
+  Radio,
+} from '@mui/material'
 import { JobCommit, JobStatus } from '../../../common/jobs.js'
 import { JobCard } from '../components/JobCard.js'
 import { useSearchField } from '../components/SearchField.js'
@@ -52,7 +59,6 @@ export const Jobs: FunctionComponent = () => {
     `status = ${JobStatus.Errored}`, 'completedAt', 'desc',
   )
 
-  const [type, setType] = useState<JobCommit['type']>('all')
   const [submittedText, setSubmittedText] = useState('')
   const [submitError, setSubmitError] = useState('')
   const submitRepo = (url: string): void => {
@@ -73,9 +79,10 @@ export const Jobs: FunctionComponent = () => {
         commits = { type: 'all' }
         break
     }
-    postJob(url, commits).then((res) => {
+    postJob(url, commits, retryFailed).then((res) => {
       if (res.status === 200) {
         setURL('')
+        setRetryFailed(false)
         setType('all')
         setOneTarget('')
         setRangeFrom('')
@@ -86,14 +93,24 @@ export const Jobs: FunctionComponent = () => {
       }
     })
   }
+  const [retryFailed, setRetryFailed] = useState(false)
+  const [type, setType] = useState<JobCommit['type']>('all')
   const { field: oneTargetField, internal: oneTarget, setValue: setOneTarget } = useSearchField({
-    init: '', variant: 'outlined', label: 'Target', placeholder: 'SHA1 or ref', shrink: true
+    init: '', variant: 'outlined', label: 'Target', placeholder: 'SHA1 or ref', shrink: true,
   })
   const { field: rangeFromField, internal: rangeFrom, setValue: setRangeFrom } = useSearchField({
-    init: '', variant: 'outlined', label: 'From', placeholder: 'SHA1 or ref (inclusive, after in chronological order)', shrink: true
+    init: '',
+    variant: 'outlined',
+    label: 'From',
+    placeholder: 'SHA1 or ref (inclusive, after in chronological order)',
+    shrink: true,
   })
   const { field: rangeToField, internal: rangeTo, setValue: setRangeTo } = useSearchField({
-    init: '', variant: 'outlined', label: 'To', placeholder: 'SHA1 or ref (exclusive, before in chronological order, optional)', shrink: true
+    init: '',
+    variant: 'outlined',
+    label: 'To',
+    placeholder: 'SHA1 or ref (exclusive, before in chronological order, optional)',
+    shrink: true,
   })
   const { field: submitField, internal: url, setValue: setURL } = useSearchField(
     {
@@ -116,12 +133,17 @@ export const Jobs: FunctionComponent = () => {
         </div>
         {submittedText && <div className='text-lime-500 text-sm'>{submittedText}</div>}
         {submitError && <div className='text-red-500 text-sm'>{submitError}</div>}
+        <FormControlLabel label='Retry failed commits' control={<Checkbox />} checked={retryFailed}
+                          onChange={(e, checked) => setRetryFailed(checked)} />
         <div>
           <div className='text-md text-gray-500'>Commits to queue</div>
           <div className='flex flex-row gap-4 ml-4 mt-2'>
-            <FormControlLabel value='one' control={<Radio />} label='One commit' checked={type === 'one'} onClick={() => setType('one')} />
-            <FormControlLabel value='range' control={<Radio />} label='Commit range' checked={type === 'range'} onClick={() => setType('range')} />
-            <FormControlLabel value='all' control={<Radio />} label='All commits' checked={type === 'all'} onClick={() => setType('all')} />
+            <FormControlLabel value='one' control={<Radio />} label='One commit' checked={type === 'one'}
+                              onClick={() => setType('one')} />
+            <FormControlLabel value='range' control={<Radio />} label='Commit range' checked={type === 'range'}
+                              onClick={() => setType('range')} />
+            <FormControlLabel value='all' control={<Radio />} label='All commits' checked={type === 'all'}
+                              onClick={() => setType('all')} />
           </div>
           <div className='flex flex-col gap-4 ml-4 mt-2 w-[48rem]'>
             {type === 'one' && oneTargetField}

@@ -50,6 +50,6 @@ export const processCommits = async (job: JobWithId, jobData: JobData) => {
     if (skip) continue
 
     console.log(`[${i + 1} / ${commits.length}] ${commit.id}`)
-    await processCommit(jobData.repoUrl, commit.id, commit.tools, true) // TODO: retry error option
+    await processCommit(jobData.repoUrl, commit.id, commit.tools, jobData.retryFailed)
   }
 }

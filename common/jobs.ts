@@ -34,6 +34,7 @@ export interface JobData {
   _id: string // pipeline id
   repoUrl: string
   commits: JobCommit
+  retryFailed: boolean
 }
 
 export interface Job {
