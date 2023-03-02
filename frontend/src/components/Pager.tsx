@@ -1,7 +1,7 @@
-import {formatDuration, unreachable} from "../../../common/utils.js";
-import React from "react";
-import {Pagination} from "@mui/material";
-import {SearchState} from "../api/common_search.js";
+import { formatDuration, unreachable } from '../../../common/utils.js'
+import React from 'react'
+import { Pagination } from '@mui/material'
+import { SearchState } from '../api/common_search.js'
 
 const maxPageCount = 1000
 
@@ -11,17 +11,17 @@ export const usePager = (page: number, setPage: (p: number) => void, state: Sear
 } => {
   const resultText = ((): JSX.Element => {
     if (state.state === 'loading') {
-      return <div className="text-gray-600">Loading...</div>
+      return <div className='text-gray-600'>Loading...</div>
     } else if (state.state === 'success') {
       return (
         <>
-          <div className="text-gray-900">{state.count}{state.hasMore ? '+' : ''} results</div>
-          <div className="text-gray-400">({formatDuration(state.time)})</div>
+          <div className='text-gray-900'>{state.count}{state.hasMore ? '+' : ''} results</div>
+          <div className='text-gray-400'>({formatDuration(state.time)})</div>
         </>
       )
     } else if (state.state === 'error') {
       return (
-        <div className="text-gray-400">Error</div>
+        <div className='text-gray-400'>Error</div>
       )
     }
     return unreachable(state)
@@ -32,10 +32,10 @@ export const usePager = (page: number, setPage: (p: number) => void, state: Sear
     : 1
   const pager = (
     <Pagination
-      size="large"
-      page={page+1}
+      size='large'
+      page={page + 1}
       count={Math.min(pageCount, maxPageCount)}
-      onChange={(e, page) => setPage(page-1)}
+      onChange={(e, page) => setPage(page - 1)}
     />
   )
 

@@ -1,8 +1,8 @@
-import {Request, Response} from "express";
-import {Collection, Document, Filter, ObjectId} from "mongodb";
-import {strToMongoQuery} from "./query-string.js";
-import {readAllFromCursor} from "../../utils.js";
-import {ParseException} from "../../../../common/parser/exception.js";
+import { Request, Response } from 'express'
+import { Collection, Document, Filter, ObjectId } from 'mongodb'
+import { strToMongoQuery } from './query-string.js'
+import { readAllFromCursor } from '../../utils.js'
+import { ParseException } from '../../../../common/parser/exception.js'
 
 interface SearchRequest extends Request {
   query: {
@@ -26,7 +26,7 @@ export const searchRequestHandler = <T extends Document>(collection: Collection<
     // Validate
     const compiledQuery = strToMongoQuery(q) as Filter<T>
     if (ParseException.is(compiledQuery)) {
-      return res.status(400).json({message: 'Malformed query', details: compiledQuery.message})
+      return res.status(400).json({ message: 'Malformed query', details: compiledQuery.message })
     }
     if (!['asc', 'desc'].includes(order)) {
       return res.status(400).json({ message: 'Invalid order', details: 'Order must be asc or desc' })
@@ -34,8 +34,8 @@ export const searchRequestHandler = <T extends Document>(collection: Collection<
 
     // Process
     const limitBulk = 10000
-    const countLimit = limitBulk * Math.ceil((offset+limit) / limitBulk)
-    const count = await collection.countDocuments(compiledQuery, { limit: countLimit+1 })
+    const countLimit = limitBulk * Math.ceil((offset + limit) / limitBulk)
+    const count = await collection.countDocuments(compiledQuery, { limit: countLimit + 1 })
     const hasMore = count > countLimit
 
     const cursor = collection.find(compiledQuery, { sort: { [sort]: order as 'asc' | 'desc' } })
@@ -63,7 +63,7 @@ export const retrieveDocumentHandler = <T extends Document>(collection: Collecti
     const ref = await collection.findOne({ _id: id } as unknown as Filter<T>)
     if (!ref) {
       return res.status(404).json({
-        message: 'Document not found'
+        message: 'Document not found',
       })
     }
     return res.status(200).json(ref)

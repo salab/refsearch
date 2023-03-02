@@ -1,7 +1,7 @@
-import {refCol, toolRawDataCol} from "../../mongo.js";
-import {RefDiffRefactoring} from "../../../../common/refdiff.js";
-import {processRefDiffOutput} from "../processor/refdiff.js";
-import {detectRefDiffRefactorings} from "../../api/tools/refdiff.js";
+import { refCol, toolRawDataCol } from '../../mongo.js'
+import { RefDiffRefactoring } from '../../../../common/refdiff.js'
+import { processRefDiffOutput } from '../processor/refdiff.js'
+import { detectRefDiffRefactorings } from '../../api/tools/refdiff.js'
 
 export const refDiffToolName = 'RefDiff'
 const timeoutSeconds = 60
@@ -15,7 +15,7 @@ const getOrRun = async (repoUrl: string, commit: string): Promise<RefDiffRefacto
   const insertRes = await toolRawDataCol.replaceOne(
     { commit: commit, tool: refDiffToolName },
     { commit: commit, tool: refDiffToolName, data: refs },
-    { upsert: true }
+    { upsert: true },
   )
   if (!insertRes.acknowledged) throw new Error('Failed to insert refdiff raw data')
 

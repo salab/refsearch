@@ -1,9 +1,9 @@
-import fetch from "node-fetch";
-import {config} from "../../config.js";
-import {URLSearchParams} from "url";
-import {humanishName} from "../../utils.js";
-import {RMRefactoring} from "../../../../common/rminer.js";
-import {HTTPStatusError} from "../error.js";
+import fetch from 'node-fetch'
+import { config } from '../../config.js'
+import { URLSearchParams } from 'url'
+import { humanishName } from '../../utils.js'
+import { RMRefactoring } from '../../../../common/rminer.js'
+import { HTTPStatusError } from '../error.js'
 
 const baseUrl = `http://${config.tool.rminer.host}:${config.tool.rminer.port}/detect`
 

@@ -3,8 +3,8 @@ export const postJob = async (repoUrl: string): Promise<{ status: number, messag
     method: 'POST',
     body: JSON.stringify({ repoUrl }),
     headers: {
-      'Content-Type': 'application/json'
-    }
+      'Content-Type': 'application/json',
+    },
   })
   const json = await res.json()
   return { status: res.status, message: json.message }

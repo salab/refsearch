@@ -1,10 +1,10 @@
-import {jobCol} from "../mongo.js";
-import {makeMissingDirs} from "../jobs/info.js";
-import {formatTime} from "../../../common/utils.js";
-import {readAllFromCursor, sleep} from "../utils.js";
-import {Job, JobStatus} from "../../../common/jobs.js";
-import {JobRunner, jobRunners, JobWithId} from "../jobs.js";
-import {config, validateRunnerConfig} from "../config.js";
+import { jobCol } from '../mongo.js'
+import { makeMissingDirs } from '../jobs/info.js'
+import { formatTime } from '../../../common/utils.js'
+import { readAllFromCursor, sleep } from '../utils.js'
+import { Job, JobStatus } from '../../../common/jobs.js'
+import { JobRunner, jobRunners, JobWithId } from '../jobs.js'
+import { config, validateRunnerConfig } from '../config.js'
 
 const backoffStart = 1000 // ms
 const idleBackoffMax = 60 * 1000
@@ -25,11 +25,11 @@ const saveErrored = async (job: JobWithId, error: string): Promise<void> => {
 
 const updateReadyStatus = async (): Promise<void> => {
   const waitingJobs = await readAllFromCursor(
-    jobCol.find({ status: JobStatus.Waiting })
+    jobCol.find({ status: JobStatus.Waiting }),
   )
   for (const job of waitingJobs) {
     const dependencies = await readAllFromCursor(
-      jobCol.find({ pipeline: job.pipeline, type: { $in: job.dependsOn } })
+      jobCol.find({ pipeline: job.pipeline, type: { $in: job.dependsOn } }),
     )
     const ready = dependencies.every((d) => d.status === JobStatus.Completed)
     if (ready) {
@@ -43,7 +43,7 @@ const findNextJob = async (): Promise<JobWithId | undefined> => {
 
   // Find already running jobs (in case this job runner has restarted)
   const reserved = await readAllFromCursor(
-    jobCol.find({ status: { $in: [JobStatus.Ready, JobStatus.Running] }, runnerId: config.runnerId }, { sort: order })
+    jobCol.find({ status: { $in: [JobStatus.Ready, JobStatus.Running] }, runnerId: config.runnerId }, { sort: order }),
   )
   const running = reserved.find((j) => j.status === JobStatus.Running)
   if (running) return running
@@ -51,7 +51,10 @@ const findNextJob = async (): Promise<JobWithId | undefined> => {
   if (ready) return ready
 
   // Atomically find and reserve next job
-  const next = await jobCol.findOneAndUpdate({ status: JobStatus.Ready, runnerId: { $exists: false } }, { '$set': { runnerId: config.runnerId } })
+  const next = await jobCol.findOneAndUpdate({
+    status: JobStatus.Ready,
+    runnerId: { $exists: false },
+  }, { '$set': { runnerId: config.runnerId } })
   if (next.ok && next.value) {
     return next.value
   }

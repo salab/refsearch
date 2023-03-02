@@ -40,7 +40,7 @@ export interface RefDiffLocation {
   bodyEnd: string;
 }
 
-export type RefDiffNodeType = "Method" | "Class" | "Interface" | "Enum"
+export type RefDiffNodeType = 'Method' | 'Class' | 'Interface' | 'Enum'
 
 export interface RefDiffNode {
   type: RefDiffNodeType;
@@ -71,6 +71,7 @@ export type RefDiffLocationWithLines = RefDiffLocation & {
 export type RefDiffNodeWithLines = Omit<RefDiffNode, 'location'> & {
   location: RefDiffLocationWithLines
 }
+
 export interface ProcessedRefDiffRefactoring {
   before: RefDiffNodeWithLines
   after: RefDiffNodeWithLines

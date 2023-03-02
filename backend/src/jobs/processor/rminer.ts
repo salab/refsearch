@@ -1,5 +1,5 @@
-import equal from "fast-deep-equal";
-import {commitPlaceholder, RefactoringMeta, RefactoringTypes} from "../../../../common/common.js";
+import equal from 'fast-deep-equal'
+import { commitPlaceholder, RefactoringMeta, RefactoringTypes } from '../../../../common/common.js'
 import {
   CodeElementInfo,
   CodeElementsMap,
@@ -8,10 +8,10 @@ import {
   RMLeftSideLocation,
   RMOutput,
   RMRefactoring,
-  RMRefactoringType
-} from "../../../../common/rminer.js";
-import {commitUrl, sshUrlToHttpsUrl} from "../../utils.js";
-import {rminerToolName} from "../runner/rminer.js";
+  RMRefactoringType,
+} from '../../../../common/rminer.js'
+import { commitUrl, sshUrlToHttpsUrl } from '../../utils.js'
+import { rminerToolName } from '../runner/rminer.js'
 
 type R = RefactoringMeta & ProcessedRMRefactoring
 type C = Omit<RMCommit, 'refactorings'> & {
@@ -93,7 +93,7 @@ const processCodeElements = (elements: RMLeftSideLocation[]): CodeElementsMap =>
 }
 const process = (r: RMRefactoring): ProcessedRMRefactoring => ({
   before: processCodeElements(r.leftSideLocations),
-  after: processCodeElements(r.rightSideLocations)
+  after: processCodeElements(r.rightSideLocations),
 })
 
 export const processRMinerOutput = (output: RMOutput): R[] => {
@@ -116,12 +116,12 @@ export const processRMinerOutput = (output: RMOutput): R[] => {
             url: commitUrl(repository, c.sha1),
 
             meta: {
-              tool: rminerToolName
+              tool: rminerToolName,
             },
             commit: commitPlaceholder(),
 
-            ...process(r)
-          }))
+            ...process(r),
+          })),
       }
     })
 
@@ -136,7 +136,7 @@ export const processRMinerOutput = (output: RMOutput): R[] => {
           sourceMethodsCount: extractSourceMethodsCount(methods, r),
           // Use-case 2: 数行のみのextract,  extractする前の行数
           sourceMethodLines: extractMethodSourceMethodLines(r),
-          extractedLines: extractMethodExtractedLines(r)
+          extractedLines: extractMethodExtractedLines(r),
         }
       })
     // Use-case 3: 具体的なrenameした単語

@@ -1,5 +1,5 @@
-import {useEffect, useState} from "react";
-import {unreachable} from "../../../common/utils.js";
+import { useEffect, useState } from 'react'
+import { unreachable } from '../../../common/utils.js'
 
 interface SearchResponse<T> {
   total: {
@@ -35,7 +35,7 @@ export const search = async <T>(path: string, query: string, limit: number, offs
   const resp = await fetch(`${path}?q=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}&sort=${sort}&order=${order}`)
   return {
     status: resp.status as SearchResponseList<T>['status'],
-    resp: await resp.json()
+    resp: await resp.json(),
   }
 }
 
@@ -66,7 +66,15 @@ export type SearchState<T> = {
 }
 
 export const useSearch = <T>(path: string, query: string, perPage: number, page: number, sort: string, order: 'asc' | 'desc'): SearchState<T> => {
-  const [state, setState] = useState<SearchState<T>>( { state: 'loading', error: '', time: 0, query, count: 0, hasMore: true, res: undefined })
+  const [state, setState] = useState<SearchState<T>>({
+    state: 'loading',
+    error: '',
+    time: 0,
+    query,
+    count: 0,
+    hasMore: true,
+    res: undefined,
+  })
 
   useEffect(() => {
     const limit = perPage
@@ -94,7 +102,15 @@ export const useSearch = <T>(path: string, query: string, perPage: number, page:
           setState((prev) => {
             const nextCount = Math.max(prev.count, r.resp.total.count)
             const nextHasMore = prev.hasMore && r.resp.total.hasMore
-            return { state: 'success', error: '', time, query, count: nextCount, hasMore: nextHasMore, res: r.resp.result }
+            return {
+              state: 'success',
+              error: '',
+              time,
+              query,
+              count: nextCount,
+              hasMore: nextHasMore,
+              res: r.resp.result,
+            }
           })
         } else if (r.status === 400) {
           const resp = r.resp
@@ -105,7 +121,9 @@ export const useSearch = <T>(path: string, query: string, perPage: number, page:
         }
       })
 
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [path, query, perPage, page, sort, order])
 
   return state

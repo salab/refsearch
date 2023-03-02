@@ -1,9 +1,9 @@
-import {Request, Response} from "express";
-import {randomUUID} from "crypto";
-import {ObjectId} from "mongodb";
-import {Job, JobStatus, JobType} from "../../../../common/jobs.js";
-import {jobCol} from "../../mongo.js";
-import {jobRunners} from "../../jobs.js";
+import { Request, Response } from 'express'
+import { randomUUID } from 'crypto'
+import { ObjectId } from 'mongodb'
+import { Job, JobStatus, JobType } from '../../../../common/jobs.js'
+import { jobCol } from '../../mongo.js'
+import { jobRunners } from '../../jobs.js'
 
 interface ScheduleJobRequest extends Request {
   body: {
@@ -57,15 +57,15 @@ export const retryJob = async (req: Request, res: Response) => {
   const updateResult = await jobCol.updateOne({ _id: id },
     {
       $set: {
-          status: JobStatus.Waiting,
-          queuedAt: new Date(),
-        },
+        status: JobStatus.Waiting,
+        queuedAt: new Date(),
+      },
       $unset: {
         startedAt: '',
         completedAt: '',
         error: '',
-      }
-    }
+      },
+    },
   )
   if (!updateResult.acknowledged) {
     return res.status(500).json({ message: 'Internal update error' })

@@ -1,7 +1,7 @@
-import React, {FunctionComponent, MouseEventHandler, useState} from "react";
-import {Tooltip} from "@mui/material";
-import Replay from "@mui/icons-material/Replay";
-import {retryJob} from "../api/post.js";
+import React, { FunctionComponent, MouseEventHandler, useState } from 'react'
+import { Tooltip } from '@mui/material'
+import Replay from '@mui/icons-material/Replay'
+import { retryJob } from '../api/post.js'
 
 interface Props {
   id: string
@@ -24,7 +24,7 @@ export const JobRetryButton: FunctionComponent<Props> = ({ id }) => {
 
   return (
     <Tooltip title={text}>
-      <Replay className="cursor-pointer translate-y-[2px]" onClick={onClick} />
+      <Replay className='cursor-pointer translate-y-[2px]' onClick={onClick} />
     </Tooltip>
   )
 }

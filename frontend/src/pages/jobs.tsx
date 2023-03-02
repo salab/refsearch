@@ -1,12 +1,12 @@
-import React, {FunctionComponent, useState} from "react";
-import {useGetJobs} from "../api/documents.js";
-import {usePager} from "../components/Pager.js";
-import {CircularProgress, Divider, IconButton} from "@mui/material";
-import {JobStatus} from "../../../common/jobs.js";
-import {JobCard} from "../components/JobCard.js";
-import {useSearchField} from "../components/SearchField.js";
-import Send from "@mui/icons-material/Send";
-import {postJob} from "../api/post.js";
+import React, { FunctionComponent, useState } from 'react'
+import { useGetJobs } from '../api/documents.js'
+import { usePager } from '../components/Pager.js'
+import { CircularProgress, Divider, IconButton } from '@mui/material'
+import { JobStatus } from '../../../common/jobs.js'
+import { JobCard } from '../components/JobCard.js'
+import { useSearchField } from '../components/SearchField.js'
+import Send from '@mui/icons-material/Send'
+import { postJob } from '../api/post.js'
 
 const perPage = 10
 
@@ -20,17 +20,17 @@ const useJobsQuery = (query: string, sort: string, order: 'asc' | 'desc') => {
 const makeDisplayArea = (title: string, res: ReturnType<typeof useJobsQuery>): JSX.Element => {
   return (
     <>
-      <div className="text-lg font-semibold">{title}</div>
-      <div className="flex flex-col gap-6">
-        <div className="flex justify-between h-12">
-          <div className="m-auto">{res.pager}</div>
-          <div className="my-auto text-md text-right">{res.resultText}</div>
+      <div className='text-lg font-semibold'>{title}</div>
+      <div className='flex flex-col gap-6'>
+        <div className='flex justify-between h-12'>
+          <div className='m-auto'>{res.pager}</div>
+          <div className='my-auto text-md text-right'>{res.resultText}</div>
         </div>
         {res.state.state === 'loading' ? (
-          <CircularProgress className="mx-auto" />
+          <CircularProgress className='mx-auto' />
         ) : res.state.state === 'success' ? res.state.res.map((job, i) => (
           <div key={i}>
-            <JobCard job={job}/>
+            <JobCard job={job} />
           </div>
         )) : <div>Error</div>}
       </div>
@@ -40,16 +40,16 @@ const makeDisplayArea = (title: string, res: ReturnType<typeof useJobsQuery>): J
 
 export const Jobs: FunctionComponent = () => {
   const running = useJobsQuery(
-    `status = ${JobStatus.Running}`, 'startedAt', 'asc'
+    `status = ${JobStatus.Running}`, 'startedAt', 'asc',
   )
   const comingUp = useJobsQuery(
-    `status = ${JobStatus.Waiting} | status = ${JobStatus.Ready}`, 'queuedAt', 'asc'
+    `status = ${JobStatus.Waiting} | status = ${JobStatus.Ready}`, 'queuedAt', 'asc',
   )
   const completed = useJobsQuery(
-    `status = ${JobStatus.Completed}`, 'completedAt', 'desc'
+    `status = ${JobStatus.Completed}`, 'completedAt', 'desc',
   )
   const errored = useJobsQuery(
-    `status = ${JobStatus.Errored}`, 'completedAt', 'desc'
+    `status = ${JobStatus.Errored}`, 'completedAt', 'desc',
   )
 
   const [submittedText, setSubmittedText] = useState('')
@@ -68,24 +68,24 @@ export const Jobs: FunctionComponent = () => {
   const { field: submitField, internal, setValue } = useSearchField(
     {
       init: '', variant: 'outlined', label: 'URL', placeholder: 'https://github.com/gradle/gradle', shrink: true,
-      onEnter: (s) => submitRepo(s)
-    }
+      onEnter: (s) => submitRepo(s),
+    },
   )
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="text-3xl font-bold text-gray-700">Current Jobs</div>
+    <div className='flex flex-col gap-8'>
+      <div className='text-3xl font-bold text-gray-700'>Current Jobs</div>
       <Divider />
-      <div className="flex flex-col gap-4">
-        <div className="text-lg font-semibold text-gray-700">Queue Repository for Indexing</div>
-        <div className="flex flex-row gap-4">
+      <div className='flex flex-col gap-4'>
+        <div className='text-lg font-semibold text-gray-700'>Queue Repository for Indexing</div>
+        <div className='flex flex-row gap-4'>
           {submitField}
           <IconButton onClick={() => submitRepo(internal)}>
             <Send />
           </IconButton>
         </div>
-        {submittedText && <div className="text-lime-500 text-sm">{submittedText}</div>}
-        {submitError && <div className="text-red-500 text-sm">{submitError}</div>}
+        {submittedText && <div className='text-lime-500 text-sm'>{submittedText}</div>}
+        {submitError && <div className='text-red-500 text-sm'>{submitError}</div>}
       </div>
       <Divider />
       {makeDisplayArea('Running Jobs', running)}

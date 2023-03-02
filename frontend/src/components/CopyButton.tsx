@@ -1,7 +1,7 @@
-import {FunctionComponent, useState} from "react";
-import {Tooltip} from "@mui/material";
-import ContentCopy from "@mui/icons-material/ContentCopy";
-import {copyToClipboard} from "../libs/utils.js";
+import { FunctionComponent, useState } from 'react'
+import { Tooltip } from '@mui/material'
+import ContentCopy from '@mui/icons-material/ContentCopy'
+import { copyToClipboard } from '../libs/utils.js'
 
 interface Props {
   tooltip?: string
@@ -17,7 +17,7 @@ export const CopyButton: FunctionComponent<Props> = ({ tooltip = 'Click to copy'
 
   return (
     <Tooltip title={text}>
-      <ContentCopy className="translate-y-1 cursor-pointer" fontSize="small" onClick={onClick} />
+      <ContentCopy className='translate-y-1 cursor-pointer' fontSize='small' onClick={onClick} />
     </Tooltip>
   )
 }

@@ -1,16 +1,16 @@
-import React, {FunctionComponent} from "react";
-import Launch from "@mui/icons-material/Launch";
+import React, { FunctionComponent } from 'react'
+import Launch from '@mui/icons-material/Launch'
 
 interface Props {
   href: string
   text: string
 }
 
-export const ExternalLink: FunctionComponent<Props> = ({href, text}) => {
+export const ExternalLink: FunctionComponent<Props> = ({ href, text }) => {
   return (
-    <a href={href} target="_blank" rel="noreferrer">
+    <a href={href} target='_blank' rel='noreferrer'>
       {text}
-      <Launch className="mr-1" fontSize="small" />
+      <Launch className='mr-1' fontSize='small' />
     </a>
   )
 }

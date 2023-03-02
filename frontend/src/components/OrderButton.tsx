@@ -1,6 +1,6 @@
-import React, {useState} from "react";
-import {IconButton, Tooltip} from "@mui/material";
-import {ArrowDownward, ArrowUpward} from "@mui/icons-material";
+import React, { useState } from 'react'
+import { IconButton, Tooltip } from '@mui/material'
+import { ArrowDownward, ArrowUpward } from '@mui/icons-material'
 
 export const useOrderButton = (init: 'asc' | 'desc'): {
   button: JSX.Element
@@ -15,12 +15,12 @@ export const useOrderButton = (init: 'asc' | 'desc'): {
       <Tooltip title={tooltip}>
         <IconButton onClick={toggle}>
           {order === 'asc' ?
-            <ArrowUpward fontSize="medium" /> :
-            <ArrowDownward fontSize="medium" />
+            <ArrowUpward fontSize='medium' /> :
+            <ArrowDownward fontSize='medium' />
           }
         </IconButton>
       </Tooltip>
     ),
-    order
+    order,
   }
 }

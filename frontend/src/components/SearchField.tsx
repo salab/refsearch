@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from "react";
-import {TextField, TextFieldProps} from "@mui/material";
+import React, { useEffect, useState } from 'react'
+import { TextField, TextFieldProps } from '@mui/material'
 
 interface Props {
   init: string
@@ -14,16 +14,16 @@ interface Props {
 }
 
 export const useSearchField = ({
-  init,
-  placeholder = '',
-  variant,
-  label = '',
-  shrink = false,
-  size = 'medium',
-  error = '',
-  onUpdate,
-  onEnter,
-}: Props): {
+                                 init,
+                                 placeholder = '',
+                                 variant,
+                                 label = '',
+                                 shrink = false,
+                                 size = 'medium',
+                                 error = '',
+                                 onUpdate,
+                                 onEnter,
+                               }: Props): {
   field: JSX.Element
   internal: string
   value: string
@@ -53,7 +53,7 @@ export const useSearchField = ({
         helperText={error}
         onChange={(e) => setInternal(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === "Enter") {
+          if (e.key === 'Enter') {
             const next = internal || placeholder
             if (value !== next) {
               setValue(next)
@@ -81,6 +81,6 @@ export const useSearchField = ({
         setInternal(s)
         setValue(s)
       }
-    }
+    },
   }
 }

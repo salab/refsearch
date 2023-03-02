@@ -1,68 +1,70 @@
-import equal from "fast-deep-equal";
+import equal from 'fast-deep-equal'
 import {
   ProcessedRefDiffRefactoring,
   RefDiffCommit,
-  RefDiffLocation, RefDiffLocationWithLines,
-  RefDiffNode, RefDiffNodeWithLines,
+  RefDiffLocation,
+  RefDiffLocationWithLines,
+  RefDiffNode,
+  RefDiffNodeWithLines,
   RefDiffOutput,
-  RefDiffRefactoring
-} from "../../../../common/refdiff.js";
-import {commitPlaceholder, RefactoringMeta, RefactoringType, RefactoringTypes} from "../../../../common/common.js";
-import {commitUrl} from "../../utils.js";
-import {refDiffToolName} from "../runner/refdiff.js";
+  RefDiffRefactoring,
+} from '../../../../common/refdiff.js'
+import { commitPlaceholder, RefactoringMeta, RefactoringType, RefactoringTypes } from '../../../../common/common.js'
+import { commitUrl } from '../../utils.js'
+import { refDiffToolName } from '../runner/refdiff.js'
 
 type R = RefactoringMeta & ProcessedRefDiffRefactoring
 
 const formatTypeAndDescription = (ref: RefDiffRefactoring): [typ: RefactoringType, desc: string] => {
   switch (ref.type) {
-    case "CONVERT_TYPE":
-      return ["Convert Type", `Converted type of ${ref.after.name} from ${ref.before.type.toLowerCase()} to ${ref.after.type.toLowerCase()} in ${ref.after.location.file}`]
-    case "CHANGE_SIGNATURE":
-      return ["Change Signature", `Changed ${ref.after.type.toLowerCase()} signature from ${ref.before.name} to ${ref.after.name} in ${ref.after.location.file}`]
-    case "PULL_UP":
-      if (ref.after.type === "Method") {
-        return ["Pull Up Method", `Pulled up method ${ref.after.name} from ${ref.before.location.file} to ${ref.after.location.file}`]
+    case 'CONVERT_TYPE':
+      return ['Convert Type', `Converted type of ${ref.after.name} from ${ref.before.type.toLowerCase()} to ${ref.after.type.toLowerCase()} in ${ref.after.location.file}`]
+    case 'CHANGE_SIGNATURE':
+      return ['Change Signature', `Changed ${ref.after.type.toLowerCase()} signature from ${ref.before.name} to ${ref.after.name} in ${ref.after.location.file}`]
+    case 'PULL_UP':
+      if (ref.after.type === 'Method') {
+        return ['Pull Up Method', `Pulled up method ${ref.after.name} from ${ref.before.location.file} to ${ref.after.location.file}`]
       } else {
-        return ["Pull Up Attribute", `Pulled up ${ref.after.type.toLowerCase()} ${ref.after.name} from ${ref.before.location.file} to ${ref.after.location.file}`]
+        return ['Pull Up Attribute', `Pulled up ${ref.after.type.toLowerCase()} ${ref.after.name} from ${ref.before.location.file} to ${ref.after.location.file}`]
       }
-    case "PUSH_DOWN":
-      if (ref.after.type === "Method") {
-        return ["Push Down Method", `Pushed down method ${ref.after.name} from ${ref.before.location.file} to ${ref.after.location.file}`]
+    case 'PUSH_DOWN':
+      if (ref.after.type === 'Method') {
+        return ['Push Down Method', `Pushed down method ${ref.after.name} from ${ref.before.location.file} to ${ref.after.location.file}`]
       } else {
-        return ["Push Down Attribute", `Pushed down ${ref.after.type.toLowerCase()} ${ref.after.name} from ${ref.before.location.file} to ${ref.after.location.file}`]
+        return ['Push Down Attribute', `Pushed down ${ref.after.type.toLowerCase()} ${ref.after.name} from ${ref.before.location.file} to ${ref.after.location.file}`]
       }
-    case "PULL_UP_SIGNATURE":
-      return ["Pull Up Signature", `Pulled up ${ref.after.type.toLowerCase()} signature from ${ref.before.location.file} to ${ref.after.location.file}`]
-    case "PUSH_DOWN_IMPL":
-      return ["Push Down Impl", `Pushed down implementation ${ref.after.name} rom ${ref.before.location.file} to ${ref.after.location.file}`]
-    case "RENAME":
+    case 'PULL_UP_SIGNATURE':
+      return ['Pull Up Signature', `Pulled up ${ref.after.type.toLowerCase()} signature from ${ref.before.location.file} to ${ref.after.location.file}`]
+    case 'PUSH_DOWN_IMPL':
+      return ['Push Down Impl', `Pushed down implementation ${ref.after.name} rom ${ref.before.location.file} to ${ref.after.location.file}`]
+    case 'RENAME':
       return [`Rename ${ref.after.type}`, `Renamed ${ref.after.type.toLowerCase()} from ${ref.before.name} to ${ref.after.name} in ${ref.after.location.file}`]
-    case "INTERNAL_MOVE":
+    case 'INTERNAL_MOVE':
       return [`Move ${ref.after.type}`, `Moved ${ref.after.type.toLowerCase()} ${ref.after.name} in ${ref.after.location.file}`]
-    case "MOVE":
+    case 'MOVE':
       return [`Move ${ref.after.type}`, `Moved ${ref.after.type.toLowerCase()} ${ref.after.name} from ${ref.before.location.file} to ${ref.after.location.file}`]
-    case "INTERNAL_MOVE_RENAME":
+    case 'INTERNAL_MOVE_RENAME':
       return [`Move and Rename ${ref.after.type}`, `Moved and renamed ${ref.after.type.toLowerCase()} from ${ref.before.name} to ${ref.after.name} in ${ref.after.location.file}`]
-    case "MOVE_RENAME":
+    case 'MOVE_RENAME':
       return [`Move and Rename ${ref.after.type}`, `Moved and renamed ${ref.after.type.toLowerCase()} from ${ref.before.name} in ${ref.before.location.file} to ${ref.after.name} in ${ref.after.location.file}`]
-    case "EXTRACT_SUPER":
-      return ["Extract Superclass", `Extracted superclass ${ref.after.name} from ${ref.before.name}`]
-    case "EXTRACT":
+    case 'EXTRACT_SUPER':
+      return ['Extract Superclass', `Extracted superclass ${ref.after.name} from ${ref.before.name}`]
+    case 'EXTRACT':
       return [`Extract ${ref.after.type}`, `Extracted ${ref.after.type.toLowerCase()} ${ref.after.name} from ${ref.before.name}`]
-    case "EXTRACT_MOVE":
+    case 'EXTRACT_MOVE':
       return [`Extract and Move ${ref.after.type}`, `Extracted and moved ${ref.after.type.toLowerCase()} ${ref.after.name} from ${ref.before.name}`]
-    case "INLINE":
-      if (ref.after.type === "Method") {
-        return ["Inline Method", `Inlined method ${ref.before.name} into ${ref.after.name}`]
+    case 'INLINE':
+      if (ref.after.type === 'Method') {
+        return ['Inline Method', `Inlined method ${ref.before.name} into ${ref.after.name}`]
       } else {
-        return ["Inline Attribute", `Inlined ${ref.before.name} into ${ref.after.name}`]
+        return ['Inline Attribute', `Inlined ${ref.before.name} into ${ref.after.name}`]
       }
   }
 }
 
 const extractedMethods = (c: RefDiffCommit): RefDiffRefactoring[] => {
   return c.refactorings
-    .filter((r) => r.type === "EXTRACT" && r.after.type === "Method")
+    .filter((r) => r.type === 'EXTRACT' && r.after.type === 'Method')
 }
 
 const extractSourceMethodsCount = (r: RefDiffRefactoring, extractedMethods: RefDiffRefactoring[]): number => {
@@ -70,37 +72,37 @@ const extractSourceMethodsCount = (r: RefDiffRefactoring, extractedMethods: RefD
 }
 
 const locationLines = (loc: RefDiffLocation): number => {
-  const startLine = +loc.bodyBegin.split(":")[0]
-  const endLine = +loc.bodyEnd.split(":")[0]
+  const startLine = +loc.bodyBegin.split(':')[0]
+  const endLine = +loc.bodyEnd.split(':')[0]
   return (endLine - startLine + 1)
 }
 const processLocation = (loc: RefDiffLocation): RefDiffLocationWithLines => ({ ...loc, lines: locationLines(loc) })
 const processNode = (node: RefDiffNode): RefDiffNodeWithLines => ({ ...node, location: processLocation(node.location) })
 const process = (ref: RefDiffRefactoring): ProcessedRefDiffRefactoring => ({
   before: processNode(ref.before),
-  after: processNode(ref.after)
+  after: processNode(ref.after),
 })
 
 export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): R[] => {
   return output.map((c): RefDiffCommit => {
     c.refactorings = c.refactorings.flatMap((ref): RefDiffRefactoring[] => {
       switch (ref.type) {
-        case "INTERNAL_MOVE_RENAME":
+        case 'INTERNAL_MOVE_RENAME':
           return [
-            {...ref, type: "INTERNAL_MOVE"},
-            {...ref, type: "RENAME"},
+            { ...ref, type: 'INTERNAL_MOVE' },
+            { ...ref, type: 'RENAME' },
             ref,
           ]
-        case "MOVE_RENAME":
+        case 'MOVE_RENAME':
           return [
-            {...ref, type: "MOVE"},
-            {...ref, type: "RENAME"},
+            { ...ref, type: 'MOVE' },
+            { ...ref, type: 'RENAME' },
             ref,
           ]
-        case "EXTRACT_MOVE":
+        case 'EXTRACT_MOVE':
           return [
-            {...ref, type: "EXTRACT"},
-            {...ref, type: "MOVE"},
+            { ...ref, type: 'EXTRACT' },
+            { ...ref, type: 'MOVE' },
             ref,
           ]
         default:
@@ -123,7 +125,7 @@ export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): R[
         url: commitUrl(repoUrl, c.sha1),
 
         meta: {
-          tool: refDiffToolName
+          tool: refDiffToolName,
         },
         commit: commitPlaceholder(),
 
@@ -137,7 +139,7 @@ export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): R[
           sourceMethodsCount: extractSourceMethodsCount(ref, extractMethodRefactorings),
           // Use-case 2: 数行のみのextract,  extractする前の行数
           sourceMethodLines: ret.before.location.lines,
-          extractedLines: ret.after.location.lines
+          extractedLines: ret.after.location.lines,
         }
       }
 

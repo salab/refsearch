@@ -1,15 +1,15 @@
-import {createHash} from "crypto";
+import { createHash } from 'crypto'
 
 export const sshUrlToHttpsUrl = (url: string): string => {
   const replacements: [RegExp, (match: string[]) => string][] = [
     [
       /^git@github\.com:(.+?)\/(.+?)\.git$/,
-      (match) => `https://github.com/${match[1]}/${match[2]}`
+      (match) => `https://github.com/${match[1]}/${match[2]}`,
     ],
     [
       /^git@github\.com:(.+?)\/(.+?)\/([0-9a-f]{40})$/,
-      (match) => `https://github.com/${match[1]}/${match[2]}/commit/${match[3]}`
-    ]
+      (match) => `https://github.com/${match[1]}/${match[2]}/commit/${match[3]}`,
+    ],
   ]
 
   for (const [regexp, replace] of replacements) {
@@ -26,7 +26,7 @@ export const commitUrl = (repoUrl: string, sha1: string) => {
     [
       /^https:\/\/github\.com\/(.+?)\/(.+?)$/,
       (match) => `https://github.com/${match[1]}/${match[2]}/commit/${sha1}`,
-    ]
+    ],
   ]
 
   for (const [regexp, replace] of replacements) {
@@ -63,6 +63,7 @@ export const sleep = (ms: number): Promise<void> => new Promise((resolve) => set
 interface Cursor<T> {
   forEach: (callback: (doc: T) => void) => Promise<void>
 }
+
 export const readAllFromCursor = async <T>(cursor: Cursor<T>): Promise<T[]> => {
   const res: T[] = []
   await cursor.forEach((doc) => {

@@ -16,7 +16,7 @@ export const config = {
       host: process.env.REFDIFF_HOST || 'refdiff',
       port: process.env.REFDIFF_PORT || '3000',
       baseRepoPath: process.env.REFDIFF_BASE_PATH || '/data/repos',
-    }
+    },
   },
   runnerId: process.env.RUNNER_ID || '',
   dataDir: process.env.DATA_DIR || '',

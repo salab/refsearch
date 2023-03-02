@@ -1,5 +1,5 @@
-import {Token, TokenType} from "./tokenizer.js";
-import {ParseException} from "./exception.js";
+import { Token, TokenType } from './tokenizer.js'
+import { ParseException } from './exception.js'
 
 const astOperators = ['equal', 'ne', 'lt', 'lte', 'gt', 'gte', 'regex'] as const satisfies readonly TokenType[]
 export type ASTOperator = typeof astOperators extends (infer T)[] ? T : never
@@ -12,10 +12,12 @@ export interface ASTNodeCondition {
   operator: ASTOperator
   rhs: string
 }
+
 export interface ASTNodeOr {
   type: 'or'
   children: AST[]
 }
+
 export interface ASTNodeAnd {
   type: 'and'
   children: AST[]
@@ -34,11 +36,20 @@ logic      = primary ("&" logic)?   = primary ("&" primary)*
 primary    = word " " op " " word
             | "(" expr ")"
 `.trim()
+
 class Parser {
   private tokens: Token[]
 
   constructor(tokens: Token[]) {
     this.tokens = tokens
+  }
+
+  public parse(): AST | ParseException {
+    const expr = this.parseExpr()
+    if (ParseException.is(expr)) return expr
+    const next = this.peek()
+    if (next !== undefined) return ParseException.expected(next, 'end of input')
+    return expr
   }
 
   private peek(): Token | undefined {
@@ -116,14 +127,6 @@ class Parser {
 
   private parseExpr(): AST | ParseException {
     return this.parseLogicOrs()
-  }
-
-  public parse(): AST | ParseException {
-    const expr = this.parseExpr()
-    if (ParseException.is(expr)) return expr
-    const next = this.peek()
-    if (next !== undefined) return ParseException.expected(next, 'end of input')
-    return expr
   }
 }
 

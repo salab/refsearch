@@ -1,8 +1,8 @@
-import {refCol, toolRawDataCol} from "../../mongo.js";
-import {RMRefactoring} from "../../../../common/rminer.js";
-import {processRMinerOutput} from "../processor/rminer.js";
-import {detectRMinerRefactorings} from "../../api/tools/rminer.js";
-import {commitUrl} from "../../utils.js";
+import { refCol, toolRawDataCol } from '../../mongo.js'
+import { RMRefactoring } from '../../../../common/rminer.js'
+import { processRMinerOutput } from '../processor/rminer.js'
+import { detectRMinerRefactorings } from '../../api/tools/rminer.js'
+import { commitUrl } from '../../utils.js'
 
 export const rminerToolName = 'RefactoringMiner'
 const timeoutSeconds = 60
@@ -16,7 +16,7 @@ const getOrRun = async (repoUrl: string, commit: string): Promise<RMRefactoring[
   const insertRes = await toolRawDataCol.replaceOne(
     { commit: commit, tool: rminerToolName },
     { commit: commit, tool: rminerToolName, data: refs },
-    { upsert: true }
+    { upsert: true },
   )
   if (!insertRes.acknowledged) throw new Error('Failed to insert rminer raw data')
 
@@ -25,11 +25,13 @@ const getOrRun = async (repoUrl: string, commit: string): Promise<RMRefactoring[
 
 export const processRMiner = async (repoUrl: string, commit: string): Promise<void> => {
   const refs = await getOrRun(repoUrl, commit)
-  const processed = processRMinerOutput({commits: [{
+  const processed = processRMinerOutput({
+    commits: [{
       repository: repoUrl,
       sha1: commit,
       url: commitUrl(repoUrl, commit),
-      refactorings: refs
-    }]})
+      refactorings: refs,
+    }],
+  })
   if (processed.length > 0) await refCol.insertMany(processed)
 }

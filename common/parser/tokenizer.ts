@@ -10,11 +10,12 @@ const tokenType = {
   gt: '>',
   gte: '>=',
   ne: '!=',
-  regex: '~'
+  regex: '~',
 } as const
 
 export type TokenType = keyof typeof tokenType
 export type Splitter = Exclude<typeof tokenType[TokenType], ''>
+
 export interface Token {
   type: TokenType
   token: string
@@ -42,16 +43,16 @@ export const tokenize = (str: string): Token[] => {
       if (nextIndex >= 0) {
         return [{
           type: 'word',
-          token: str.substring(1, nextIndex + 1)
+          token: str.substring(1, nextIndex + 1),
         }, str.substring(nextIndex + 2), nextIndex + 1]
       }
     }
-    if (str.startsWith("'")) {
-      const nextIndex = str.substring(1).indexOf("'")
+    if (str.startsWith('\'')) {
+      const nextIndex = str.substring(1).indexOf('\'')
       if (nextIndex >= 0) {
         return [{
           type: 'word',
-          token: str.substring(1, nextIndex + 1)
+          token: str.substring(1, nextIndex + 1),
         }, str.substring(nextIndex + 2), nextIndex + 1]
       }
     }
@@ -60,18 +61,18 @@ export const tokenize = (str: string): Token[] => {
       if (splitter.length <= str.length && str.startsWith(splitter)) {
         return [{
           type: splitterReverseMap[splitter],
-          token: splitter
+          token: splitter,
         }, str.substring(splitter.length), splitter.length]
       }
     }
 
     const nextIndex = Math.min(
       str.length,
-      ...splitters.map((splitter) => str.indexOf(splitter)).filter((idx) => idx >= 0)
+      ...splitters.map((splitter) => str.indexOf(splitter)).filter((idx) => idx >= 0),
     )
     return [{
       type: 'word',
-      token: str.substring(0, nextIndex).trimEnd()
+      token: str.substring(0, nextIndex).trimEnd(),
     }, str.substring(nextIndex), nextIndex]
   }
 
@@ -79,7 +80,7 @@ export const tokenize = (str: string): Token[] => {
   let index = 0
   while (str.length > 0) {
     const [token, next, n] = tokenizeOnce(str)
-    if (token) tokens.push({...token, index})
+    if (token) tokens.push({ ...token, index })
     str = next
     index += n
   }

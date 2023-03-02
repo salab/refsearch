@@ -1,5 +1,5 @@
-import {ProcessedRMRefactoring, RMRefactoringTypes} from "./rminer.js";
-import {ProcessedRefDiffRefactoring} from "./refdiff.js";
+import { ProcessedRMRefactoring, RMRefactoringTypes } from './rminer.js'
+import { ProcessedRefDiffRefactoring } from './refdiff.js'
 
 export const RefactoringTypes = {
   ...RMRefactoringTypes,
@@ -25,6 +25,7 @@ export interface ExtractMethodInfo {
   extractedLines: number
   sourceMethodsCount: number
 }
+
 export interface RenameInfo {
   from: string
   to: string
@@ -40,7 +41,7 @@ export const commitPlaceholder = (): RefactoringMeta['commit'] => ({
   url: '',
   size: { files: { changed: 0 }, lines: { inserted: 0, deleted: 0 } },
   refactorings: { total: 0, perTool: {}, perType: {} },
-  tools: {}
+  tools: {},
 })
 type OptionalRefactoringMeta = ProcessedRMRefactoring | ProcessedRefDiffRefactoring
 export type RefactoringMeta = {

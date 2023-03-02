@@ -1,5 +1,5 @@
-import {useSearchParams} from "react-router-dom";
-import {useEffect} from "react";
+import { useSearchParams } from 'react-router-dom'
+import { useEffect } from 'react'
 
 export interface ParsedSearchParams {
   q: string
@@ -16,11 +16,11 @@ export const useParsedSearchParams = (): {
   return {
     params: {
       q: searchParams.get('q') ?? '',
-      page: (Number.parseInt(searchParams.get('page') ?? '1') || 1)-1,
+      page: (Number.parseInt(searchParams.get('page') ?? '1') || 1) - 1,
       sort: searchParams.get('sort') ?? '',
       order: (searchParams.get('order') ?? '') as 'asc' | 'desc' | '',
     },
-    setSearchParams
+    setSearchParams,
   }
 }
 
@@ -45,7 +45,7 @@ export const useSearchParamsEffect = (
       nextParam.q = query
     }
     if (page || params.page /* page was previously set */) {
-      nextParam.page = ''+(page+1)
+      nextParam.page = '' + (page + 1)
     }
     if (sort !== defaultSort || params.sort) {
       nextParam.sort = sort

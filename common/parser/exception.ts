@@ -1,9 +1,9 @@
-import {Token} from "./tokenizer.js";
+import { Token } from './tokenizer.js'
 
 export class ParseException {
   public static readonly symbol = Symbol()
-  private readonly symbol: Symbol
   public readonly message: string
+  private readonly symbol: Symbol
 
   private constructor(message: string) {
     this.symbol = ParseException.symbol

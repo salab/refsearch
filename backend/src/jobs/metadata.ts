@@ -1,22 +1,23 @@
-import {repoDirName} from "./info.js";
-import simpleGit, {DefaultLogFields, ListLogLine} from "simple-git";
+import { repoDirName } from './info.js'
+import simpleGit, { DefaultLogFields, ListLogLine } from 'simple-git'
 import {
-  CommitMeta, CommitProcessState,
+  CommitMeta,
+  CommitProcessState,
   CommitSizeInfo,
   RefactoringMeta,
   RefactoringsCount,
   RefactoringType,
-  RepositoryMeta
-} from "../../../common/common.js";
-import {commitsCol, refCol, repoCol} from "../mongo.js";
-import {commitUrl, readAllFromCursor} from "../utils.js";
-import {JobWithId} from "../jobs.js";
-import {Filter} from "mongodb";
+  RepositoryMeta,
+} from '../../../common/common.js'
+import { commitsCol, refCol, repoCol } from '../mongo.js'
+import { commitUrl, readAllFromCursor } from '../utils.js'
+import { JobWithId } from '../jobs.js'
+import { Filter } from 'mongodb'
 
 type RefTypeMeta = Pick<RefactoringMeta, 'sha1' | 'type' | 'meta'>
 const refactoringCount = async (filter: Filter<RefactoringMeta>): Promise<RefactoringsCount> => {
   const typeMetas = await readAllFromCursor(
-    refCol.find(filter, { projection: { sha1: 1, type: 1, meta: 1 } })
+    refCol.find(filter, { projection: { sha1: 1, type: 1, meta: 1 } }),
   ) as RefTypeMeta[]
   const countPerType = typeMetas.reduce((acc, r) => {
     acc[r.type] ??= 0
@@ -44,8 +45,8 @@ const getCommitSizeInfo = (e: DefaultLogFields & ListLogLine): CommitSizeInfo =>
     },
     lines: {
       inserted: e.diff?.insertions ?? 0,
-      deleted: e.diff?.deletions ?? 0
-    }
+      deleted: e.diff?.deletions ?? 0,
+    },
   }
 }
 
@@ -72,7 +73,7 @@ export const storeCommitsMetadata = async ({ data }: JobWithId): Promise<void> =
   const gitLog = await git.log(['--stat', '--min-parents=1', '--max-parents=1'])
 
   const existingCommits = await readAllFromCursor(
-    await commitsCol.find({ repository: data.repoUrl }, { projection: { _id: 1 } })
+    await commitsCol.find({ repository: data.repoUrl }, { projection: { _id: 1 } }),
   ).then((res) => res.map((doc) => doc._id))
   const existingCommitsSet = new Set(existingCommits)
 
@@ -100,7 +101,7 @@ export const storeCommitsMetadata = async ({ data }: JobWithId): Promise<void> =
     }))
 
   if (commits.length > 0) {
-    const res = await commitsCol.insertMany(commits, {ordered: false})
+    const res = await commitsCol.insertMany(commits, { ordered: false })
     if (!res.acknowledged) {
       throw new Error(`Failed to bulk update commits meta for ${data.repoUrl}`)
     }
@@ -118,10 +119,11 @@ export const updateCommitMetadata = async (commit: string, tools: Record<string,
 export const mergeCommitMetadata = async (commit: string): Promise<void> => {
   const cursor = refCol.aggregate([
     { $match: { sha1: commit } },
-    { $lookup: { from: 'commits', localField: 'sha1', foreignField: '_id', as: 'commit'} },
+    { $lookup: { from: 'commits', localField: 'sha1', foreignField: '_id', as: 'commit' } },
     { $unwind: '$commit' },
     { $project: { commit: { _id: 0, hash: 0, repository: 0 } } },
     { $merge: { into: 'refactorings', on: '_id', whenMatched: 'replace', whenNotMatched: 'fail' } },
   ])
-  await cursor.forEach(() => {})
+  await cursor.forEach(() => {
+  })
 }

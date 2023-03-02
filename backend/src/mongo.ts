@@ -1,10 +1,10 @@
-import {Collection, CreateIndexesOptions, Document, IndexSpecification, MongoClient} from "mongodb";
-import {CommitMeta, RefactoringMeta, RepositoryMeta} from "../../common/common.js";
-import {Job} from "../../common/jobs.js";
-import {formatTime} from "../../common/utils.js";
-import {readAllFromCursor} from "./utils.js";
-import {ToolRawData} from "./types.js";
-import {config} from "./config.js";
+import { Collection, CreateIndexesOptions, Document, IndexSpecification, MongoClient } from 'mongodb'
+import { CommitMeta, RefactoringMeta, RepositoryMeta } from '../../common/common.js'
+import { Job } from '../../common/jobs.js'
+import { formatTime } from '../../common/utils.js'
+import { readAllFromCursor } from './utils.js'
+import { ToolRawData } from './types.js'
+import { config } from './config.js'
 
 const env = config.db
 const uri = `mongodb://${env.user}:${env.password}@${env.host}:${env.port}?retryWrites=true&w=majority`
@@ -46,7 +46,11 @@ export const createCollections = async () => {
   console.log(`[mongo.ts] Finished syncing collections`)
 }
 
-interface Index { name: string; key: IndexSpecification }
+interface Index {
+  name: string;
+  key: IndexSpecification
+}
+
 type IndexDef = [spec: IndexSpecification, opt: CreateIndexesOptions]
 const createIndexes = async <T extends Document>(col: Collection<T>, defs: IndexDef[]) => {
   const indexes = await readAllFromCursor(col.listIndexes()) as Index[]
@@ -78,7 +82,7 @@ export const createMissingIndexes = async () => {
     [[['commit.date', 1]], { name: 'idx_commit_date' }],
   ])
   await createIndexes(toolRawDataCol, [
-    [[['commit', 1], ['tool', 1]], { name: 'idx_commit_tool', unique: true }]
+    [[['commit', 1], ['tool', 1]], { name: 'idx_commit_tool', unique: true }],
   ])
   console.log(`[mongo.ts] Finished syncing indexes`)
 }

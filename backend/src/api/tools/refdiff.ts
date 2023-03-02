@@ -1,9 +1,9 @@
-import fetch from "node-fetch";
-import {config} from "../../config.js";
-import {URLSearchParams} from "url";
-import {humanishName} from "../../utils.js";
-import {RefDiffRefactoring} from "../../../../common/refdiff.js";
-import {HTTPStatusError} from "../error.js";
+import fetch from 'node-fetch'
+import { config } from '../../config.js'
+import { URLSearchParams } from 'url'
+import { humanishName } from '../../utils.js'
+import { RefDiffRefactoring } from '../../../../common/refdiff.js'
+import { HTTPStatusError } from '../error.js'
 
 const baseUrl = `http://${config.tool.refDiff.host}:${config.tool.refDiff.port}/detect`
 

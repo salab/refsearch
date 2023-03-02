@@ -1,7 +1,7 @@
-import {Component, createRef, ReactNode} from 'react'
+import { Component, createRef, ReactNode } from 'react'
 import hljs from 'highlight.js/lib/core'
 import json from 'highlight.js/lib/languages/json'
-import "highlight.js/styles/github-dark-dimmed.css";
+import 'highlight.js/styles/github-dark-dimmed.css'
 
 hljs.registerLanguage('json', json)
 
@@ -17,12 +17,6 @@ export class Highlight extends Component<Props> {
   public constructor(props: Props) {
     super(props)
     this.element = createRef<HTMLElement>()
-  }
-
-  private highlight() {
-    if (this.element.current) {
-      hljs.highlightElement(this.element.current)
-    }
   }
 
   public componentDidMount() {
@@ -41,5 +35,11 @@ export class Highlight extends Component<Props> {
         </code>
       </pre>
     )
+  }
+
+  private highlight() {
+    if (this.element.current) {
+      hljs.highlightElement(this.element.current)
+    }
   }
 }

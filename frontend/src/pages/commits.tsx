@@ -1,18 +1,18 @@
-import React, {FunctionComponent, useState} from 'react';
-import {CircularProgress, Divider, FormControl} from "@mui/material";
-import {useParsedSearchParams, useSearchParamsEffect} from "../libs/params.js";
-import {useOrderButton} from "../components/OrderButton.js";
-import {useSearchField} from "../components/SearchField.js";
-import {RoundButton} from "../components/RoundButton.js";
-import {useGetCommits} from "../api/documents.js";
-import {usePager} from "../components/Pager.js";
-import {CommitCard} from "../components/CommitCard.js";
+import React, { FunctionComponent, useState } from 'react'
+import { CircularProgress, Divider, FormControl } from '@mui/material'
+import { useParsedSearchParams, useSearchParamsEffect } from '../libs/params.js'
+import { useOrderButton } from '../components/OrderButton.js'
+import { useSearchField } from '../components/SearchField.js'
+import { RoundButton } from '../components/RoundButton.js'
+import { useGetCommits } from '../api/documents.js'
+import { usePager } from '../components/Pager.js'
+import { CommitCard } from '../components/CommitCard.js'
 
 const examples: [query: string, tooltip: string][] = [
   ['message ~ /refactor/i', 'Self-affirmed refactoring'],
   ['refactorings.total >= 10', 'Commits with 10+ refactorings'],
   ['"refactorings.perType.Rename Method" >= 10', 'Commits with 10+ Rename Method refactorings'],
-  ['size.files.changed = 1 & refactorings.total >= 1', 'Commits with only 1 file changed and 1+ refactorings']
+  ['size.files.changed = 1 & refactorings.total >= 1', 'Commits with only 1 file changed and 1+ refactorings'],
 ]
 
 interface RichFields {
@@ -29,7 +29,7 @@ const richFieldsToRaw = ({ hash, repository, message }: RichFields): string => {
   }
   if (repository) conditions.push(`repository = ${repository}`)
   if (message) conditions.push(`message ~ ${message}`)
-  return conditions.join(" & ")
+  return conditions.join(' & ')
 }
 
 interface Props {
@@ -39,15 +39,15 @@ interface Props {
   queryError: string
 }
 
-const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, queryError}) => {
+const SearchFields: FunctionComponent<Props> = ({ className, query, setQuery, queryError }) => {
   const { setValue: setHash, internal: hash, field: hashField } = useSearchField({
-    init: '', size: 'small', variant: 'outlined', onUpdate: (s) => updateFromRichField({ hash: s })
+    init: '', size: 'small', variant: 'outlined', onUpdate: (s) => updateFromRichField({ hash: s }),
   })
   const { setValue: setRepository, internal: repository, field: repoField } = useSearchField({
-    init: '', size: 'small', variant: 'outlined', onUpdate: (s) => updateFromRichField({ repository: s })
+    init: '', size: 'small', variant: 'outlined', onUpdate: (s) => updateFromRichField({ repository: s }),
   })
   const { setValue: setMessage, internal: message, field: messageField } = useSearchField({
-    init: '', size: 'small', variant: 'outlined', onUpdate: (s) => updateFromRichField({ message: s })
+    init: '', size: 'small', variant: 'outlined', onUpdate: (s) => updateFromRichField({ message: s }),
   })
 
   const richFieldQuery = richFieldsToRaw({ hash, repository, message })
@@ -83,27 +83,27 @@ const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, que
   return (
     <div className={`${className} flex flex-col gap-4`}>
       {rawField}
-      <FormControl size="small">
-        <div className="flex flex-row flex-wrap grid-cols-2 gap-4">
-          <div className="flex flex-row gap-2">
-            <div className="flex-none my-auto">Hash =</div>
+      <FormControl size='small'>
+        <div className='flex flex-row flex-wrap grid-cols-2 gap-4'>
+          <div className='flex flex-row gap-2'>
+            <div className='flex-none my-auto'>Hash =</div>
             {hashField}
           </div>
-          <div className="flex flex-row gap-2">
-            <div className="flex-none my-auto">Repository =</div>
+          <div className='flex flex-row gap-2'>
+            <div className='flex-none my-auto'>Repository =</div>
             {repoField}
           </div>
-          <div className="flex flex-row gap-2">
-            <div className="flex-none my-auto">Message =</div>
+          <div className='flex flex-row gap-2'>
+            <div className='flex-none my-auto'>Message =</div>
             {messageField}
           </div>
         </div>
       </FormControl>
       <Divider flexItem />
-      <div className="flex flex-row gap-4">
-        <div className="text-md my-auto text-gray-600">Examples</div>
+      <div className='flex flex-row gap-4'>
+        <div className='text-md my-auto text-gray-600'>Examples</div>
         {examples.map(([q, tooltip], i) => (
-          <RoundButton key={i} onClick={() => setFromExample(q)} tooltip={tooltip}>{i+1}</RoundButton>
+          <RoundButton key={i} onClick={() => setFromExample(q)} tooltip={tooltip}>{i + 1}</RoundButton>
         ))}
       </div>
       <Divider flexItem />
@@ -118,7 +118,7 @@ export const Commits: FunctionComponent = () => {
   const [query, setQuery] = useState<string>(params.q)
   const [page, setPage] = useState(params.page)
   const { value: sort, field: sortField } = useSearchField({
-    init: params.sort, placeholder: 'date', variant: 'standard', label: 'Sort Field', shrink: true
+    init: params.sort, placeholder: 'date', variant: 'standard', label: 'Sort Field', shrink: true,
   })
   const { order, button: orderButton } = useOrderButton(params.order || 'desc')
 
@@ -128,13 +128,13 @@ export const Commits: FunctionComponent = () => {
   const { pager, resultText } = usePager(page, setPage, state, perPage)
 
   const pagerBar = (
-    <div className="flex justify-between h-12">
-      <div className="my-auto text-md flex flex-row gap-2 content-center">
-        <div className="w-32">{sortField}</div>
-        <div className="text-gray-600 my-auto">{orderButton}</div>
+    <div className='flex justify-between h-12'>
+      <div className='my-auto text-md flex flex-row gap-2 content-center'>
+        <div className='w-32'>{sortField}</div>
+        <div className='text-gray-600 my-auto'>{orderButton}</div>
       </div>
-      <div className="m-auto">{pager}</div>
-      <div className="my-auto text-md text-right">{resultText}</div>
+      <div className='m-auto'>{pager}</div>
+      <div className='my-auto text-md text-right'>{resultText}</div>
     </div>
   )
 
@@ -144,17 +144,17 @@ export const Commits: FunctionComponent = () => {
         setQuery(q)
         setPage(0)
       }} queryError={state.error} />
-      <div className="mt-12 flex flex-col gap-6">
+      <div className='mt-12 flex flex-col gap-6'>
         {pagerBar}
         {state.state === 'loading' ? (
-          <CircularProgress className="mx-auto" />
+          <CircularProgress className='mx-auto' />
         ) : state.state === 'success' ? state.res.map((c, i) => (
           <div key={i}>
-            <CommitCard commit={c}/>
+            <CommitCard commit={c} />
           </div>
         )) : <div>Error</div>}
         {pagerBar}
       </div>
     </div>
-  );
+  )
 }

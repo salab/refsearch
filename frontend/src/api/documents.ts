@@ -1,7 +1,7 @@
-import {CommitMeta, RefactoringWithId, RepositoryMeta} from "../../../common/common.js";
-import {useSearch} from "./common_search.js";
-import {useGetDocument} from "./common_fetch.js";
-import {JobWithStrId} from "../../../common/jobs.js";
+import { CommitMeta, RefactoringWithId, RepositoryMeta } from '../../../common/common.js'
+import { useSearch } from './common_search.js'
+import { useGetDocument } from './common_fetch.js'
+import { JobWithStrId } from '../../../common/jobs.js'
 
 export const useGetRefactorings = (query: string, perPage: number, page: number, sort: string, order: 'asc' | 'desc') =>
   useSearch<RefactoringWithId>('/api/refactorings', query, perPage, page, sort, order)

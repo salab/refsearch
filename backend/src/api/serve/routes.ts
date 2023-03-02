@@ -1,7 +1,7 @@
-import {Express} from "express";
-import {retrieveDocumentHandler, searchRequestHandler} from "./common.js";
-import {commitsCol, jobCol, refCol, repoCol} from "../../mongo.js";
-import {retryJob, scheduleJob} from "./jobs.js";
+import { Express } from 'express'
+import { retrieveDocumentHandler, searchRequestHandler } from './common.js'
+import { commitsCol, jobCol, refCol, repoCol } from '../../mongo.js'
+import { retryJob, scheduleJob } from './jobs.js'
 
 export const registerRoutes = (app: Express): void => {
   app.get('/api/refactorings', searchRequestHandler(refCol, 'commit.date'))

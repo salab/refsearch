@@ -1,11 +1,11 @@
-import React, {FunctionComponent, useState} from "react";
-import {useGetRepositories} from "../api/documents.js";
-import {usePager} from "../components/Pager.js";
-import {CircularProgress, Divider, FormControl} from "@mui/material";
-import {useParsedSearchParams, useSearchParamsEffect} from "../libs/params.js";
-import {useSearchField} from "../components/SearchField.js";
-import {useOrderButton} from "../components/OrderButton.js";
-import {RepositoryCard} from "../components/RepositoryCard.js";
+import React, { FunctionComponent, useState } from 'react'
+import { useGetRepositories } from '../api/documents.js'
+import { usePager } from '../components/Pager.js'
+import { CircularProgress, Divider, FormControl } from '@mui/material'
+import { useParsedSearchParams, useSearchParamsEffect } from '../libs/params.js'
+import { useSearchField } from '../components/SearchField.js'
+import { useOrderButton } from '../components/OrderButton.js'
+import { RepositoryCard } from '../components/RepositoryCard.js'
 
 interface RichFields {
   url: string
@@ -14,7 +14,7 @@ interface RichFields {
 const richFieldsToRaw = ({ url }: RichFields): string => {
   const conditions = []
   if (url) conditions.push(`_id ~ ${url}`)
-  return conditions.join(" & ")
+  return conditions.join(' & ')
 }
 
 interface Props {
@@ -24,9 +24,9 @@ interface Props {
   queryError: string
 }
 
-const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, queryError}) => {
+const SearchFields: FunctionComponent<Props> = ({ className, query, setQuery, queryError }) => {
   const { setValue: setURL, internal: url, field: urlField } = useSearchField({
-    init: '', size: 'small', variant: 'outlined', onUpdate: (s) => updateFromRichField({ url: s })
+    init: '', size: 'small', variant: 'outlined', onUpdate: (s) => updateFromRichField({ url: s }),
   })
 
   const richFieldQuery = richFieldsToRaw({ url })
@@ -55,10 +55,10 @@ const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, que
   return (
     <div className={`${className} flex flex-col gap-4`}>
       {rawField}
-      <FormControl size="small">
-        <div className="flex flex-row flex-wrap grid-cols-2 gap-4">
-          <div className="flex flex-row gap-2">
-            <div className="flex-none my-auto">URL =</div>
+      <FormControl size='small'>
+        <div className='flex flex-row flex-wrap grid-cols-2 gap-4'>
+          <div className='flex flex-row gap-2'>
+            <div className='flex-none my-auto'>URL =</div>
             {urlField}
           </div>
         </div>
@@ -75,7 +75,7 @@ export const Repositories: FunctionComponent = () => {
   const [query, setQuery] = useState<string>(params.q)
   const [page, setPage] = useState(params.page)
   const { value: sort, field: sortField } = useSearchField({
-    init: params.sort, placeholder: '_id', variant: 'standard', label: 'Sort Field', shrink: true
+    init: params.sort, placeholder: '_id', variant: 'standard', label: 'Sort Field', shrink: true,
   })
   const { order, button: orderButton } = useOrderButton(params.order || 'asc')
 
@@ -85,13 +85,13 @@ export const Repositories: FunctionComponent = () => {
   const { pager, resultText } = usePager(page, setPage, state, perPage)
 
   const pagerBar = (
-    <div className="flex justify-between h-12">
-      <div className="my-auto text-md flex flex-row gap-2 content-center">
-        <div className="w-32">{sortField}</div>
-        <div className="text-gray-600 my-auto">{orderButton}</div>
+    <div className='flex justify-between h-12'>
+      <div className='my-auto text-md flex flex-row gap-2 content-center'>
+        <div className='w-32'>{sortField}</div>
+        <div className='text-gray-600 my-auto'>{orderButton}</div>
       </div>
-      <div className="m-auto">{pager}</div>
-      <div className="my-auto text-md text-right">{resultText}</div>
+      <div className='m-auto'>{pager}</div>
+      <div className='my-auto text-md text-right'>{resultText}</div>
     </div>
   )
 
@@ -101,17 +101,17 @@ export const Repositories: FunctionComponent = () => {
         setQuery(q)
         setPage(0)
       }} queryError={state.error} />
-      <div className="mt-12 flex flex-col gap-6">
+      <div className='mt-12 flex flex-col gap-6'>
         {pagerBar}
         {state.state === 'loading' ? (
-          <CircularProgress className="mx-auto" />
+          <CircularProgress className='mx-auto' />
         ) : state.state === 'success' ? state.res.map((r, i) => (
           <div key={i}>
-            <RepositoryCard repository={r}/>
+            <RepositoryCard repository={r} />
           </div>
         )) : <div>Error</div>}
         {pagerBar}
       </div>
     </div>
-  );
+  )
 }

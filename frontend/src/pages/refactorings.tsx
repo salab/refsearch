@@ -1,21 +1,13 @@
-import React, {FunctionComponent, useState} from 'react';
-import {
-  Checkbox,
-  CircularProgress,
-  Divider,
-  FormControl,
-  ListItemText,
-  MenuItem,
-  Select
-} from "@mui/material";
-import {RefactoringCard} from "../components/RefactoringCard.js";
-import {useParsedSearchParams, useSearchParamsEffect} from "../libs/params.js";
-import {useOrderButton} from "../components/OrderButton.js";
-import {useSearchField} from "../components/SearchField.js";
-import {RefactoringTypes} from "../../../common/common.js";
-import {RoundButton} from "../components/RoundButton.js";
-import {useGetRefactorings} from "../api/documents.js";
-import {usePager} from "../components/Pager.js";
+import React, { FunctionComponent, useState } from 'react'
+import { Checkbox, CircularProgress, Divider, FormControl, ListItemText, MenuItem, Select } from '@mui/material'
+import { RefactoringCard } from '../components/RefactoringCard.js'
+import { useParsedSearchParams, useSearchParamsEffect } from '../libs/params.js'
+import { useOrderButton } from '../components/OrderButton.js'
+import { useSearchField } from '../components/SearchField.js'
+import { RefactoringTypes } from '../../../common/common.js'
+import { RoundButton } from '../components/RoundButton.js'
+import { useGetRefactorings } from '../api/documents.js'
+import { usePager } from '../components/Pager.js'
 
 const examples: [query: string, tooltip: string][] = [
   // Use-case 1: 重複の処理が無いextract
@@ -37,10 +29,10 @@ interface RichFields {
   repository: string
 }
 
-const richFieldsToRaw = ({types, commit, repository}: RichFields): string => {
+const richFieldsToRaw = ({ types, commit, repository }: RichFields): string => {
   const conditions = []
   if (types.length > 0) {
-    const clause = types.map((t) => `type = "${t}"`).join(" | ")
+    const clause = types.map((t) => `type = "${t}"`).join(' | ')
     if (types.length === 1) conditions.push(clause)
     else conditions.push(`(${clause})`)
   }
@@ -49,7 +41,7 @@ const richFieldsToRaw = ({types, commit, repository}: RichFields): string => {
     else conditions.push(`sha1 ~ ^${commit}`) // commit startsWith
   }
   if (repository) conditions.push(`repository = ${repository}`)
-  return conditions.join(" & ")
+  return conditions.join(' & ')
 }
 
 interface Props {
@@ -59,13 +51,13 @@ interface Props {
   queryError: string
 }
 
-const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, queryError}) => {
+const SearchFields: FunctionComponent<Props> = ({ className, query, setQuery, queryError }) => {
   const [types, setTypes] = useState<string[]>([])
   const { setValue: setCommit, internal: commit, field: commitField } = useSearchField({
-    init: '', size: 'small', variant: 'outlined', onUpdate: (s) => updateFromRichField({ commit: s })
+    init: '', size: 'small', variant: 'outlined', onUpdate: (s) => updateFromRichField({ commit: s }),
   })
   const { setValue: setRepository, internal: repository, field: repoField } = useSearchField({
-    init: '', size: 'small', variant: 'outlined', onUpdate: (s) => updateFromRichField({ repository: s })
+    init: '', size: 'small', variant: 'outlined', onUpdate: (s) => updateFromRichField({ repository: s }),
   })
 
   const richFieldQuery = richFieldsToRaw({ types, commit, repository })
@@ -101,17 +93,17 @@ const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, que
   return (
     <div className={`${className} flex flex-col gap-4`}>
       {rawField}
-      <FormControl size="small">
-        <div className="flex flex-row flex-wrap grid-cols-2 gap-4">
-          <div className="flex flex-row gap-2">
-            <div className="flex-none my-auto">Type =</div>
+      <FormControl size='small'>
+        <div className='flex flex-row flex-wrap grid-cols-2 gap-4'>
+          <div className='flex flex-row gap-2'>
+            <div className='flex-none my-auto'>Type =</div>
             <Select
               multiple
               value={types}
               renderValue={(s) => s.length === 1 ? s[0] : s.length === 0 ? '' : `${s.length} selected`}
               onChange={(e) => {
                 const val = e.target.value
-                const types = typeof val === 'string' ? val.split(",") : val
+                const types = typeof val === 'string' ? val.split(',') : val
                 setTypes(types)
                 updateFromRichField({ types })
               }}
@@ -124,21 +116,21 @@ const SearchFields: FunctionComponent<Props> = ({className, query, setQuery, que
               ))}
             </Select>
           </div>
-          <div className="flex flex-row gap-2">
-            <div className="flex-none my-auto">Commit =</div>
+          <div className='flex flex-row gap-2'>
+            <div className='flex-none my-auto'>Commit =</div>
             {commitField}
           </div>
-          <div className="flex flex-row gap-2">
-            <div className="flex-none my-auto">Repository =</div>
+          <div className='flex flex-row gap-2'>
+            <div className='flex-none my-auto'>Repository =</div>
             {repoField}
           </div>
         </div>
       </FormControl>
       <Divider flexItem />
-      <div className="flex flex-row gap-4">
-        <div className="text-md my-auto text-gray-600">Examples</div>
+      <div className='flex flex-row gap-4'>
+        <div className='text-md my-auto text-gray-600'>Examples</div>
         {examples.map(([q, tooltip], i) => (
-          <RoundButton key={i} onClick={() => setFromExample(q)} tooltip={tooltip}>{i+1}</RoundButton>
+          <RoundButton key={i} onClick={() => setFromExample(q)} tooltip={tooltip}>{i + 1}</RoundButton>
         ))}
       </div>
       <Divider flexItem />
@@ -153,7 +145,7 @@ export const Refactorings: FunctionComponent = () => {
   const [query, setQuery] = useState<string>(params.q)
   const [page, setPage] = useState(params.page)
   const { value: sort, field: sortField } = useSearchField({
-    init: params.sort, placeholder: 'commit.date', variant: 'standard', label: 'Sort Field', shrink: true
+    init: params.sort, placeholder: 'commit.date', variant: 'standard', label: 'Sort Field', shrink: true,
   })
   const { order, button: orderButton } = useOrderButton(params.order || 'desc')
 
@@ -163,13 +155,13 @@ export const Refactorings: FunctionComponent = () => {
   const { pager, resultText } = usePager(page, setPage, state, perPage)
 
   const pagerBar = (
-    <div className="flex justify-between h-12">
-      <div className="my-auto text-md flex flex-row gap-2 content-center">
-        <div className="w-32">{sortField}</div>
-        <div className="text-gray-600 my-auto">{orderButton}</div>
+    <div className='flex justify-between h-12'>
+      <div className='my-auto text-md flex flex-row gap-2 content-center'>
+        <div className='w-32'>{sortField}</div>
+        <div className='text-gray-600 my-auto'>{orderButton}</div>
       </div>
-      <div className="m-auto">{pager}</div>
-      <div className="my-auto text-md text-right">{resultText}</div>
+      <div className='m-auto'>{pager}</div>
+      <div className='my-auto text-md text-right'>{resultText}</div>
     </div>
   )
 
@@ -179,17 +171,17 @@ export const Refactorings: FunctionComponent = () => {
         setQuery(q)
         setPage(0)
       }} queryError={state.error} />
-      <div className="mt-12 flex flex-col gap-6">
+      <div className='mt-12 flex flex-col gap-6'>
         {pagerBar}
         {state.state === 'loading' ? (
-          <CircularProgress className="mx-auto" />
+          <CircularProgress className='mx-auto' />
         ) : state.state === 'success' ? state.res.map((ref, i) => (
           <div key={i}>
-            <RefactoringCard refactoring={ref}/>
+            <RefactoringCard refactoring={ref} />
           </div>
         )) : <div>Error</div>}
         {pagerBar}
       </div>
     </div>
-  );
+  )
 }

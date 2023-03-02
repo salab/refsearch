@@ -1,5 +1,5 @@
-import {useEffect, useState} from "react";
-import {unreachable} from "../../../common/utils.js";
+import { useEffect, useState } from 'react'
+import { unreachable } from '../../../common/utils.js'
 
 type GetDocumentResponseList<T> = {
   status: 200,
@@ -21,7 +21,7 @@ export const getDocument = async <T>(basePath: string, id: string): Promise<GetD
   const resp = await fetch(`${basePath}/${encodeURIComponent(id)}`)
   return {
     status: resp.status as GetDocumentResponseList<T>['status'],
-    resp: await resp.json()
+    resp: await resp.json(),
   }
 }
 
@@ -70,7 +70,9 @@ export const useGetDocument = <T>(basePath: string, id: string): FetchState<T> =
         }
       })
 
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [basePath, id])
 
   return state

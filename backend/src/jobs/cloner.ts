@@ -1,7 +1,7 @@
-import {repoDirName, repositoriesDir} from "./info.js";
-import fs from "fs";
-import simpleGit, {ResetMode} from "simple-git";
-import {JobWithId} from "../jobs.js";
+import { repoDirName, repositoriesDir } from './info.js'
+import fs from 'fs'
+import simpleGit, { ResetMode } from 'simple-git'
+import { JobWithId } from '../jobs.js'
 
 export const cloneRepository = async ({ data }: JobWithId): Promise<void> => {
   const repoUrl = data.repoUrl
