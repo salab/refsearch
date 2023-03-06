@@ -93,9 +93,14 @@ export const RMRefactoringTypes = {
   MergeClass: 'Merge Class',
   InlineAttribute: 'Inline Attribute',
   ReplacePipelineWithLoop: 'Replace Pipeline with Loop',
-  // supported by RefactoringMiner 2.3.2
+  // supported by RefactoringMiner 2.4 and newer versions
   SplitClass: 'Split Class',
   SplitConditional: 'Split Conditional',
+  InvertCondition: 'Invert Condition',
+  MergeConditional: 'Merge Conditional',
+  MergeCatch: 'Merge Catch',
+  MergeMethod: 'Merge Method',
+  SplitMethod: 'Split Method',
 } as const
 
 export enum RMCodeElementType {

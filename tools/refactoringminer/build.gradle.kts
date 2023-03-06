@@ -23,7 +23,7 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
     implementation("com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
 
-    val rminerVersion = "2.3.2"
+    val rminerVersion = "2.4.0"
     implementation("com.github.tsantalis:refactoring-miner:${rminerVersion}")
     implementation("org.eclipse.jgit:org.eclipse.jgit:5.13.1.202206130422-r")
 }
