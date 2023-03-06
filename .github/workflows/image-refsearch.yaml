@@ -28,7 +28,7 @@ jobs:
           push: true
           file: ./backend.Dockerfile
           target: api-runner
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           tags: ghcr.io/salab/refsearch-backend:master
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -55,7 +55,7 @@ jobs:
           push: true
           file: ./backend.Dockerfile
           target: job-runner
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           tags: ghcr.io/salab/refsearch-runner:master
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -81,7 +81,7 @@ jobs:
           context: .
           push: true
           file: ./frontend.Dockerfile
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           tags: ghcr.io/salab/refsearch-frontend:master
           cache-from: type=gha
           cache-to: type=gha,mode=max
