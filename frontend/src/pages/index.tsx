@@ -7,7 +7,7 @@ import { Tooltip } from '@mui/material'
 const examples: [query: string, desc: string][] = [
   ['description ~ /extract/i', 'Contains \'extract\' in description (case-insensitive)'],
   ['type = "Extract Method"', 'Type is "Extract Method" (exact match)'],
-  ['type ~ ^Extract', 'Type begins with "Extract"'],
+  ['type ~ /^Extract/', 'Type begins with "Extract"'],
   ['extractMethod.sourceMethodsCount >= 2', '\'extractMethod.sourceMethodsCount\' field is greater than 1 (Removed duplicated code)'],
 ]
 
