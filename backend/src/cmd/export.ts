@@ -27,8 +27,7 @@ const main = async () => {
   console.log(`Read ${exportFormat.length} entries from cache, exporting`)
 
   fs.writeFileSync(filename, JSON.stringify(exportFormat))
-
-  process.exit(0)
 }
 
 main()
+  .then(() => process.exit(0))
