@@ -27,7 +27,7 @@ Example:
 To actually load formatted data and to search refactorings,
 enqueue jobs from UI after importing raw data.
 
-### Export raw data per repository per tool via CLI
+### Export raw data (per repository) via CLI
  
 `$ node export.js path/to/data.json [repo-url]`
 
