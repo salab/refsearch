@@ -28,7 +28,7 @@ const main = async () => {
     throw new Error('failed to insert data')
   }
 
-  console.log(`Inserted ${res.insertedCount}, modified ${res.modifiedCount} documents.`)
+  console.log(`Inserted ${res.insertedCount}, modified ${res.modifiedCount} documents, import raw data complete.`)
 }
 
 main()

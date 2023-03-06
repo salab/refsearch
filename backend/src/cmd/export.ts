@@ -18,15 +18,16 @@ const main = async () => {
   ))
   console.log(`Reading ${commits.length} commits for ${repoUrl ? `repository ${repoUrl}` : 'all repositories'}...`)
 
-  const exportFormat: ExportFormat = []
-  for (const commit of commits) {
-    const toolData = await toolRawDataCol.findOne({ commit: commit._id })
-    if (!toolData) continue
-    exportFormat.push({ sha1: commit._id, tool: toolData.tool, refactorings: toolData.data })
-  }
+  const toolRawData = await readAllFromCursor(toolRawDataCol.find({
+    commit: { $in: commits.map((c) => c._id) }
+  }))
+  const exportFormat: ExportFormat = toolRawData.map((d) => ({ sha1: d.commit, tool: d.tool, refactorings: d.data }))
   console.log(`Read ${exportFormat.length} entries from cache, exporting`)
 
-  fs.writeFileSync(filename, JSON.stringify(exportFormat))
+  const encodedFile = JSON.stringify(exportFormat)
+  console.log(`Writing ${encodedFile.length} bytes to file ${filename}`)
+  fs.writeFileSync(filename, encodedFile)
+  console.log('Export complete.')
 }
 
 main()
