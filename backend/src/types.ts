@@ -6,6 +6,7 @@ export interface ToolRawData {
 
 export interface ExportCommit {
   sha1: string
+  tool: string
   refactorings: any[]
 }
 
