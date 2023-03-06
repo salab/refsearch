@@ -4,6 +4,7 @@ services:
   frontend:
     container_name: rs-frontend
     restart: always
+    image: ghcr.io/salab/refsearch-frontend:master
     build:
      context: .
      dockerfile: ./frontend.Dockerfile
@@ -16,6 +17,7 @@ services:
   backend:
     container_name: rs-backend
     restart: always
+    image: ghcr.io/salab/refsearch-backend:master
     build:
       context: .
       dockerfile: ./backend.Dockerfile
@@ -50,6 +52,7 @@ services:
   rminer:
     container_name: rs-rminer
     restart: always
+    image: ghcr.io/salab/refsearch-rminer:master
     build:
       context: ./tools/refactoringminer
     command: ["serve", "--port", "3000"]
@@ -61,6 +64,7 @@ services:
   refdiff:
     container_name: rs-refdiff
     restart: always
+    image: ghcr.io/salab/refsearch-refdiff:master
     build:
       context: ./tools/refdiff
     command: ["serve", "--port", "3000"]
@@ -72,6 +76,7 @@ services:
   runner1:
     container_name: rs-runner-1
     restart: always
+    image: ghcr.io/salab/refsearch-runner:master
     build:
       context: .
       dockerfile: ./backend.Dockerfile
@@ -95,6 +100,7 @@ services:
   runner2:
     container_name: rs-runner-2
     restart: always
+    image: ghcr.io/salab/refsearch-runner:master
     build:
       context: .
       dockerfile: ./backend.Dockerfile
@@ -118,6 +124,7 @@ services:
   runner3:
     container_name: rs-runner-3
     restart: always
+    image: ghcr.io/salab/refsearch-runner:master
     build:
       context: .
       dockerfile: ./backend.Dockerfile
@@ -141,6 +148,7 @@ services:
   runner4:
     container_name: rs-runner-4
     restart: always
+    image: ghcr.io/salab/refsearch-runner:master
     build:
       context: .
       dockerfile: ./backend.Dockerfile
