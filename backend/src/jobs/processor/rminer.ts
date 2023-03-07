@@ -18,8 +18,13 @@ type C = Omit<RMCommit, 'refactorings'> & {
   refactorings: R[]
 }
 
+const extractMethodSource = (r: R): CodeElementInfo | undefined => {
+  const elt = r.after['source_method_declaration_before_extraction']
+  if (!elt || Array.isArray(elt)) return undefined
+  return elt
+}
 const extractedMethod = (r: R): CodeElementInfo | undefined => {
-  const elt = r.after['extracted method declaration']
+  const elt = r.after['extracted_method_declaration']
   if (!elt || Array.isArray(elt)) return undefined
   return elt
 }
@@ -36,16 +41,8 @@ const extractSourceMethodsCount = (extractedMethods: CodeElementInfo[], r: R): n
   return extractedMethods.filter((m) => equal(m, method)).length
 }
 
-const extractMethodSourceMethodLines = (r: R): number => {
-  const elt = r.before['source method declaration before extraction']
-  if (!elt || Array.isArray(elt)) return -1
-  return elt.lines
-}
-const extractMethodExtractedLines = (r: R): number => {
-  const elt = r.after['extracted method declaration']
-  if (!elt || Array.isArray(elt)) return -1
-  return elt.lines
-}
+const extractMethodSourceMethodLines = (r: R): number => extractMethodSource(r)?.lines ?? -1
+const extractMethodExtractedLines = (r: R): number => extractedMethod(r)?.lines ?? -1
 
 const extractRenameRe: Partial<Record<RMRefactoringType, RegExp>> = {
   'Rename Method': /^Rename Method (?:[^ ]+ )?(.+?)\(.*?\)(?: : .+?)? renamed to (?:[^ ]+ )?(.+?)\(.*?\)(?: : .+?)? in .+?$/,
