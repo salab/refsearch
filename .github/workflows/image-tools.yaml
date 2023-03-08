@@ -32,6 +32,15 @@ jobs:
           tags: ghcr.io/salab/refsearch-rminer:master
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: Delete all containers from package without tags
+        uses: Chizkiyahu/delete-untagged-ghcr-action@v2
+        with:
+          token: ${{ secrets.PAT }}
+          repository_owner: ${{ github.repository_owner }}
+          repository: ${{ github.repository }}
+          package_name: refsearch-rminer
+          untagged_only: true
+          owner_type: org
 
   refdiff:
     name: Build RefDiff
@@ -57,3 +66,12 @@ jobs:
           tags: ghcr.io/salab/refsearch-refdiff:master
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: Delete all containers from package without tags
+        uses: Chizkiyahu/delete-untagged-ghcr-action@v2
+        with:
+          token: ${{ secrets.PAT }}
+          repository_owner: ${{ github.repository_owner }}
+          repository: ${{ github.repository }}
+          package_name: refsearch-refdiff
+          untagged_only: true
+          owner_type: org
