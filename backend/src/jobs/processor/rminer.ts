@@ -19,7 +19,7 @@ type C = Omit<RMCommit, 'refactorings'> & {
 }
 
 const extractMethodSource = (r: R): CodeElementInfo | undefined => {
-  const elt = r.after['source_method_declaration_before_extraction']
+  const elt = r.before['source_method_declaration_before_extraction']
   if (!elt || Array.isArray(elt)) return undefined
   return elt
 }
