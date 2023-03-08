@@ -9,6 +9,7 @@ RUN gradle build --no-daemon || return 0
 COPY . .
 RUN gradle jar --no-daemon
 
+
 FROM amazoncorretto:17 AS runner
 
 WORKDIR /work

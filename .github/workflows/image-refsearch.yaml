@@ -32,15 +32,6 @@ jobs:
           tags: ghcr.io/salab/refsearch-backend:master
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - name: Delete all containers from package without tags
-        uses: Chizkiyahu/delete-untagged-ghcr-action@v2
-        with:
-          token: ${{ secrets.PAT }}
-          repository_owner: ${{ github.repository_owner }}
-          repository: ${{ github.repository }}
-          package_name: refsearch-backend
-          untagged_only: true
-          owner_type: org
 
   refsearch-runner:
     name: Build RS runner
@@ -68,15 +59,6 @@ jobs:
           tags: ghcr.io/salab/refsearch-runner:master
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - name: Delete all containers from package without tags
-        uses: Chizkiyahu/delete-untagged-ghcr-action@v2
-        with:
-          token: ${{ secrets.PAT }}
-          repository_owner: ${{ github.repository_owner }}
-          repository: ${{ github.repository }}
-          package_name: refsearch-runner
-          untagged_only: true
-          owner_type: org
 
   refsearch-frontend:
     name: Build RS frontend
@@ -103,12 +85,3 @@ jobs:
           tags: ghcr.io/salab/refsearch-frontend:master
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - name: Delete all containers from package without tags
-        uses: Chizkiyahu/delete-untagged-ghcr-action@v2
-        with:
-          token: ${{ secrets.PAT }}
-          repository_owner: ${{ github.repository_owner }}
-          repository: ${{ github.repository }}
-          package_name: refsearch-frontend
-          untagged_only: true
-          owner_type: org
