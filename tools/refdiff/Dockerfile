@@ -10,7 +10,7 @@ COPY . .
 RUN gradle jar --no-daemon
 
 
-FROM amazoncorretto:17 AS runner
+FROM amazoncorretto:20 AS runner
 
 WORKDIR /work
 
