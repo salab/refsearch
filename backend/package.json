@@ -6,8 +6,7 @@
   "type": "module",
   "scripts": {
     "compile": "tsc",
-    "start": "node --loader ts-node/esm",
-    "test": "jest"
+    "start": "node --loader ts-node/esm"
   },
   "author": "",
   "license": "ISC",
