@@ -42,10 +42,9 @@ const findJobData = async (pipelineId: string): Promise<JobData | null> => {
   return jobDataCol.findOne({ _id: pipelineId })
 }
 
-const findNextJob = async (): Promise<JobWithId | undefined> => {
+const reservedNextJob = async (): Promise<JobWithId | undefined> => {
+  // Find already reserved / running jobs (in case this job runner has restarted)
   const order: [keyof Job, 'asc' | 'desc'][] = [['queuedAt', 'asc']]
-
-  // Find already running jobs (in case this job runner has restarted)
   const reserved = await readAllFromCursor(
     jobCol.find({ status: { $in: [JobStatus.Ready, JobStatus.Running] }, runnerId: config.runnerId }, { sort: order }),
   )
@@ -53,14 +52,21 @@ const findNextJob = async (): Promise<JobWithId | undefined> => {
   if (running) return running
   const ready = reserved.find((j) => j.status === JobStatus.Ready)
   if (ready) return ready
+  return undefined
+}
 
-  // Atomically find and reserve next job
-  const next = await jobCol.findOneAndUpdate({
-    status: JobStatus.Ready,
-    runnerId: { $exists: false },
-  }, { '$set': { runnerId: config.runnerId } })
-  if (next.ok && next.value) {
-    return next.value
+const findNextJob = async (): Promise<JobWithId | undefined> => {
+  const reserved = await reservedNextJob()
+  if (reserved) {
+    return reserved
+  }
+
+  // Atomically find and reserve next pipeline
+  const next = await jobDataCol.findOneAndUpdate({
+    runnerId: { $exists: false }
+  }, { $set: { runnerId: config.runnerId } })
+  if (next.ok) {
+    return reservedNextJob()
   }
 
   return undefined

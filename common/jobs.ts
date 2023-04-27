@@ -32,6 +32,7 @@ export type JobCommit = JobCommitOne | JobCommitRange | JobCommitAll
 
 export interface JobData {
   _id: string // pipeline id
+  runnerId?: string
   repoUrl: string
   commits: JobCommit
   retryFailed: boolean
@@ -40,7 +41,6 @@ export interface JobData {
 export interface Job {
   pipeline: string
   skip: boolean
-  runnerId?: string
   type: JobType
   status: JobStatus
   dependsOn: JobType[]
