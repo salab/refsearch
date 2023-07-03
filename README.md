@@ -378,10 +378,117 @@ However, granularity of RefDiff "types" are modified by RefSearch processor to m
 e.g. RefDiff detects `type: "EXTRACT", node.type: "Method"` -> Processed and can be searched as `type = "Extract Method"`
 
 <details>
-<summary>All (TODO: #n) supported refactoring types in RefSearch</summary>
+<summary>All 109 supported refactoring types in RefSearch</summary>
 
 - Extract Method
-- ...
+- Inline Method
+- Rename Method
+- Move Method
+- Move Attribute
+- Pull Up Method
+- Pull Up Attribute
+- Push Down Method
+- Push Down Attribute
+- Extract Superclass
+- Extract Interface
+- Move Class
+- Rename Class
+- Extract and Move Method
+- Rename Package
+- Move and Rename Class
+- Extract Class
+- Extract Subclass
+- Extract Variable
+- Inline Variable
+- Parameterize Variable
+- Rename Variable
+- Rename Parameter
+- Rename Attribute
+- Move and Rename Attribute
+- Replace Variable with Attribute
+- Replace Attribute
+- Merge Variable
+- Merge Parameter
+- Merge Attribute
+- Split Variable
+- Split Parameter
+- Split Attribute
+- Change Variable Type
+- Change Parameter Type
+- Change Return Type
+- Change Attribute Type
+- Extract Attribute
+- Move and Rename Method
+- Move and Inline Method
+- Add Method Annotation
+- Remove Method Annotation
+- Modify Method Annotation
+- Add Attribute Annotation
+- Remove Attribute Annotation
+- Modify Attribute Annotation
+- Add Class Annotation
+- Remove Class Annotation
+- Modify Class Annotation
+- Add Parameter Annotation
+- Remove Parameter Annotation
+- Modify Parameter Annotation
+- Add Variable Annotation
+- Remove Variable Annotation
+- Modify Variable Annotation
+- Add Parameter
+- Remove Parameter
+- Reorder Parameter
+- Add Thrown Exception Type
+- Remove Thrown Exception Type
+- Change Thrown Exception Type
+- Change Method Access Modifier
+- Change Attribute Access Modifier
+- Encapsulate Attribute
+- Parameterize Attribute
+- Replace Attribute with Variable
+- Add Method Modifier
+- Remove Method Modifier
+- Add Attribute Modifier
+- Remove Attribute Modifier
+- Add Variable Modifier
+- Add Parameter Modifier
+- Remove Variable Modifier
+- Remove Parameter Modifier
+- Change Class Access Modifier
+- Add Class Modifier
+- Remove Class Modifier
+- Move Package
+- Split Package
+- Merge Package
+- Localize Parameter
+- Change Type Declaration Kind
+- Collapse Hierarchy
+- Replace Loop with Pipeline
+- Replace Anonymous with Lambda
+- Merge Class
+- Inline Attribute
+- Replace Pipeline with Loop
+- Split Class
+- Split Conditional
+- Invert Condition
+- Merge Conditional
+- Merge Catch
+- Merge Method
+- Split Method
+- Convert Type
+- Change Signature
+- Pull Up Signature
+- Push Down Impl
+- Rename Interface
+- Rename Enum
+- Move Interface
+- Move Enum
+- Move and Rename Interface
+- Move and Rename Enum
+- Extract Enum
+- Extract and Move Class
+- Extract and Move Interface
+- Extract and Move Enum
 
 </details>
 
