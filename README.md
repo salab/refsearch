@@ -19,7 +19,7 @@ From the "jobs" page, submit URL of the repository from which you want to detect
 
 e.g. `https://github.com/gradle/gradle`
 
-(TODO: image)
+<img src='./docs/images/jobs.png' width='500'>
 
 Once submitted, RefSearch runners will automatically pick the jobs up (wait 1 minute at max),
 and start detecting refactorings using RefactoringMiner and RefDiff.
@@ -29,7 +29,7 @@ Therefore, only refactorings in Java language are recognized.
 
 View all detected refactoring instances from the "refactorings" page.
 
-(TODO: image)
+<img src='./docs/images/refactorings.png' width='500'>
 
 You can search refactorings by:
 
@@ -143,7 +143,7 @@ Some fields may differ from refactorings detected by RefactoringMiner.
 
 View refactorings detected in one commit, by clicking "view commit" button in refactoring details page.
 
-(TODO: image)
+<img src='./docs/images/details-to-commit.png' width='300'>
 
 Alternatively, you can directly search commits instead of refactorings, from the "commits" page.
 The same query syntax can be used against commits metadata.
@@ -204,8 +204,6 @@ The same query syntax can be used against commits metadata.
 ### View Repository Metadata
 
 View registered repository and its refactorings count from "repository" page.
-
-(TODO: image)
 
 <details>
 <summary>Example of Repository Metadata</summary>
