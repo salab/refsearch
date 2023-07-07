@@ -2,6 +2,10 @@
 
 Playground: https://refsearch.toki317.dev/
 
+## Demonstration Video
+
+[![demonstration video](http://img.youtube.com/vi/zIZZtLyrK5I/sddefault.jpg)](https://www.youtube.com/watch?v=zIZZtLyrK5I)
+
 ## Setup
 
 Requires docker and docker compose v2.
