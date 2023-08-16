@@ -6,14 +6,28 @@ Playground: https://refsearch.toki317.dev/
 
 [![demonstration video](http://img.youtube.com/vi/zIZZtLyrK5I/sddefault.jpg)](https://www.youtube.com/watch?v=zIZZtLyrK5I)
 
-## Setup
+## Installation
 
-Requires docker and docker compose v2.
+### Requirements
 
-- `make up` to launch the app
-- `make down` to tear down the app
+- Any linux distribution
+  - Confirmed working at Ubuntu 22.04.3 LTS
+- docker
+  - Confirmed working at 24.0.5
+- docker compose plugin v2
+  - Confirmed working at v2.20.2
+- make (optional)
 
-Go to http://localhost:8080/ to view the app.
+### Setup
+
+1. Launch the app
+   - `make up`
+   - or equivalently, `docker compose --compatibility up -d --build`
+2. Go to http://localhost:8080/ to view the app.
+   - See "Usage" below for how to use the app.
+3. Stop the app
+   - `make down`
+   - or equivalently, `docker compose down`
 
 ## Usage
 
