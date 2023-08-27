@@ -1,4 +1,4 @@
-import { jobCol, jobDataCol } from '../mongo.js'
+import { jobCol, jobDataCol, jobWithData } from '../mongo.js'
 import { makeMissingDirs } from '../jobs/info.js'
 import { formatTime } from '../../../common/utils.js'
 import { readAllFromCursor, sleep } from '../utils.js'
@@ -46,7 +46,7 @@ const reservedNextJob = async (): Promise<JobWithId | undefined> => {
   // Find already reserved / running jobs (in case this job runner has restarted)
   const order: [keyof Job, 'asc' | 'desc'][] = [['queuedAt', 'asc']]
   const reserved = await readAllFromCursor(
-    jobCol.find({ status: { $in: [JobStatus.Ready, JobStatus.Running] }, runnerId: config.runnerId }, { sort: order }),
+    jobWithData.find({ status: { $in: [JobStatus.Ready, JobStatus.Running] }, 'data.runnerId': config.runnerId }, { sort: order }),
   )
   const running = reserved.find((j) => j.status === JobStatus.Running)
   if (running) return running
