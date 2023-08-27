@@ -99,7 +99,7 @@ const createMissingIndexes = async () => {
   await createIndexes(refCol, [
     [[['type', 1]], { name: 'idx_type' }],
     [[['sha1', 1]], { name: 'idx_sha1' }],
-    [[['commit.hash', 1]], { name: 'idx_commit_hash' }],
+    [[['commit.sha1', 1]], { name: 'idx_commit_sha1' }],
     [[['commit.date', 1]], { name: 'idx_commit_date' }],
   ])
   await createIndexes(toolRawDataCol, [

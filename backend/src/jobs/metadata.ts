@@ -97,7 +97,7 @@ export const storeCommitsMetadata = async (job: JobWithId, jobData: JobData): Pr
     .map((e): CommitMeta => ({
       _id: e.hash,
 
-      hash: e.hash,
+      sha1: e.hash,
       date: new Date(e.date),
       message: e.message,
       refs: e.refs,

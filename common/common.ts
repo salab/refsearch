@@ -32,7 +32,7 @@ export interface RenameInfo {
 }
 
 export const commitPlaceholder = (): RefactoringMeta['commit'] => ({
-  hash: '',
+  sha1: '',
   date: new Date(),
   message: '',
   refs: '',
@@ -86,9 +86,9 @@ export enum CommitProcessState {
 }
 
 export interface CommitMeta {
-  _id: string // same as hash
+  _id: string // same as sha1
 
-  hash: string
+  sha1: string
   date: Date
   message: string
   refs: string
