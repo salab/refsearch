@@ -15,10 +15,10 @@ import { JobWithId } from '../jobs.js'
 import { Filter } from 'mongodb'
 import { JobData } from '../../../common/jobs.js'
 
-type RefTypeMeta = Pick<RefactoringMeta, 'sha1' | 'type' | 'meta'>
+type RefTypeMeta = Pick<RefactoringMeta, 'type' | 'meta'>
 const refactoringCount = async (filter: Filter<RefactoringMeta>): Promise<RefactoringsCount> => {
   const typeMetas = await readAllFromCursor(
-    refCol.find(filter, { projection: { sha1: 1, type: 1, meta: 1 } }),
+    refCol.find(filter, { projection: { type: 1, meta: 1 } }),
   ) as RefTypeMeta[]
   const countPerType = typeMetas.reduce((acc, r) => {
     acc[r.type] ??= 0
@@ -97,6 +97,7 @@ export const storeCommitsMetadata = async (job: JobWithId, jobData: JobData): Pr
     .map((e): CommitMeta => ({
       _id: e.hash,
 
+      hash: e.hash,
       date: new Date(e.date),
       message: e.message,
       refs: e.refs,
@@ -136,7 +137,7 @@ export const mergeCommitMetadata = async (commit: string): Promise<void> => {
     { $match: { sha1: commit } },
     { $lookup: { from: 'commits', localField: 'sha1', foreignField: '_id', as: 'commit' } },
     { $unwind: '$commit' },
-    { $project: { commit: { _id: 0, hash: 0, repository: 0 } } },
+    { $project: { commit: { _id: 0, repository: 0 } } },
     { $merge: { into: 'refactorings', on: '_id', whenMatched: 'replace', whenNotMatched: 'fail' } },
   ])
   await cursor.forEach(() => {

@@ -32,6 +32,7 @@ export interface RenameInfo {
 }
 
 export const commitPlaceholder = (): RefactoringMeta['commit'] => ({
+  hash: '',
   date: new Date(),
   message: '',
   refs: '',
@@ -58,7 +59,7 @@ export type RefactoringMeta = {
   meta: {
     tool?: string
   }
-  commit: Omit<CommitMeta, '_id' | 'hash' | 'repository'> // Merged from commits collection on insert
+  commit: Omit<CommitMeta, '_id' | 'repository'> // Merged from commits collection on insert
 } & Partial<OptionalRefactoringMeta>
 
 export type RefactoringWithId = { _id: string } & RefactoringMeta
@@ -85,8 +86,9 @@ export enum CommitProcessState {
 }
 
 export interface CommitMeta {
-  _id: string // hash
+  _id: string // same as hash
 
+  hash: string
   date: Date
   message: string
   refs: string

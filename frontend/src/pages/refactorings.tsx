@@ -38,7 +38,7 @@ const richFieldsToRaw = ({ types, commit, repository }: RichFields): string => {
   }
   if (commit) {
     if (commit.length === 40) conditions.push(`commit.hash = ${commit}`)
-    else conditions.push(`sha1 ~ ^${commit}`) // commit startsWith
+    else conditions.push(`commit.hash ~ ^${commit}`) // commit startsWith
   }
   if (repository) conditions.push(`repository = ${repository}`)
   return conditions.join(' & ')
