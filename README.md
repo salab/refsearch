@@ -546,3 +546,21 @@ export interface RenameInfo {
   to: string
 }
 ```
+
+## Related Publications
+
+If you use or mention this tool in a scientific publication, we would appreciate citations to the following paper:
+
+Motoki Abe and Shinpei Hayashi, "RefSearch: A Search Engine for Refactoring," in Proceedings of the 39th IEEE International Conference on Software Maintenance and Evolution (ICSME 2023), pp. TBD, Bogotá, Colombia, 2023, doi: TBD.
+Preprint: https://arxiv.org/abs/2308.14273
+
+```
+@inproceedings{toki-icsme2023,
+  author = {Motoki Abe and Shinpei Hayashi},
+  booktitle = {Proceedings of the 39th IEEE International Conference on Software Maintenance and Evolution (ICSME 2023)},
+  title = {{RefSearch}: {A} Search Engine for Refactoring}, 
+  year = {2023},
+  pages = {TBD},
+  doi = {TBD}
+}
+```
