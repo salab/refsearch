@@ -3,7 +3,11 @@ import { commitsCol } from '../mongo.js'
 import { readAllFromCursor } from '../utils.js'
 import { processRMiner, rminerToolName } from './runner/rminer.js'
 import { processRefDiff, refDiffToolName } from './runner/refdiff.js'
-import { mergeCommitMetadata, updateCommitMetadata } from './metadata.js'
+import {
+  mergeCommitMetadataIntoRefactorings,
+  updateCommitRefactoringMetadata,
+  updateCommitToolsMetadata,
+} from './metadata.js'
 import { formatTime } from '../../../common/utils.js'
 import { CommitProcessState } from '../../../common/common.js'
 import { JobData } from '../../../common/jobs'
@@ -35,8 +39,9 @@ const processCommit = async (repoUrl: string, commitId: CommitId, tools: Record<
     }
   }
 
-  await updateCommitMetadata(commitId, newTools)
-  await mergeCommitMetadata(commitId)
+  await updateCommitRefactoringMetadata(commitId)
+  await updateCommitToolsMetadata(commitId, newTools)
+  await mergeCommitMetadataIntoRefactorings(commitId)
 }
 
 export const processCommits = async (job: JobWithId, jobData: JobData) => {

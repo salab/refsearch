@@ -54,7 +54,7 @@ export const searchRequestHandler = <T extends Document>(collection: Collection<
 
 export const retrieveDocumentHandler = <T extends Document>(collection: Collection<T>) =>
   async (req: Request, res: Response) => {
-    let id: ObjectId | string = req.params.id
+    let id: ObjectId | string = req.params.id // id may NOT be in ObjectId format (commits, repositories collection)
     try {
       id = new ObjectId(id)
     } catch (e) {
@@ -67,4 +67,17 @@ export const retrieveDocumentHandler = <T extends Document>(collection: Collecti
       })
     }
     return res.status(200).json(ref)
+  }
+
+export const deleteDocumentHandler = (handle: (id: string) => Promise<void>) =>
+  async (req: Request, res: Response) => {
+    try {
+      await handle(req.params.id)
+    } catch (e) {
+      console.trace(e)
+      return res.status(500).json({
+        message: 'Internal error',
+      })
+    }
+    return res.status(204).send()
   }

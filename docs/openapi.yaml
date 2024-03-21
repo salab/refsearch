@@ -17,6 +17,8 @@ tags:
     description: Commit metadata
   - name: repository
     description: Repository metadata
+  - name: tool-caches
+    description: Tool caches
   - name: job
     description: Job management
 
@@ -65,6 +67,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Refactoring'
+    delete:
+      tags:
+        - refactoring
+      summary: Delete refactoring
+      description: Delete refactoring instance data
+      operationId: deleteRefactoring
+      parameters:
+        - name: id
+          in: path
+          description: Refactoring ID
+          required: true
+          schema:
+            type: string
+            example: '65fba2c1d6825d43afe279b7'
+      responses:
+        '204':
+          description: Success
 
   /commits:
     get:
@@ -98,7 +117,7 @@ paths:
       parameters:
         - name: id
           in: path
-          description: commit ID (SHA1 hash)
+          description: Commit ID (SHA1 hash)
           required: true
           schema:
             type: string
@@ -110,6 +129,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Commit'
+    delete:
+      tags:
+        - commit
+      summary: Delete commit
+      description: Delete commit and its related refactorings
+      operationId: deleteCommit
+      parameters:
+        - name: id
+          in: path
+          description: Commit ID (SHA1 hash)
+          required: true
+          schema:
+            type: string
+            example: '43c588ac39b0eafa27867955795575f513bcb3f0'
+      responses:
+        '204':
+          description: Success
 
   /repositories:
     get:
@@ -143,7 +179,7 @@ paths:
       parameters:
         - name: id
           in: path
-          description: repository ID (URL) (URL path encoded)
+          description: Repository ID (URL) (URL path encoded)
           required: true
           schema:
             type: string
@@ -154,7 +190,82 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Commit'
+                $ref: '#/components/schemas/Repository'
+    delete:
+      tags:
+        - repository
+      summary: Delete repository
+      description: Delete repository and its related refactorings
+      operationId: deleteRepository
+      parameters:
+        - name: id
+          in: path
+          description: Repository ID (URL) (URL path encoded)
+          required: true
+          schema:
+            type: string
+            example: 'https://github.com/gradle/gradle'
+      responses:
+        '204':
+          description: Success
+
+  /tool-caches:
+    get:
+      tags:
+        - tool-caches
+      summary: Search tool caches
+      description: Search for tool caches
+      operationId: getToolCaches
+      parameters:
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+        - $ref: '#/components/parameters/OffsetQuery'
+        - $ref: '#/components/parameters/SortQuery'
+        - $ref: '#/components/parameters/OrderQuery'
+      responses:
+        '200':
+          description: Search succeeded
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchRepositoryResponse'
+    post:
+      tags:
+        - tool-caches
+      summary: Import tool caches
+      description: Import tool caches
+      operationId: importToolCaches
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ToolCache'
+      responses:
+        '200':
+          description: Import success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: 'Inserted 2 document(s)'
+    delete:
+      tags:
+        - tool-caches
+      summary: Delete all tool caches
+      description: Delete all detector tool caches
+      operationId: deleteToolCaches
+      responses:
+        '204':
+          description: Success
 
   /jobs:
     get:
@@ -348,6 +459,18 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Repository'
+        total:
+          $ref: '#/components/schemas/SearchResultMeta'
+    SearchToolCacheResponse:
+      type: object
+      required:
+        - result
+        - total
+      properties:
+        result:
+          type: array
+          items:
+            $ref: '#/components/schemas/ToolCache'
         total:
           $ref: '#/components/schemas/SearchResultMeta'
     SearchJobResponse:
@@ -586,6 +709,30 @@ components:
           example: '95403'
         refactorings:
           $ref: '#/components/schemas/RefactoringsCount'
+
+    ToolCache:
+      type: object
+      description: Tool cache data
+      required:
+        - commit
+        - tool
+        - data
+      properties:
+        _id:
+          type: string
+          description: Tool cache ID
+          example: '65fba1b6f35453208723de17'
+        commit:
+          type: string
+          description: Commit SHA1 hash
+          example: '6dc3fe36a9528389012e6eac9e90aeb30f300d33'
+        tool:
+          type: string
+          description: Tool name
+          example: 'RefDiff'
+        data:
+          type: object
+          description: Tool raw data
 
     Job:
       type: object

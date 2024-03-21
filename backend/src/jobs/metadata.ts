@@ -127,12 +127,16 @@ export const storeCommitsMetadata = async (job: JobWithId, jobData: JobData): Pr
   }
 }
 
-export const updateCommitMetadata = async (commit: string, tools: Record<string, CommitProcessState>): Promise<void> => {
+export const updateCommitRefactoringMetadata = async (commit: string): Promise<void> => {
   const refactorings = await refactoringCount({ sha1: commit })
-  await commitsCol.updateOne({ _id: commit }, { $set: { refactorings: refactorings, tools: tools } })
+  await commitsCol.updateOne({ _id: commit }, { $set: { refactorings: refactorings } })
 }
 
-export const mergeCommitMetadata = async (commit: string): Promise<void> => {
+export const updateCommitToolsMetadata = async (commit: string, tools: Record<string, CommitProcessState>): Promise<void> => {
+  await commitsCol.updateOne({ _id: commit }, { $set: { tools: tools } })
+}
+
+export const mergeCommitMetadataIntoRefactorings = async (commit: string): Promise<void> => {
   const cursor = refCol.aggregate([
     { $match: { sha1: commit } },
     { $lookup: { from: 'commits', localField: 'sha1', foreignField: '_id', as: 'commit' } },
