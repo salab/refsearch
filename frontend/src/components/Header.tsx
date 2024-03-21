@@ -5,12 +5,12 @@ export const Header: FunctionComponent = () => {
   const activeClass = 'bg-slate-500'
   const nav = (path: string, name: string) => (
     <NavLink to={path}
-             className={({ isActive }) => (isActive ? activeClass : '') + ' rounded-full px-4 hover:bg-slate-600 flex'}>
+             className={({ isActive }) => (isActive ? activeClass : '') + ' rounded-full m-2 px-4 hover:bg-slate-600 flex'}>
       <div className='my-auto'>{name}</div>
     </NavLink>
   )
   const navNative = (path: string, name: string) => (
-    <div className='rounded-full px-4 hover:bg-slate-600 flex cursor-pointer' onClick={() => {
+    <div className='rounded-full m-2 px-4 hover:bg-slate-600 flex cursor-pointer' onClick={() => {
       document.location = path
     }}>
       <div className='my-auto'>
@@ -27,12 +27,12 @@ export const Header: FunctionComponent = () => {
         </Link>
       </div>
       <div className='ml-6 flex flex-row text-gray-200 h-full w-full'>
-        <div className='flex flex-row gap-2 content-center'>
+        <div className='flex flex-row content-center'>
           {nav('/refactorings', 'Refactorings')}
           {nav('/commits', 'Commits')}
           {nav('/repositories', 'Repositories')}
         </div>
-        <div className='ml-auto flex flex-row gap-2 content-center'>
+        <div className='ml-auto flex flex-row content-center'>
           {navNative('/api-doc', 'API Doc')}
           {nav('/jobs', 'Jobs')}
         </div>
