@@ -1,0 +1,690 @@
+openapi: 3.0.3
+info:
+  title: RefSearch API
+  license:
+    name: MIT License
+    url: https://github.com/salab/refsearch/blob/master/LICENSE
+  version: 0.1.0
+servers:
+  - description: localhost
+    url: http://localhost:8080/api
+  - description: playground
+    url: https://refsearch.toki317.dev/api
+tags:
+  - name: refactoring
+    description: Refactoring instances
+  - name: commit
+    description: Commit metadata
+  - name: repository
+    description: Repository metadata
+  - name: job
+    description: Job management
+
+paths:
+  /refactorings:
+    get:
+      tags:
+        - refactoring
+      summary: Search refactorings
+      description: Search for refactoring instances
+      operationId: getRefactorings
+      parameters:
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+        - $ref: '#/components/parameters/OffsetQuery'
+        - $ref: '#/components/parameters/SortQuery'
+        - $ref: '#/components/parameters/OrderQuery'
+      responses:
+        '200':
+          description: Search succeeded
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchRefactoringResponse'
+  /refactorings/{id}:
+    get:
+      tags:
+        - refactoring
+      summary: Get refactoring
+      description: Get refactoring instance detail
+      operationId: getRefactoring
+      parameters:
+        - name: id
+          in: path
+          description: Refactoring ID
+          required: true
+          schema:
+            type: string
+            example: '65fba2c1d6825d43afe279b7'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Refactoring'
+
+  /commits:
+    get:
+      tags:
+        - commit
+      summary: Search commits
+      description: Search for commit metadata
+      operationId: getCommits
+      parameters:
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+        - $ref: '#/components/parameters/OffsetQuery'
+        - $ref: '#/components/parameters/SortQuery'
+        - $ref: '#/components/parameters/OrderQuery'
+      responses:
+        '200':
+          description: Search succeeded
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchCommitResponse'
+  /commits/{id}:
+    get:
+      tags:
+        - commit
+      summary: Get commit
+      description: Get commit metadata
+      operationId: getCommit
+      parameters:
+        - name: id
+          in: path
+          description: commit ID (SHA1 hash)
+          required: true
+          schema:
+            type: string
+            example: '43c588ac39b0eafa27867955795575f513bcb3f0'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Commit'
+
+  /repositories:
+    get:
+      tags:
+        - repository
+      summary: Search repositories
+      description: Search for repository metadata
+      operationId: getRepositories
+      parameters:
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+        - $ref: '#/components/parameters/OffsetQuery'
+        - $ref: '#/components/parameters/SortQuery'
+        - $ref: '#/components/parameters/OrderQuery'
+      responses:
+        '200':
+          description: Search succeeded
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchRepositoryResponse'
+  /repositories/{id}:
+    get:
+      tags:
+        - repository
+      summary: Get repository
+      description: Get repository metadata
+      operationId: getRepository
+      parameters:
+        - name: id
+          in: path
+          description: repository ID (URL) (URL path encoded)
+          required: true
+          schema:
+            type: string
+            example: 'https://github.com/gradle/gradle'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Commit'
+
+  /jobs:
+    get:
+      tags:
+        - job
+      summary: Search jobs
+      description: Search for jobs
+      operationId: getJobs
+      parameters:
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+        - $ref: '#/components/parameters/OffsetQuery'
+        - $ref: '#/components/parameters/SortQuery'
+        - $ref: '#/components/parameters/OrderQuery'
+      responses:
+        '200':
+          description: Search succeeded
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchJobResponse'
+    post:
+      tags:
+        - job
+      summary: Schedule jobs
+      description: Schedule new jobs
+      operationId: scheduleJobs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleJobRequest'
+      responses:
+        '200':
+          description: Queue success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: 'Queued 4 jobs'
+  /jobs/{id}:
+    get:
+      tags:
+        - job
+      summary: Get job
+      description: Get job metadata
+      operationId: getJob
+      parameters:
+        - name: id
+          in: path
+          description: job ID
+          required: true
+          schema:
+            type: string
+            example: '65fba1b6f35453208723de17'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+  /jobs/{id}/retry:
+    get:
+      tags:
+        - job
+      summary: Retry a job
+      description: Retry a job
+      operationId: retryJob
+      parameters:
+        - name: id
+          in: path
+          description: job ID
+          required: true
+          schema:
+            type: string
+            example: '65fba1b6f35453208723de17'
+      responses:
+        '200':
+          description: Queue success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: 'Modified 1 document(s)'
+
+components:
+  parameters:
+    SearchQuery:
+      name: q
+      in: query
+      description: Search query
+      required: false
+      schema:
+        type: string
+        default: ''
+        example: 'extractMethod.sourceMethodsCount >= 2'
+    LimitQuery:
+      name: limit
+      in: query
+      description: Result limit
+      required: false
+      schema:
+        type: integer
+        default: 50
+    OffsetQuery:
+      name: offset
+      in: query
+      description: Result offset
+      required: false
+      schema:
+        type: integer
+        default: 0
+    SortQuery:
+      name: offset
+      in: query
+      description: Sort key
+      required: false
+      schema:
+        type: string
+        description: Default sort key depends on route
+        example: 'commit.date'
+    OrderQuery:
+      name: order
+      in: query
+      description: Sort order
+      required: false
+      schema:
+        type: string
+        enum:
+          - asc
+          - desc
+
+  schemas:
+    SearchResultMeta:
+      type: object
+      required:
+        - count
+        - hasMore
+      properties:
+        count:
+          type: integer
+          description: Total number of hits (including all pages)
+          example: 57
+        hasMore:
+          type: boolean
+    SearchRefactoringResponse:
+      type: object
+      required:
+        - result
+        - total
+      properties:
+        result:
+          type: array
+          items:
+            $ref: '#/components/schemas/Refactoring'
+        total:
+          $ref: '#/components/schemas/SearchResultMeta'
+    SearchCommitResponse:
+      type: object
+      required:
+        - result
+        - total
+      properties:
+        result:
+          type: array
+          items:
+            $ref: '#/components/schemas/Commit'
+        total:
+          $ref: '#/components/schemas/SearchResultMeta'
+    SearchRepositoryResponse:
+      type: object
+      required:
+        - result
+        - total
+      properties:
+        result:
+          type: array
+          items:
+            $ref: '#/components/schemas/Repository'
+        total:
+          $ref: '#/components/schemas/SearchResultMeta'
+    SearchJobResponse:
+      type: object
+      required:
+        - result
+        - total
+      properties:
+        result:
+          type: array
+          items:
+            $ref: '#/components/schemas/Job'
+        total:
+          $ref: '#/components/schemas/SearchResultMeta'
+    Refactoring:
+      type: object
+      description: Refactoring instance data
+      required:
+        - _id
+        - type
+        - description
+        - sha1
+        - repository
+        - url
+        - meta
+        - commit
+      properties:
+        _id:
+          type: string
+          description: ID given by RefSearch to identify a refactoring instance
+          example: '64eb8e1c2a3920401e2af8bf'
+        type:
+          type: string
+          description: Refactoring type
+          example: 'Extract Method'
+        description:
+          type: string
+          example: 'Extracted method addDispatchAsTestListener(String, Closure) from beforeTest(Closure)'
+        sha1:
+          type: string
+          description: Commit SHA1 hash
+          example: '6dc3fe36a9528389012e6eac9e90aeb30f300d33'
+        repository:
+          type: string
+          description: Repository URL
+          example: 'https://github.com/gradle/gradle'
+        url:
+          type: string
+          description: Commit URL if extractable, otherwise the same as repository URL
+          example: 'https://github.com/gradle/gradle/commit/6dc3fe36a9528389012e6eac9e90aeb30f300d33'
+        extractMethod:
+          type: object
+          description: Extra metadata for 'Extract Method' refactorings
+          required:
+            - sourceMethodLines
+            - extractedLines
+            - sourceMethodsCount
+          properties:
+            sourceMethodLines:
+              type: number
+              description: LOC of the source method
+              example: 10
+            extractedLines:
+              type: number
+              description: LOC of the extracted method
+              example: 5
+            sourceMethodsCount:
+              type: number
+              description: >-
+                Number of the extract method refactorings with the same 'source method' in the same commit;
+                 number of greater than 1 indicates that the same functionality was extracted from multiple places.
+              example: 2
+        rename:
+          type: object
+          description: Extra metadata for 'Rename' refactorings
+          required:
+            - from
+            - to
+          properties:
+            from:
+              type: string
+              description: Identifier name before renaming
+              example: 'getRecordedEvents'
+            to:
+              type: string
+              description: Identifier name after renaming
+              example: 'retrieveEventsAndStop'
+        meta:
+          type: object
+          description: Extra metadata
+          required: []
+          properties:
+            tool:
+              type: string
+              description: Tool name with which the refactoring was detected
+              example: 'RefDiff'
+        commit:
+          $ref: '#/components/schemas/Commit'
+    Commit:
+      type: object
+      description: Commit metadata
+      required:
+        - sha1
+        - date
+        - message
+        - refs
+        - body
+        - authorName
+        - authorEmail
+        - url
+        - repository
+        - size
+        - refactorings
+        - tools
+      properties:
+        _id:
+          type: string
+          description: Commit SHA1 hash
+          example: '6dc3fe36a9528389012e6eac9e90aeb30f300d33'
+        sha1:
+          type: string
+          description: Commit SHA1 hash
+          example: '6dc3fe36a9528389012e6eac9e90aeb30f300d33'
+        date:
+          type: string
+          format: date-time
+          description: Commit date-time in RFC3339 format
+          example: '2023-08-08T02:32:57.000Z'
+        message:
+          type: string
+          description: Commit message
+          example: 'Example commit message'
+        refs:
+          type: string
+          description: Git refs associated with this commit, if any
+          example: 'HEAD -> master, origin/master, origin/HEAD'
+        body:
+          type: string
+          description: Commit body
+          example: 'Example commit body, lorem ipsum'
+        authorName:
+          type: string
+          description: Commit author name
+          example: 'Example committer'
+        authorEmail:
+          type: string
+          description: Commit author email
+          example: 'example@example.com'
+        url:
+          type: string
+          description: Commit URL if extractable, otherwise the same as repository URL
+          example: 'https://github.com/gradle/gradle/commit/6dc3fe36a9528389012e6eac9e90aeb30f300d33'
+        repository:
+          type: string
+          description: Repository URL
+          example: 'https://github.com/gradle/gradle'
+        size:
+          $ref: '#/components/schemas/CommitSizeInfo'
+        refactorings:
+          $ref: '#/components/schemas/RefactoringsCount'
+        tools:
+          type: object
+          description: Map from tool name to commit process state
+          example:
+            'RefDiff': 'ok'
+            'RefactoringMiner': 'ng'
+    CommitSizeInfo:
+      type: object
+      description: Commit size metadata
+      required:
+        - files
+        - lines
+      properties:
+        files:
+          type: object
+          required:
+            - changed
+          properties:
+            changed:
+              type: integer
+              description: Number of changed files
+              example: 1
+        lines:
+          type: object
+          required:
+            - inserted
+            - deleted
+          properties:
+            inserted:
+              type: integer
+              description: Number of inserted lines
+              example: 41
+            deleted:
+              type: integer
+              description: Number of deleted lines
+              example: 20
+    RefactoringsCount:
+      type: object
+      description: Refactorings count in this commit or repository
+      required:
+        - total
+        - perType
+        - perTool
+      properties:
+        total:
+          type: integer
+          description: Number of all refactoring instances in this commit or repository
+          example: 12
+        perType:
+          type: object
+          description: Map from refactoring "type" name to count
+          example:
+            'Extract Method': 10
+            'Rename Method': 2
+        perTool:
+          type: object
+          description: Map from tool name to count
+          example:
+            'RefDiff': 6
+            'RefactoringMiner': 6
+    Repository:
+      type: object
+      description: Repository metadata
+      required:
+        - _id
+        - commits
+        - refactorings
+      properties:
+        _id:
+          type: string
+          description: Repository URL
+          example: 'https://github.com/gradle/gradle'
+        commits:
+          type: number
+          description: Number of detected commits
+          example: '95403'
+        refactorings:
+          $ref: '#/components/schemas/RefactoringsCount'
+
+    Job:
+      type: object
+      description: RefSearch internal job metadata
+      required:
+        - _id
+        - pipeline
+        - skip
+        - type
+        - status
+        - dependsOn
+        - queuedAt
+        - data
+      properties:
+        _id:
+          type: string
+          description: Job ID
+          example: '65fba1b6f35453208723de17'
+        pipeline:
+          type: string
+          description: Pipeline UUID to which this job belongs
+          example: '93c1f3fc-8a30-4232-b8ad-4693bb70ef7c'
+        skip:
+          type: boolean
+          description: Whether this job is to be / was skipped
+          example: false
+        type:
+          type: string
+          description: Job type
+          example: 'storeRepo'
+        status:
+          type: string
+          description: Job status
+          example: 'completed'
+        dependsOn:
+          type: array
+          description: Job types on which this job depends
+          example:
+            - 'processCommits'
+        queuedAt:
+          type: string
+          format: date-time
+          description: Job queued time
+          example: '2024-03-21T02:55:50.892Z'
+        startedAt:
+          type: string
+          format: date-time
+          description: Job started time
+          example: '2024-03-21T02:55:50.892Z'
+        completedAt:
+          type: string
+          format: date-time
+          description: Job completed time
+          example: '2024-03-21T02:55:50.892Z'
+        error:
+          type: string
+          description: Job error description, if any
+        data:
+          $ref: '#/components/schemas/JobData'
+    JobData:
+      type: object
+      description: Internal job data
+    ScheduleJobRequest:
+      type: object
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          type: string
+          description: Repository URL
+          example: 'https://github.com/gradle/gradle'
+        skip:
+          type: array
+          description: Skip job types, if any
+        commits:
+          type: object
+          description: Commit range to process
+          required:
+            - type
+          properties:
+            type:
+              type: string
+              description: Commit range type
+              enum:
+                - 'one'
+                - 'range'
+                - 'all'
+            sha1:
+              type: string
+              description: (Required for type 'one') Commit SHA1 hash
+              example: '43c588ac39b0eafa27867955795575f513bcb3f0'
+            from:
+              type: string
+              description: (Required for type 'range') Traverse start commit, inclusive (that is, after in chronological order)
+              example: '43c588ac39b0eafa27867955795575f513bcb3f0'
+            to:
+              type: string
+              description: (Optional for type 'range') Traverse end commit, exclusive (that is, before in chronological order)
+              example: '43c588ac39b0eafa27867955795575f513bcb3f0'
+        retryFailed:
+          type: boolean
+          description: If true, retry tool processing for each failed commit

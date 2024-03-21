@@ -352,6 +352,15 @@ View registered repository and its refactorings count from "repository" page.
 
 </details>
 
+### (Advanced Usage) Automation via API
+
+RefSearch UI is just a simple SPA (single page application) that calls HTTP API
+and displays the result neatly.
+
+You can automate data processing by directly calling API via `curl` or something similar.
+Visit [/api-doc](http://localhost:8080/api-doc) from top-right of the UI, for API documentation in OpenAPI format.
+Equivalent curl commands for each API call are also obtainable from the swagger UI.
+
 ### (Advanced Usage) Load / Export Refactorings Data
 
 #### Load formatted data via API

@@ -16,3 +16,4 @@ FROM caddy:2 AS runner
 COPY frontend/Caddyfile /etc/caddy/Caddyfile
 
 COPY --from=builder /work/frontend/dist/ /srv
+COPY docs/openapi.yaml /srv
