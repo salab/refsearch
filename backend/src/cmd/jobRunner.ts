@@ -65,7 +65,7 @@ const findNextJob = async (): Promise<JobWithId | undefined> => {
   const next = await jobDataCol.findOneAndUpdate({
     runnerId: { $exists: false }
   }, { $set: { runnerId: config.runnerId } })
-  if (next.ok) {
+  if (next) {
     return reservedNextJob()
   }
 

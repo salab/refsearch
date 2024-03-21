@@ -17,8 +17,8 @@ WORKDIR /work
 RUN yum install -y git
 
 # For refdiff-js
-# amazoncorretto:17-alpine はよくわからない壊れ方をする (jdk crashes)
-# node v18 は glibc 2.27 or 2.28 が必要 (amazoncorretto:17 には 2.26 が入っている)
+# With amazoncorretto:17-alpine, jdk crashes for some reason
+# node v18 needs glibc 2.27 or 2.28 (meanwhile amazoncorretto:17 has 2.26)
 RUN curl -sL https://rpm.nodesource.com/setup_16.x | bash -
 RUN yum install -y nodejs && \
     yum clean all
