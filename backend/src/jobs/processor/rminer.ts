@@ -1,22 +1,16 @@
 import equal from 'fast-deep-equal'
-import { commitPlaceholder, RefactoringMeta, RefactoringTypes } from '../../../../common/common.js'
+import { PureRefactoringMeta, RefactoringMeta, RefactoringTypes } from '../../../../common/common.js'
 import {
   CodeElementInfo,
   CodeElementsMap,
   ProcessedRMRefactoring,
-  RMCommit,
   RMLeftSideLocation,
-  RMOutput,
   RMRefactoring,
   RMRefactoringType,
 } from '../../../../common/rminer.js'
-import { commitUrl, sshUrlToHttpsUrl } from '../../utils.js'
 import { rminerToolName } from '../runner/rminer.js'
 
-type R = RefactoringMeta & ProcessedRMRefactoring
-type C = Omit<RMCommit, 'refactorings'> & {
-  refactorings: R[]
-}
+type R = PureRefactoringMeta & ProcessedRMRefactoring
 
 const extractMethodSource = (r: R): CodeElementInfo | undefined => {
   const elt = r.before['source_method_declaration_before_extraction']
@@ -29,8 +23,8 @@ const extractedMethod = (r: R): CodeElementInfo | undefined => {
   return elt
 }
 
-const extractedMethods = (c: C): CodeElementInfo[] => {
-  return c.refactorings
+const extractedMethods = (refs: R[]): CodeElementInfo[] => {
+  return refs
     .filter((r) => r.type === RefactoringTypes.ExtractMethod)
     .map((r) => extractedMethod(r))
     .flatMap((rsl) => rsl ? [rsl] : [])
@@ -93,58 +87,40 @@ const process = (r: RMRefactoring): ProcessedRMRefactoring => ({
   after: processCodeElements(r.rightSideLocations),
 })
 
-export const processRMinerOutput = (output: RMOutput): R[] => {
-  const commits = output.commits
-    .map((c): C => {
-      // Normalize to https url for convenience
-      const url = sshUrlToHttpsUrl(c.url)
-      const repository = sshUrlToHttpsUrl(c.repository)
-      return {
-        ...c,
-        url,
-        repository,
-        refactorings: c.refactorings
-          .map((r): R => ({
-            type: r.type,
-            description: r.description,
+export const processRMinerOutput = (refs: RMRefactoring[]): R[] => {
+  const refactorings = refs
+    .map((r): R => ({
+      type: r.type,
+      description: r.description,
 
-            sha1: c.sha1,
-            repository,
-            url: commitUrl(repository, c.sha1),
+      meta: {
+        tool: rminerToolName,
+      },
 
-            meta: {
-              tool: rminerToolName,
-            },
-            commit: commitPlaceholder(),
+      ...process(r),
+    }))
 
-            ...process(r),
-          })),
+  // Pre-compute needed information
+  const methods = extractedMethods(refactorings)
+  refactorings
+    .filter((r) => r.type === RefactoringTypes.ExtractMethod)
+    .forEach((r) => {
+      r.extractMethod = {
+        // Use-case 1: 重複の処理が無い / あるextract
+        sourceMethodsCount: extractSourceMethodsCount(methods, r),
+        // Use-case 2: 数行のみのextract,  extractする前の行数
+        sourceMethodLines: extractMethodSourceMethodLines(r),
+        extractedLines: extractMethodExtractedLines(r),
+      }
+    })
+  // Use-case 3: 具体的なrenameした単語
+  refactorings
+    .forEach((r) => {
+      const rename = extractRenameInfo(r)
+      if (rename) {
+        r.rename = rename
       }
     })
 
-  // Pre-compute needed information
-  commits.forEach((c) => {
-    const methods = extractedMethods(c)
-    c.refactorings
-      .filter((r) => r.type === RefactoringTypes.ExtractMethod)
-      .forEach((r) => {
-        r.extractMethod = {
-          // Use-case 1: 重複の処理が無い / あるextract
-          sourceMethodsCount: extractSourceMethodsCount(methods, r),
-          // Use-case 2: 数行のみのextract,  extractする前の行数
-          sourceMethodLines: extractMethodSourceMethodLines(r),
-          extractedLines: extractMethodExtractedLines(r),
-        }
-      })
-    // Use-case 3: 具体的なrenameした単語
-    c.refactorings
-      .forEach((r) => {
-        const rename = extractRenameInfo(r)
-        if (rename) {
-          r.rename = rename
-        }
-      })
-  })
-
-  return commits.flatMap((c) => c.refactorings)
+  return refactorings
 }

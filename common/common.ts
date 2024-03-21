@@ -44,14 +44,11 @@ export const commitPlaceholder = (): RefactoringMeta['commit'] => ({
   refactorings: { total: 0, perTool: {}, perType: {} },
   tools: {},
 })
+
 type OptionalRefactoringMeta = ProcessedRMRefactoring | ProcessedRefDiffRefactoring
-export type RefactoringMeta = {
+export type PureRefactoringMeta = {
   type: RefactoringType
   description: string
-
-  sha1: string
-  repository: string
-  url: string
 
   extractMethod?: ExtractMethodInfo
   rename?: RenameInfo
@@ -59,8 +56,14 @@ export type RefactoringMeta = {
   meta: {
     tool?: string
   }
-  commit: Omit<CommitMeta, '_id' | 'repository'> // Merged from commits collection on insert
 } & Partial<OptionalRefactoringMeta>
+export type RefactoringMeta = PureRefactoringMeta & {
+  sha1: string
+  repository: string
+  url: string
+
+  commit: Omit<CommitMeta, '_id' | 'repository'> // Merged from commits collection on insert
+}
 
 export type RefactoringWithId = { _id: string } & RefactoringMeta
 

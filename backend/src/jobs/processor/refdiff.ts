@@ -1,19 +1,20 @@
 import equal from 'fast-deep-equal'
 import {
   ProcessedRefDiffRefactoring,
-  RefDiffCommit,
   RefDiffLocation,
   RefDiffLocationWithLines,
   RefDiffNode,
   RefDiffNodeWithLines,
-  RefDiffOutput,
   RefDiffRefactoring,
 } from '../../../../common/refdiff.js'
-import { commitPlaceholder, RefactoringMeta, RefactoringType, RefactoringTypes } from '../../../../common/common.js'
-import { commitUrl } from '../../utils.js'
+import {
+  PureRefactoringMeta,
+  RefactoringType,
+  RefactoringTypes,
+} from '../../../../common/common.js'
 import { refDiffToolName } from '../runner/refdiff.js'
 
-type R = RefactoringMeta & ProcessedRefDiffRefactoring
+type R = PureRefactoringMeta & ProcessedRefDiffRefactoring
 
 const formatTypeAndDescription = (ref: RefDiffRefactoring): [typ: RefactoringType, desc: string] => {
   switch (ref.type) {
@@ -62,8 +63,8 @@ const formatTypeAndDescription = (ref: RefDiffRefactoring): [typ: RefactoringTyp
   }
 }
 
-const extractedMethods = (c: RefDiffCommit): RefDiffRefactoring[] => {
-  return c.refactorings
+const extractedMethods = (refs: RefDiffRefactoring[]): RefDiffRefactoring[] => {
+  return refs
     .filter((r) => r.type === 'EXTRACT' && r.after.type === 'Method')
 }
 
@@ -83,75 +84,68 @@ const process = (ref: RefDiffRefactoring): ProcessedRefDiffRefactoring => ({
   after: processNode(ref.after),
 })
 
-export const processRefDiffOutput = (repoUrl: string, output: RefDiffOutput): R[] => {
-  return output.map((c): RefDiffCommit => {
-    c.refactorings = c.refactorings.flatMap((ref): RefDiffRefactoring[] => {
-      switch (ref.type) {
-        case 'INTERNAL_MOVE_RENAME':
-          return [
-            { ...ref, type: 'INTERNAL_MOVE' },
-            { ...ref, type: 'RENAME' },
-            ref,
-          ]
-        case 'MOVE_RENAME':
-          return [
-            { ...ref, type: 'MOVE' },
-            { ...ref, type: 'RENAME' },
-            ref,
-          ]
-        case 'EXTRACT_MOVE':
-          return [
-            { ...ref, type: 'EXTRACT' },
-            { ...ref, type: 'MOVE' },
-            ref,
-          ]
-        default:
-          return [ref]
+export const processRefDiffOutput = (refs: RefDiffRefactoring[]): R[] => {
+  // Expand some composite refactorings
+  const refactorings = refs.flatMap((ref): RefDiffRefactoring[] => {
+    switch (ref.type) {
+      case 'INTERNAL_MOVE_RENAME':
+        return [
+          { ...ref, type: 'INTERNAL_MOVE' },
+          { ...ref, type: 'RENAME' },
+          ref,
+        ]
+      case 'MOVE_RENAME':
+        return [
+          { ...ref, type: 'MOVE' },
+          { ...ref, type: 'RENAME' },
+          ref,
+        ]
+      case 'EXTRACT_MOVE':
+        return [
+          { ...ref, type: 'EXTRACT' },
+          { ...ref, type: 'MOVE' },
+          ref,
+        ]
+      default:
+        return [ref]
+    }
+  })
+
+  const extractMethodRefactorings = extractedMethods(refs)
+
+  return refactorings.map((ref): R => {
+    const [typ, description] = formatTypeAndDescription(ref)
+
+    const ret: R = {
+      type: typ,
+      description,
+
+      meta: {
+        tool: refDiffToolName,
+      },
+
+      ...process(ref),
+    }
+
+    // Pre-compute needed information
+    if (typ === RefactoringTypes.ExtractMethod) {
+      ret.extractMethod = {
+        // Use-case 1: 重複の処理が無い / あるextract
+        sourceMethodsCount: extractSourceMethodsCount(ref, extractMethodRefactorings),
+        // Use-case 2: 数行のみのextract,  extractする前の行数
+        sourceMethodLines: ret.before.location.lines,
+        extractedLines: ret.after.location.lines,
       }
-    })
-    return c
-  }).flatMap((c): R[] => {
-    const extractMethodRefactorings = extractedMethods(c)
+    }
 
-    return c.refactorings.map((ref): R => {
-      const [typ, description] = formatTypeAndDescription(ref)
-
-      const ret: R = {
-        type: typ,
-        description,
-
-        sha1: c.sha1,
-        repository: repoUrl,
-        url: commitUrl(repoUrl, c.sha1),
-
-        meta: {
-          tool: refDiffToolName,
-        },
-        commit: commitPlaceholder(),
-
-        ...process(ref),
+    // Use-case 3: 具体的なrenameした単語
+    if (ref.type === 'RENAME') {
+      ret.rename = {
+        from: ref.before.name,
+        to: ref.after.name,
       }
+    }
 
-      // Pre-compute needed information
-      if (typ === RefactoringTypes.ExtractMethod) {
-        ret.extractMethod = {
-          // Use-case 1: 重複の処理が無い / あるextract
-          sourceMethodsCount: extractSourceMethodsCount(ref, extractMethodRefactorings),
-          // Use-case 2: 数行のみのextract,  extractする前の行数
-          sourceMethodLines: ret.before.location.lines,
-          extractedLines: ret.after.location.lines,
-        }
-      }
-
-      // Use-case 3: 具体的なrenameした単語
-      if (ref.type === 'RENAME') {
-        ret.rename = {
-          from: ref.before.name,
-          to: ref.after.name,
-        }
-      }
-
-      return ret
-    })
+    return ret
   })
 }

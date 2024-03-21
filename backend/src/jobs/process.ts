@@ -1,6 +1,6 @@
 import { JobWithId } from '../jobs.js'
-import { commitsCol } from '../mongo.js'
-import { readAllFromCursor } from '../utils.js'
+import { commitsCol, refCol } from '../mongo.js'
+import { commitUrl, readAllFromCursor } from '../utils.js'
 import { processRMiner, rminerToolName } from './runner/rminer.js'
 import { processRefDiff, refDiffToolName } from './runner/refdiff.js'
 import {
@@ -9,12 +9,12 @@ import {
   updateCommitToolsMetadata,
 } from './metadata.js'
 import { formatTime } from '../../../common/utils.js'
-import { CommitProcessState } from '../../../common/common.js'
-import { JobData } from '../../../common/jobs'
+import { commitPlaceholder, CommitProcessState, PureRefactoringMeta, RefactoringMeta } from '../../../common/common.js'
+import { JobData } from '../../../common/jobs.js'
 
 type CommitId = string
 type ToolName = string
-type Processor = (repoUrl: string, commit: string) => Promise<void>
+type Processor = (repoUrl: string, commit: string) => Promise<PureRefactoringMeta[]>
 const processors: Record<ToolName, Processor> = {
   [rminerToolName]: processRMiner,
   [refDiffToolName]: processRefDiff,
@@ -23,13 +23,14 @@ const processors: Record<ToolName, Processor> = {
 const processCommit = async (repoUrl: string, commitId: CommitId, tools: Record<string, CommitProcessState>, retryError: boolean) => {
   const newTools = Object.assign({}, tools)
 
+  let pureRefs: PureRefactoringMeta[] = []
   for (const [tool, process] of Object.entries(processors)) {
     const toProcess = !(tool in tools) || retryError && tools[tool] === CommitProcessState.NG
     if (!toProcess) continue
 
     try {
       const start = performance.now()
-      await process(repoUrl, commitId)
+      pureRefs.push(...(await process(repoUrl, commitId)))
       newTools[tool] = CommitProcessState.OK
       console.log(` -> ${tool} in ${formatTime(start)}`)
     } catch (e) {
@@ -39,9 +40,31 @@ const processCommit = async (repoUrl: string, commitId: CommitId, tools: Record<
     }
   }
 
-  await updateCommitRefactoringMetadata(commitId)
   await updateCommitToolsMetadata(commitId, newTools)
-  await mergeCommitMetadataIntoRefactorings(commitId)
+  await transformAndInsertRefactorings(repoUrl, commitId, pureRefs)
+}
+
+export const transformAndInsertRefactorings = async (repoUrl: string, commit: string, pureRefs: PureRefactoringMeta[]): Promise<{ insertedCount: number }> => {
+  const refactorings = pureRefs.map((r): RefactoringMeta => {
+    return {
+      ...r,
+      sha1: commit,
+      repository: repoUrl,
+      url: commitUrl(repoUrl, commit),
+      commit: commitPlaceholder(),
+    }
+  })
+
+  let insertedCount = 0
+  if (refactorings.length > 0) { // Running insertMany with empty array results in an error
+    const insertRes = await refCol.insertMany(refactorings)
+    insertedCount = insertRes.insertedCount
+  }
+
+  await updateCommitRefactoringMetadata(commit)
+  await mergeCommitMetadataIntoRefactorings(commit)
+
+  return { insertedCount }
 }
 
 export const processCommits = async (job: JobWithId, jobData: JobData) => {

@@ -1,8 +1,8 @@
-import { refCol, toolRawDataCol } from '../../mongo.js'
+import { toolRawDataCol } from '../../mongo.js'
 import { RMRefactoring } from '../../../../common/rminer.js'
 import { processRMinerOutput } from '../processor/rminer.js'
 import { detectRMinerRefactorings } from '../../api/tools/rminer.js'
-import { commitUrl } from '../../utils.js'
+import { PureRefactoringMeta } from '../../../../common/common'
 
 export const rminerToolName = 'RefactoringMiner'
 const timeoutSeconds = 60
@@ -23,15 +23,7 @@ const getOrRun = async (repoUrl: string, commit: string): Promise<RMRefactoring[
   return refs
 }
 
-export const processRMiner = async (repoUrl: string, commit: string): Promise<void> => {
+export const processRMiner = async (repoUrl: string, commit: string): Promise<PureRefactoringMeta[]> => {
   const refs = await getOrRun(repoUrl, commit)
-  const processed = processRMinerOutput({
-    commits: [{
-      repository: repoUrl,
-      sha1: commit,
-      url: commitUrl(repoUrl, commit),
-      refactorings: refs,
-    }],
-  })
-  if (processed.length > 0) await refCol.insertMany(processed)
+  return processRMinerOutput(refs)
 }

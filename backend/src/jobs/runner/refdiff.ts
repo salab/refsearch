@@ -1,7 +1,8 @@
-import { refCol, toolRawDataCol } from '../../mongo.js'
+import { toolRawDataCol } from '../../mongo.js'
 import { RefDiffRefactoring } from '../../../../common/refdiff.js'
 import { processRefDiffOutput } from '../processor/refdiff.js'
 import { detectRefDiffRefactorings } from '../../api/tools/refdiff.js'
+import { PureRefactoringMeta } from '../../../../common/common'
 
 export const refDiffToolName = 'RefDiff'
 const timeoutSeconds = 60
@@ -22,8 +23,7 @@ const getOrRun = async (repoUrl: string, commit: string): Promise<RefDiffRefacto
   return refs
 }
 
-export const processRefDiff = async (repoUrl: string, commit: string): Promise<void> => {
+export const processRefDiff = async (repoUrl: string, commit: string): Promise<PureRefactoringMeta[]> => {
   const refs = await getOrRun(repoUrl, commit)
-  const processed = processRefDiffOutput(repoUrl, [{ sha1: commit, refactorings: refs }])
-  if (processed.length > 0) await refCol.insertMany(processed)
+  return processRefDiffOutput(refs)
 }
