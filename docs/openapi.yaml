@@ -45,6 +45,30 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SearchRefactoringResponse'
+    post:
+      tags:
+        - refactoring
+      summary: Post refactorings
+      description: Post refactorings data. All fields in "refactorings" elements are inserted as-is.
+      operationId: postRefactorings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostRefactoringsRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    example: 'Inserted 3 document(s)'
   /refactorings/{id}:
     get:
       tags:
@@ -485,6 +509,48 @@ components:
             $ref: '#/components/schemas/Job'
         total:
           $ref: '#/components/schemas/SearchResultMeta'
+
+    PostRefactoringsRequest:
+      type: object
+      required:
+        - repository
+        - commit
+        - refactorings
+      properties:
+        repository:
+          type: string
+          description: Repository URL
+          example: 'https://github.com/gradle/gradle'
+        commit:
+          type: string
+          description: Commit SHA1 hash
+          example: '6dc3fe36a9528389012e6eac9e90aeb30f300d33'
+        refactorings:
+          type: array
+          description: Refactorings
+          items:
+            $ref: '#/components/schemas/PostRefactoring'
+    PostRefactoring:
+      type: object
+      required:
+        - type
+        - description
+        - meta
+      properties:
+        type:
+          type: string
+          description: Refactoring type
+          example: 'Extract Method'
+        description:
+          type: string
+          example: 'Extracted method addDispatchAsTestListener(String, Closure) from beforeTest(Closure)'
+        extractMethod:
+          $ref: '#/components/schemas/RefactoringExtractMethod'
+        rename:
+          $ref: '#/components/schemas/RefactoringRename'
+        meta:
+          $ref: '#/components/schemas/RefactoringMeta'
+
     Refactoring:
       type: object
       description: Refactoring instance data
@@ -522,53 +588,59 @@ components:
           description: Commit URL if extractable, otherwise the same as repository URL
           example: 'https://github.com/gradle/gradle/commit/6dc3fe36a9528389012e6eac9e90aeb30f300d33'
         extractMethod:
-          type: object
-          description: Extra metadata for 'Extract Method' refactorings
-          required:
-            - sourceMethodLines
-            - extractedLines
-            - sourceMethodsCount
-          properties:
-            sourceMethodLines:
-              type: number
-              description: LOC of the source method
-              example: 10
-            extractedLines:
-              type: number
-              description: LOC of the extracted method
-              example: 5
-            sourceMethodsCount:
-              type: number
-              description: >-
-                Number of the extract method refactorings with the same 'source method' in the same commit;
-                 number of greater than 1 indicates that the same functionality was extracted from multiple places.
-              example: 2
+          $ref: '#/components/schemas/RefactoringExtractMethod'
         rename:
-          type: object
-          description: Extra metadata for 'Rename' refactorings
-          required:
-            - from
-            - to
-          properties:
-            from:
-              type: string
-              description: Identifier name before renaming
-              example: 'getRecordedEvents'
-            to:
-              type: string
-              description: Identifier name after renaming
-              example: 'retrieveEventsAndStop'
+          $ref: '#/components/schemas/RefactoringRename'
         meta:
-          type: object
-          description: Extra metadata
-          required: []
-          properties:
-            tool:
-              type: string
-              description: Tool name with which the refactoring was detected
-              example: 'RefDiff'
+          $ref: '#/components/schemas/RefactoringMeta'
         commit:
           $ref: '#/components/schemas/Commit'
+    RefactoringExtractMethod:
+      type: object
+      description: Extra metadata for 'Extract Method' refactorings
+      required:
+        - sourceMethodLines
+        - extractedLines
+        - sourceMethodsCount
+      properties:
+        sourceMethodLines:
+          type: number
+          description: LOC of the source method
+          example: 10
+        extractedLines:
+          type: number
+          description: LOC of the extracted method
+          example: 5
+        sourceMethodsCount:
+          type: number
+          description: >-
+            Number of the extract method refactorings with the same 'source method' in the same commit;
+             number of greater than 1 indicates that the same functionality was extracted from multiple places.
+          example: 2
+    RefactoringRename:
+      type: object
+      description: Extra metadata for 'Rename' refactorings
+      required:
+        - from
+        - to
+      properties:
+        from:
+          type: string
+          description: Identifier name before renaming
+          example: 'getRecordedEvents'
+        to:
+          type: string
+          description: Identifier name after renaming
+          example: 'retrieveEventsAndStop'
+    RefactoringMeta:
+      type: object
+      description: Extra metadata
+      required: []
+      properties:
+        tool:
+          type: string
+          description: Tool name with which the refactoring was detected
+          example: 'RefDiff'
     Commit:
       type: object
       description: Commit metadata

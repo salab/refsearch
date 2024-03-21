@@ -24,3 +24,5 @@ export const fromGitHub = (url: string) => url.startsWith('https://github.com/')
 export const gitHubRepoName = (url: string) => url.substring('https://github.com/'.length)
 
 export const shortSha = (sha1: string) => sha1.substring(0, 7)
+
+export const unique = <T>(arr: T[]): T[] => Array.from(new Set(arr))

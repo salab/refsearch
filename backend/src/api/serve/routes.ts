@@ -8,9 +8,11 @@ import {
   deleteRepositoryHandler,
 } from './delete.js'
 import { deleteToolCacheHandler, importToolCacheHandler } from './tool-caches.js'
+import { postRefactoringsHandler } from './refactorings.js'
 
 export const registerRoutes = (app: Express): void => {
   app.get('/api/refactorings', searchRequestHandler(refCol, 'commit.date'))
+  app.post('/api/refactorings', postRefactoringsHandler)
   app.get('/api/refactorings/:id', retrieveDocumentHandler(refCol))
   app.delete('/api/refactorings/:id', deleteDocumentHandler(deleteRefactoringHandler))
   app.get('/api/commits', searchRequestHandler(commitsCol, 'date'))
