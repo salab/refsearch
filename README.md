@@ -41,7 +41,8 @@ e.g. `https://github.com/gradle/gradle`
 
 Once submitted, RefSearch runners will automatically pick the jobs up (wait 1 minute at max),
 and start detecting refactorings using RefactoringMiner and RefDiff.
-Therefore, only refactorings in Java language are recognized.
+
+While RefSearch in itself is language-agnostic, since these detector tools only (mainly) support Java, only Java refactorings are detected.
 
 ### View Detected Refactorings
 
