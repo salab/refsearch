@@ -1,4 +1,4 @@
-FROM gradle:8.6.0-jdk17 AS builder
+FROM gradle:8.6.0-jdk21 AS builder
 
 WORKDIR /work
 
@@ -10,7 +10,7 @@ COPY . .
 RUN gradle jar --no-daemon
 
 
-FROM amazoncorretto:17 AS runner
+FROM amazoncorretto:21 AS runner
 
 WORKDIR /work
 

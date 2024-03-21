@@ -1,4 +1,4 @@
-FROM gradle:8.6.0-jdk17 AS builder
+FROM gradle:8.6.0-jdk21 AS builder
 
 WORKDIR /work
 
@@ -10,14 +10,14 @@ COPY . .
 RUN gradle jar --no-daemon
 
 
-FROM amazoncorretto:17 AS runner
+FROM amazoncorretto:21 AS runner
 
 WORKDIR /work
 
 RUN yum install -y git
 
 # For refdiff-js
-# With amazoncorretto:17-alpine, jdk crashes for some reason
+# With amazoncorretto:21-alpine, jdk crashes for some reason
 # node v18 needs glibc 2.27 or 2.28 (meanwhile amazoncorretto:17 has 2.26)
 RUN curl -sL https://rpm.nodesource.com/setup_16.x | bash -
 RUN yum install -y nodejs && \
