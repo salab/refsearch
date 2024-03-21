@@ -14,23 +14,23 @@ jobs:
         include:
           - name: refsearch-backend
             context: .
-            file: "{context}/backend.Dockerfile"
+            file: ./backend.Dockerfile
             target: api-runner
           - name: refsearch-runner
             context: .
-            file: "{context}/backend.Dockerfile"
+            file: ./backend.Dockerfile
             target: job-runner
           - name: refsearch-frontend
             context: .
-            file: "{context}/frontend.Dockerfile"
+            file: ./frontend.Dockerfile
             target: runner
           - name: refsearch-rminer
             context: ./tools/refactoringminer
-            file: "{context}/Dockerfile"
+            file: ./tools/refactoringminer/Dockerfile
             target: runner
           - name: refsearch-refdiff
             context: ./tools/refdiff
-            file: "{context}/Dockerfile"
+            file: ./tools/refdiff/Dockerfile
             target: runner
     steps:
       - uses: actions/checkout@v4
