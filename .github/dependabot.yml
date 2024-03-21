@@ -4,10 +4,20 @@ updates:
     directory: /backend
     schedule:
       interval: monthly
+    groups:
+      non-majors:
+        update-types:
+          - "patch"
+          - "minor"
   - package-ecosystem: npm
     directory: /frontend
     schedule:
       interval: monthly
+    groups:
+      non-majors:
+        update-types:
+          - "patch"
+          - "minor"
 
   - package-ecosystem: docker
     directory: /tools/refactoringminer
