@@ -18,7 +18,7 @@ repositories {
 dependencies {
     implementation("net.sourceforge.argparse4j:argparse4j:0.9.0")
 
-    val jacksonVersion = "2.13.4"
+    val jacksonVersion = "2.17.0"
     implementation("com.fasterxml.jackson.core:jackson-core:${jacksonVersion}")
     implementation("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
     implementation("com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
