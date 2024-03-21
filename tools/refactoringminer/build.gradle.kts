@@ -23,9 +23,9 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
     implementation("com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
 
-    val rminerVersion = "2.4.0"
+    val rminerVersion = "3.0.4"
     implementation("com.github.tsantalis:refactoring-miner:${rminerVersion}")
-    implementation("org.eclipse.jgit:org.eclipse.jgit:5.13.1.202206130422-r") // should be synced with RMiner's dependent version
+    implementation("org.eclipse.jgit:org.eclipse.jgit:6.8.0.202311291450-r") // should be synced with RMiner's dependent version
 }
 
 tasks.withType<Jar> {

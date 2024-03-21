@@ -101,6 +101,11 @@ export const RMRefactoringTypes = {
   MergeCatch: 'Merge Catch',
   MergeMethod: 'Merge Method',
   SplitMethod: 'Split Method',
+  // supported by RefactoringMiner 3.0 and newer versions
+  MoveCode: 'Move Code',
+  ReplaceAnonymousWithClass: 'Replace Anonymous with Class',
+  ParametrizeTest: 'Parameterize Test',
+  AssertThrows: 'Assert Throws',
 } as const
 
 export enum RMCodeElementType {
