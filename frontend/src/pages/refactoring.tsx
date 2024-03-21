@@ -44,7 +44,7 @@ export const Refactoring: FunctionComponent = () => {
           <Commit />
           <div className='font-semibold'>Commit</div>
           <ExternalLink href={ref.commit.url} text={short} />
-          <CopyButton tooltip='Copy URL' copyText={ref.sha1} />
+          <CopyButton tooltip='Copy hash' copyText={ref.sha1} />
           <Tooltip title='View commit'>
             <Link to={`/commits/${ref.sha1}`}>
               <Search className='cursor-pointer' fontSize='small' />
