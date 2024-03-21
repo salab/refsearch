@@ -1,0 +1,57 @@
+name: Build and Publish Images
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-publish:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: refsearch-backend
+            context: .
+            file: ./backend.Dockerfile
+            target: api-runner
+          - name: refsearch-runner
+            context: .
+            file: ./backend.Dockerfile
+            target: job-runner
+          - name: refsearch-frontend
+            context: .
+            file: ./frontend.Dockerfile
+            target: runner
+          - name: refsearch-rminer
+            context: ./tools/refactoringminer
+            file: ./Dockerfile
+            target: runner
+          - name: refsearch-refdiff
+            context: ./tools/refdiff
+            file: ./Dockerfile
+            target: runner
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to GitHub Docker Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: salab
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
+          target: ${{ matrix.target }}
+          platforms: linux/amd64,linux/arm64
+          tags: ghcr.io/salab/${{ matrix.name }}:master
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
