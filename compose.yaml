@@ -94,8 +94,12 @@ services:
       REFDIFF_HOST: refdiff
       REFDIFF_PORT: 3000
       REFDIFF_BASE_PATH: /data/repos
+      # Process plugin example
+      # PROCESS_PLUGIN_MYDETECTOR_NAME: "Awesome Refactoring Detector"
+      # PROCESS_PLUGIN_MYDETECTOR_EXECUTABLE: "/plugins/example-process-plugin.sh"
     volumes:
       - ./data:/data
+      - ./example/plugins:/plugins
 
 volumes:
   caddy_data:

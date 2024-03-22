@@ -4,12 +4,13 @@ import { URLSearchParams } from 'url'
 import { humanishName } from '../../utils.js'
 import { RefDiffRefactoring } from '../../../../common/refdiff.js'
 import { HTTPStatusError } from '../error.js'
+import { memo } from '../../../../common/utils.js'
 
-const baseUrl = `http://${config.tool.refDiff.host}:${config.tool.refDiff.port}/detect`
+const baseUrl = memo(() => `http://${config().tool.refDiff.host}:${config().tool.refDiff.port}/detect`)
 
 export const detectRefDiffRefactorings = async (repoUrl: string, commit: string, timeoutSeconds: number): Promise<RefDiffRefactoring[]> => {
-  const json = await fetch(baseUrl + '?' + new URLSearchParams({
-    dir: config.tool.refDiff.baseRepoPath + '/' + humanishName(repoUrl) + '/.git',
+  const json = await fetch(baseUrl() + '?' + new URLSearchParams({
+    dir: config().tool.refDiff.baseRepoPath + '/' + humanishName(repoUrl) + '/.git',
     commit: commit,
     timeout: '' + timeoutSeconds,
   }).toString())

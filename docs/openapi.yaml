@@ -515,6 +515,7 @@ components:
       required:
         - repository
         - commit
+        - toolName
         - refactorings
       properties:
         repository:
@@ -525,6 +526,10 @@ components:
           type: string
           description: Commit SHA1 hash
           example: '6dc3fe36a9528389012e6eac9e90aeb30f300d33'
+        toolName:
+          type: string
+          description: Tool name used to detect refactoring with
+          example: 'RefactoringMiner'
         refactorings:
           type: array
           description: Refactorings

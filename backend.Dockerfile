@@ -42,6 +42,8 @@ COPY --from=builder /work/backend/out /work
 COPY package.json /work
 COPY backend/package.json /work/backend
 
+RUN sh -c 'chmod +x ./backend/src/cmd/*.js'
+
 # NOTE: "node pid 1 problem"
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["node", "backend/src/cmd/jobRunner.js"]

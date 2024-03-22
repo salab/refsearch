@@ -6,13 +6,12 @@ import {
   RefDiffNode,
   RefDiffNodeWithLines,
   RefDiffRefactoring,
-} from '../../../../common/refdiff.js'
+} from '../../../common/refdiff.js'
 import {
   PureRefactoringMeta,
   RefactoringType,
   RefactoringTypes,
-} from '../../../../common/common.js'
-import { refDiffToolName } from '../runner/refdiff.js'
+} from '../../../common/common.js'
 
 type R = PureRefactoringMeta & ProcessedRefDiffRefactoring
 
@@ -119,11 +118,6 @@ export const processRefDiffOutput = (refs: RefDiffRefactoring[]): R[] => {
     const ret: R = {
       type: typ,
       description,
-
-      meta: {
-        tool: refDiffToolName,
-      },
-
       ...process(ref),
     }
 

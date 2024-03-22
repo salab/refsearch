@@ -4,12 +4,13 @@ import { URLSearchParams } from 'url'
 import { humanishName } from '../../utils.js'
 import { RMRefactoring } from '../../../../common/rminer.js'
 import { HTTPStatusError } from '../error.js'
+import { memo } from '../../../../common/utils.js'
 
-const baseUrl = `http://${config.tool.rminer.host}:${config.tool.rminer.port}/detect`
+const baseUrl = memo(() => `http://${config().tool.rminer.host}:${config().tool.rminer.port}/detect`)
 
 export const detectRMinerRefactorings = async (repoUrl: string, commit: string, timeoutSeconds: number): Promise<RMRefactoring[]> => {
-  const json = await fetch(baseUrl + '?' + new URLSearchParams({
-    dir: config.tool.rminer.baseRepoPath + '/' + humanishName(repoUrl),
+  const json = await fetch(baseUrl() + '?' + new URLSearchParams({
+    dir: config().tool.rminer.baseRepoPath + '/' + humanishName(repoUrl),
     commit: commit,
     timeout: '' + timeoutSeconds,
   }).toString())

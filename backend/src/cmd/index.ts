@@ -10,7 +10,7 @@ const main = async () => {
   app.use(express.json())
   registerRoutes(app)
 
-  app.listen(config.port, () => console.log(`API server started on port ${config.port}`))
+  app.listen(config().port, () => console.log(`API server started on port ${config().port}`))
 }
 
 main()

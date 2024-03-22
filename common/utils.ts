@@ -26,3 +26,12 @@ export const gitHubRepoName = (url: string) => url.substring('https://github.com
 export const shortSha = (sha1: string) => sha1.substring(0, 7)
 
 export const unique = <T>(arr: T[]): T[] => Array.from(new Set(arr))
+
+export const memo = <T>(supplier: () => T): () => T => {
+  let called = false
+  let value: T
+  return () => {
+    if (!called) value = supplier()
+    return value
+  }
+}

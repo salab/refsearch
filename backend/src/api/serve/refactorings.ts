@@ -7,6 +7,7 @@ interface PostRequest extends Request {
   body: {
     repository: string
     commit: string
+    toolName: string
 
     refactorings: PureRefactoringMeta[]
   }
@@ -33,7 +34,7 @@ export const postRefactoringsHandler = async (req: PostRequest, res: Response) =
   }
 
   // Insert
-  const insertRes = await transformAndInsertRefactorings(body.repository, body.commit, body.refactorings)
+  const insertRes = await transformAndInsertRefactorings(body.repository, body.commit, body.toolName, body.refactorings)
 
   return res.status(200).json({
     message: `Inserted ${insertRes.insertedCount} document(s)`,

@@ -365,6 +365,12 @@ You can automate data processing by directly calling API via `curl` or something
 Visit [/api-doc](http://localhost:8080/api-doc) from top-right of the UI, for API documentation in OpenAPI format.
 Equivalent curl commands for each API call are also obtainable from the swagger UI.
 
+### (Advanced Usage) Using Plugins
+
+While RefSearch natively support RefactoringMiner and RefDiff, you can bring your own program to detect more refactoring instances.
+
+See [./docs/development.md](./docs/development.md) for more.
+
 ## Refactoring Types
 
 RefSearch uses the following tools under the hood to automatically detect refactorings inside repositories' commits.

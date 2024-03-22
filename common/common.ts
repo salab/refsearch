@@ -52,15 +52,15 @@ export type PureRefactoringMeta = {
 
   extractMethod?: ExtractMethodInfo
   rename?: RenameInfo
-
-  meta: {
-    tool?: string
-  }
 } & Partial<OptionalRefactoringMeta>
 export type RefactoringMeta = PureRefactoringMeta & {
   sha1: string
   repository: string
   url: string
+
+  meta: {
+    tool?: string
+  }
 
   commit: Omit<CommitMeta, '_id' | 'repository'> // Merged from commits collection on insert
 }

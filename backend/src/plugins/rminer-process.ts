@@ -1,5 +1,5 @@
 import equal from 'fast-deep-equal'
-import { PureRefactoringMeta, RefactoringMeta, RefactoringTypes } from '../../../../common/common.js'
+import { PureRefactoringMeta, RefactoringMeta, RefactoringTypes } from '../../../common/common.js'
 import {
   CodeElementInfo,
   CodeElementsMap,
@@ -7,8 +7,7 @@ import {
   RMLeftSideLocation,
   RMRefactoring,
   RMRefactoringType,
-} from '../../../../common/rminer.js'
-import { rminerToolName } from '../runner/rminer.js'
+} from '../../../common/rminer.js'
 
 type R = PureRefactoringMeta & ProcessedRMRefactoring
 
@@ -92,11 +91,6 @@ export const processRMinerOutput = (refs: RMRefactoring[]): R[] => {
     .map((r): R => ({
       type: r.type,
       description: r.description,
-
-      meta: {
-        tool: rminerToolName,
-      },
-
       ...process(r),
     }))
 
