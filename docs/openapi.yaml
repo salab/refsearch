@@ -361,7 +361,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Job'
   /jobs/{id}/retry:
-    get:
+    post:
       tags:
         - job
       summary: Retry a job
